@@ -1,0 +1,142 @@
+# Finora Flow - development and pilot stack.
+#
+# Every dependency the platform needs runs here as a Linux container, so the
+# host operating system is never part of the contract. Bring the stack up with
+# `pnpm stack:up` from the repository root.
+#
+# This file is for development and pilot only. It uses well-known local
+# credentials supplied through env/dev.env and must never be used to run a
+# production deployment.
+
+name: finora-flow-dev
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      # Deterministic collation keeps ORDER BY results stable across machines,
+      # which the visual regression fixtures depend on.
+      POSTGRES_INITDB_ARGS: "--locale=C --encoding=UTF8"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # Durable job queue: appendonly means a worker restart does not lose
+    # enqueued intake or outbox work.
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # S3-compatible object storage for immutable raw messages and documents.
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY}
+      # MinIO implements SSE-S3 through a key service, and refuses an encrypted
+      # PUT outright when none is configured. Without this, every write the API
+      # makes fails, because the API asks for encryption on every object rather
+      # than trusting a bucket default. This built-in key stands in for the KES
+      # or cloud KMS a real deployment uses, so development exercises the same
+      # encrypted path instead of a plaintext one that works locally and breaks
+      # on deploy. The key is a development value and is not a secret.
+      MINIO_KMS_SECRET_KEY: ${S3_KMS_KEY}
+    ports:
+      - "${S3_PORT:-9000}:9000"
+      - "${S3_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Creates the buckets and enables object locking plus versioning, so
+  # originals are immutable and cannot be silently overwritten.
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_BUCKET_RAW: ${S3_BUCKET_RAW}
+      S3_BUCKET_DOCUMENTS: ${S3_BUCKET_DOCUMENTS}
+      S3_BUCKET_QUARANTINE: ${S3_BUCKET_QUARANTINE}
+      S3_BUCKET_EXPORTS: ${S3_BUCKET_EXPORTS}
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $$S3_ACCESS_KEY $$S3_SECRET_KEY &&
+      for b in $$S3_BUCKET_RAW $$S3_BUCKET_DOCUMENTS $$S3_BUCKET_QUARANTINE $$S3_BUCKET_EXPORTS; do
+        mc mb --ignore-existing local/$$b &&
+        mc version enable local/$$b;
+      done &&
+      echo 'finora: object storage ready'
+      "
+
+  # Malware scanning. Every attachment is scanned before any parser or
+  # preview touches it.
+  clamav:
+    image: clamav/clamav:stable
+    restart: unless-stopped
+    ports:
+      - "${CLAMAV_PORT:-3310}:3310"
+    volumes:
+      - clamav-data:/var/lib/clamav
+    healthcheck:
+      # Official image no longer ships `clamdcheck`; probe the TCP command
+      # channel the API client uses (newline protocol is enough for liveness).
+      test: ["CMD-SHELL", "echo PING | nc -w 2 127.0.0.1 3310 | grep -q PONG"]
+      interval: 20s
+      timeout: 10s
+      retries: 30
+      start_period: 180s
+
+  # Greenmail provides IMAP, IMAPS, SMTP and SMTPS in one container, which is
+  # what the mailbox worker integration tests need. Mailpit was rejected here
+  # because it does not serve IMAP.
+  greenmail:
+    image: greenmail/standalone:2.1.9
+    restart: unless-stopped
+    environment:
+      GREENMAIL_OPTS: >-
+        -Dgreenmail.setup.test.all
+        -Dgreenmail.hostname=0.0.0.0
+        -Dgreenmail.auth.disabled
+        -Dgreenmail.verbose
+    ports:
+      - "${IMAP_PORT:-3143}:3143"
+      - "${IMAPS_PORT:-3993}:3993"
+      - "${SMTP_PORT:-3025}:3025"
+      - "${SMTPS_PORT:-3465}:3465"
+      - "${GREENMAIL_API_PORT:-8085}:8080"
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:
+  clamav-data:

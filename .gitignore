@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.venv/
+__pycache__/
+*.py[cod]
+
+# Build output
+dist/
+build/
+*.egg-info/
+.vite/
+storybook-static/
+
+# Test and tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+coverage/
+htmlcov/
+.coverage
+playwright-report/
+test-results/
+
+# Secrets and local configuration. Never commit real credentials.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+deploy/containers/env/*.env
+!deploy/containers/env/*.example
+
+# Local data volumes
+deploy/containers/.data/
+
+# Visual regression: baselines under `baselines/` are committed and reviewed.
+# Everything else the run produces is not, and the saved sessions are credentials.
+apps/web/tests/visual/.output/
+apps/web/tests/visual/.auth/
+apps/web/tests/visual/.fixtures/
+apps/web/tests/visual/**/*-actual.png
+apps/web/tests/visual/**/*-diff.png
+
+# Raw design uploads kept locally. Processed, optimised assets are committed
+# under apps/web/src/assets/brand and docs/design/references instead.
+/Executive_Signature_Flow_Reference.png
+/ChatGPT Image *.png
+/*-*-*-*-*.png
+
+# Throwaway screenshots produced during development review.
+apps/web/scratch-shots/
+apps/web/tmp-shots/
+
+# Editor and OS
+.DS_Store
+Thumbs.db
+.idea/
+*.swp

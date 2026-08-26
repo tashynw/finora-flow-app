@@ -1,0 +1,283 @@
+/*
+ * Motion system, section 8 of the implementation standard.
+ *
+ * Motion reinforces hierarchy and continuity. It must never delay a financial
+ * action, so every duration here is short enough that a user can act through it.
+ */
+
+@keyframes finora-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Page change: opacity plus a 6px settle. No dramatic slide. */
+@keyframes finora-page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modal: fade with a scale from 0.98. */
+@keyframes finora-modal-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes finora-drawer-enter {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Restrained shimmer for extraction in progress. Always paired with text, never
+ * left running indefinitely without explanation. */
+@keyframes finora-shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+.motion-page-enter {
+  animation: finora-page-enter var(--duration-standard) var(--ease-enter) both;
+}
+
+.motion-fade-in {
+  animation: finora-fade-in var(--duration-fast) var(--ease-standard) both;
+}
+
+.motion-modal-enter {
+  animation: finora-modal-enter var(--duration-fast) var(--ease-enter) both;
+}
+
+.motion-drawer-enter {
+  animation: finora-drawer-enter var(--duration-standard) var(--ease-enter) both;
+}
+
+.motion-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    var(--color-surface-subtle) 25%,
+    var(--color-primary-50) 37%,
+    var(--color-surface-subtle) 63%
+  );
+  background-size: 200% 100%;
+  animation: finora-shimmer 1.4s ease-in-out infinite;
+}
+
+/* Card hover: border emphasis plus one step of elevation, nothing more. */
+.motion-card-hover {
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.motion-card-hover:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* Button press: 90ms scale to 0.985 and back. */
+.motion-press {
+  transition: transform var(--duration-instant) var(--ease-standard);
+}
+
+.motion-press:active {
+  transform: scale(0.985);
+}
+
+/* Status change: colour fades, text stays readable throughout. */
+.motion-status {
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+
+/*
+ * Signature ambience, section 8.4. Reserved for launch visuals and executive
+ * surfaces. Large, soft and slow — never fast enough to distract from a figure
+ * or a decision. Every effect below is decorative and is switched off entirely
+ * under prefers-reduced-motion by the block at the end of this file.
+ */
+
+/* Aurora: two oversized, blurred colour fields drifting behind the hero. */
+@keyframes finora-aurora-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(7%, 5%, 0) scale(1.18);
+  }
+}
+
+@keyframes finora-aurora-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.12);
+  }
+  50% {
+    transform: translate3d(-6%, -7%, 0) scale(1);
+  }
+}
+
+/* Gentle vertical float for a single raised element. */
+@keyframes finora-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+/* Light sweep across text or a pill. Paired with content, never standalone. */
+@keyframes finora-shine-sweep {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* A single meteor streak. A handful, staggered, at low opacity. */
+@keyframes finora-meteor {
+  0% {
+    transform: rotate(var(--meteor-angle, 215deg)) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--meteor-angle, 215deg)) translateX(-760px);
+    opacity: 0;
+  }
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: var(--radius-pill);
+  filter: blur(64px);
+  will-change: transform;
+  pointer-events: none;
+}
+
+.animate-aurora-a {
+  animation: finora-aurora-a 20s var(--ease-standard) infinite;
+}
+
+.animate-aurora-b {
+  animation: finora-aurora-b 26s var(--ease-standard) infinite;
+}
+
+.animate-float {
+  animation: finora-float 6s ease-in-out infinite;
+}
+
+.shiny-text {
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: finora-shine-sweep 4s linear infinite;
+}
+
+.meteor {
+  position: absolute;
+  height: 1px;
+  width: 90px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(
+    90deg,
+    var(--color-text-inverse),
+    transparent
+  );
+  will-change: transform, opacity;
+  pointer-events: none;
+  animation: finora-meteor linear infinite;
+}
+
+/*
+ * Reduced motion.
+ *
+ * Decorative and looping motion is removed entirely; state changes remain but
+ * become instant. Progress and status must still be conveyed, just without
+ * animation, so the product stays complete rather than degraded.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .motion-shimmer {
+    animation: none;
+    background-image: none;
+    background-color: var(--color-surface-subtle);
+  }
+
+  .motion-card-hover:hover {
+    transform: none;
+  }
+
+  .motion-press:active {
+    transform: none;
+  }
+
+  .motion-page-enter,
+  .motion-fade-in,
+  .motion-modal-enter,
+  .motion-drawer-enter {
+    animation: finora-fade-in 0.01ms both;
+  }
+
+  /* Decorative ambience: hold a calm, legible static state. */
+  .animate-aurora-a,
+  .animate-aurora-b,
+  .animate-float {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .meteor {
+    display: none !important;
+  }
+
+  /* A frozen sweep can leave clipped text invisible; fall back to solid ink. */
+  .shiny-text {
+    animation: none !important;
+    background: none !important;
+    color: var(--color-text-inverse);
+    -webkit-text-fill-color: currentColor;
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "@finora/shared-types",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./api": "./src/generated/api.ts"
+  },
+  "scripts": {
+    "generate": "openapi-typescript ./openapi.json --output ./src/generated/api.ts --alphabetize",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.9.1",
+    "typescript": "^5.9.3"
+  }
+}

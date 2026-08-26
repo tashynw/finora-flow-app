@@ -1,0 +1,16 @@
+{
+  "plugins": {
+    "context7-plugin": {
+      "enabled": true
+    },
+    "higgsfield": {
+      "enabled": true
+    },
+    "canva": {
+      "enabled": true
+    },
+    "figma": {
+      "enabled": true
+    }
+  }
+}
