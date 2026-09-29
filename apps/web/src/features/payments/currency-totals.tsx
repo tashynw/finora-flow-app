@@ -41,7 +41,7 @@ export function CurrencyTotals({
     return (
       <p
         className={cn(
-          'm-0 text-[var(--text-body-sm)] text-[var(--color-text-subtle)]',
+          'm-0 text-[length:var(--text-body-sm)] text-[var(--color-text-subtle)]',
           align === 'right' && 'text-right',
           className,
         )}

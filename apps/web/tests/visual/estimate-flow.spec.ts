@@ -95,7 +95,7 @@ async function raiseDraft(page: Page): Promise<string> {
   await settle(page);
   await page
     .getByRole('group', { name: 'Estimates actions' })
-    .getByRole('button', { name: /new estimate/i })
+    .getByRole('button', { name: /create estimate/i })
     .click();
   await page.waitForURL(/\/estimates\/[0-9a-f-]{36}$/);
   await settle(page);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plus, Receipt, Search } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import type { InvoiceSummary } from '@finora/shared-types';
 
@@ -8,12 +8,15 @@ import { cn } from '@/lib/utils';
 import { formatDate } from '@/lib/dates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { DataTable, type Column } from '@/components/ui/data-table';
+import { ViewTabs } from '@/components/ui/view-tabs';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/field';
 import { SkeletonText } from '@/components/ui/skeleton';
 import { StatusBadge, ToneBadge } from '@/components/workflow/status-badge';
 import { useAuth } from '@/features/auth/auth-context';
 import { PageHeader } from '@/features/shared/page-header';
+import { StatBand } from '@/features/shared/stat-band';
 import { blockerSummary, dueDescriptor } from '@/features/invoices/invoice-vocabulary';
 import {
   NO_FILTERS,
@@ -21,6 +24,7 @@ import {
   type InvoiceFilters,
   useCreateInvoice,
   useInvoices,
+  useInvoiceSummary,
 } from '@/features/invoices/use-invoices';
 
 /**
@@ -95,76 +99,63 @@ const VIEWS: RegisterView[] = [
   },
 ];
 
-function InvoiceRow({ invoice }: { invoice: InvoiceSummary }) {
-  const due = dueDescriptor(invoice.days_until_due);
-  const blockers = blockerSummary(invoice.problem_count, invoice.blocker_count);
-
-  return (
-    <li className="border-b border-[var(--color-divider)] last:border-b-0">
-      <Link
-        to={`/invoices/${invoice.id}`}
-        className={cn(
-          'motion-interactive flex flex-col gap-[var(--space-2)] px-[var(--space-5)] py-[var(--space-4)]',
-          'no-underline hover:bg-[var(--color-surface-subtle)]',
-          'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]',
-          'sm:flex-row sm:items-center sm:gap-[var(--space-5)]',
-        )}
-      >
-        <div className="min-w-0 flex-1">
-          <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-            <span className="tabular text-[var(--text-caption)] text-[var(--color-text-subtle)]">
-              {invoice.reference}
-            </span>
-            <span className="truncate font-semibold text-[var(--color-text-strong)]">
-              {invoice.vendor_name || 'No supplier yet'}
-            </span>
-            {invoice.invoice_number ? (
-              <span className="tabular text-[var(--text-caption)] text-[var(--color-text-subtle)]">
-                their no. {invoice.invoice_number}
-              </span>
-            ) : null}
-          </p>
-          <p className="m-0 truncate text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-            {invoice.description || 'No description yet'}
-          </p>
-        </div>
-
-        <div className="flex shrink-0 flex-wrap items-center gap-[var(--space-4)]">
-          {/* The due date reads as a judgement rather than a date, because
-              "overdue by 4 days" is the fact somebody is scanning for and
-              "12 Aug" makes them work it out for every row. */}
-          {due ? (
-            <span
-              // Counted from today, so the same row reads differently tomorrow.
-              // Hidden from the visual baselines, which keeps its space.
-              data-visual-volatile
-              className={cn(
-                'text-[var(--text-caption)]',
-                due.tone === 'danger'
-                  ? 'font-semibold text-[var(--color-danger-700)]'
-                  : due.tone === 'warning'
-                    ? 'font-semibold text-[var(--color-warning-700)]'
-                    : 'text-[var(--color-text-subtle)]',
-              )}
-              title={invoice.due_date ? `Payment due ${formatDate(invoice.due_date)}` : undefined}
-            >
-              {due.label}
-            </span>
-          ) : null}
-
-          {invoice.awaiting_labels.length > 0 ? (
-            <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-              with {invoice.awaiting_labels.join(' and ')}
-            </span>
-          ) : null}
-
+const invoiceColumns: Column<InvoiceSummary>[] = [
+  {
+    key: 'reference',
+    header: 'Reference',
+    width: 'w-40',
+    cell: (invoice) => (
+      <span className="flex flex-col">
+        <span className="tabular font-medium text-[var(--color-text-strong)]">
+          {invoice.reference}
+        </span>
+        {invoice.invoice_number ? (
+          <span className="tabular text-[11px] text-[var(--color-text-subtle)]">
+            their no. {invoice.invoice_number}
+          </span>
+        ) : null}
+      </span>
+    ),
+  },
+  {
+    key: 'counterparty',
+    header: 'Counterparty',
+    cell: (invoice) => (
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate">{invoice.vendor_name || 'No supplier yet'}</span>
+        {invoice.description ? (
+          <span className="truncate text-[11px] text-[var(--color-text-subtle)]">
+            {invoice.description}
+          </span>
+        ) : null}
+      </span>
+    ),
+  },
+  {
+    key: 'amount',
+    header: 'Amount',
+    width: 'w-36',
+    cell: (invoice) => (
+      <span className="tabular">{invoice.total_formatted ?? '—'}</span>
+    ),
+  },
+  {
+    key: 'waiting',
+    header: 'Waiting on',
+    hideBelow: 'md',
+    cell: (invoice) => {
+      const due = dueDescriptor(invoice.days_until_due);
+      const blockers = blockerSummary(invoice.problem_count, invoice.blocker_count);
+      const waitingOn = invoice.awaiting_labels.join(', ');
+      return (
+        <span className="flex flex-col">
+          <span>{waitingOn || '—'}</span>
           {/* A control that has fired is red; a form left unfinished is amber.
-              They are different work for different people, and one colour for
-              both would send every overrun to the person who typed it in. */}
+              They are different work for different people. */}
           {blockers ? (
             <span
               className={cn(
-                'text-[var(--text-body-sm)] font-semibold',
+                'text-[11px] font-medium',
                 invoice.blocker_count > 0
                   ? 'text-[var(--color-danger-700)]'
                   : 'text-[var(--color-warning-700)]',
@@ -172,23 +163,52 @@ function InvoiceRow({ invoice }: { invoice: InvoiceSummary }) {
             >
               {blockers}
             </span>
+          ) : due && due.tone !== 'neutral' ? (
+            <span
+              // Counted from today, so the same row reads differently tomorrow.
+              // Hidden from the visual baselines, which keeps its space.
+              data-visual-volatile
+              className={cn(
+                'text-[11px] font-medium',
+                due.tone === 'danger'
+                  ? 'text-[var(--color-danger-700)]'
+                  : 'text-[var(--color-warning-700)]',
+              )}
+              title={
+                invoice.due_date ? `Payment due ${formatDate(invoice.due_date)}` : undefined
+              }
+            >
+              {due.label}
+            </span>
           ) : null}
-
-          <span className="tabular min-w-[8rem] text-right font-semibold text-[var(--color-text-strong)]">
-            {invoice.total_formatted ?? '—'}
-          </span>
-
-          {invoice.awaiting_my_sign_off ? (
-            <ToneBadge label="Confirm receipt" tone="warning" />
-          ) : invoice.awaiting_me ? (
-            <ToneBadge label="Yours to decide" tone="progress" />
-          ) : null}
+        </span>
+      );
+    },
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    width: 'w-44',
+    cell: (invoice) => (
+      <span className="relative z-10 flex flex-wrap items-center gap-[var(--space-2)]">
+        {invoice.awaiting_my_sign_off ? (
+          <ToneBadge label="Confirm receipt" tone="warning" />
+        ) : invoice.awaiting_me ? (
+          <ToneBadge label="Yours to decide" tone="progress" />
+        ) : (
           <StatusBadge state={invoice.state} />
-        </div>
-      </Link>
-    </li>
-  );
-}
+        )}
+      </span>
+    ),
+  },
+  {
+    key: 'owner',
+    header: 'Owner',
+    width: 'w-40',
+    hideBelow: 'lg',
+    cell: (invoice) => <span>{invoice.requester_label ?? '—'}</span>,
+  },
+];
 
 /**
  * The invoice register.
@@ -228,6 +248,7 @@ export function InvoiceRegisterPage() {
   const filters: InvoiceFilters = { ...view.filters, search };
 
   const { data, isLoading, isError, error } = useInvoices(filters, offset);
+  const summary = useInvoiceSummary();
   const create = useCreateInvoice();
 
   const total = data?.total ?? 0;
@@ -241,11 +262,41 @@ export function InvoiceRegisterPage() {
     <>
       <PageHeader
         title="Invoices"
-        purpose="Supplier bills recorded for payment, what each one is billed against, and who has to act on it next."
+        purpose="Invoices, receipt confirmation and coding status."
+        toolbar={
+          <div className="flex flex-col gap-[var(--space-3)] md:flex-row md:items-center md:justify-between">
+            <ViewTabs
+              tabs={views}
+              value={view.id}
+              onChange={(id) => {
+                setViewId(id);
+                setOffset(0);
+              }}
+            />
+            <div className="relative md:mr-[var(--space-3)] md:w-64">
+              <Search
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-[var(--space-3)] size-4 -translate-y-1/2 text-[var(--color-text-subtle)]"
+              />
+              <Input
+                type="search"
+                value={search}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setOffset(0);
+                }}
+                placeholder="Reference, supplier or number"
+                aria-label="Search invoices"
+                className="h-9 pl-9 text-[12px]"
+              />
+            </div>
+          </div>
+        }
         actions={
           mayCreate ? (
             <Button
               variant="primary"
+              size="sm"
               onClick={() => {
                 create.mutate(
                   {},
@@ -256,10 +307,20 @@ export function InvoiceRegisterPage() {
               loadingLabel="Creating"
             >
               <Plus aria-hidden="true" className="size-4" />
-              Record an invoice
+              Create invoice
             </Button>
           ) : null
         }
+      />
+
+      <StatBand
+        summary={summary.data}
+        isLoading={summary.isLoading}
+        meta={{
+          count: 'All live invoices',
+          outstanding: 'Approved, not yet paid',
+          paid: 'Marked paid',
+        }}
       />
 
       {create.isError ? (
@@ -268,7 +329,7 @@ export function InvoiceRegisterPage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               The invoice could not be created
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {create.error instanceof Error
                 ? create.error.message
                 : 'The request did not complete.'}
@@ -277,50 +338,13 @@ export function InvoiceRegisterPage() {
         </Card>
       ) : null}
 
-      <div className="mb-[var(--space-4)] flex flex-col gap-[var(--space-3)] lg:flex-row lg:items-center lg:justify-between">
-        <div role="group" aria-label="Choose a view" className="flex flex-wrap gap-[var(--space-2)]">
-          {views.map((option) => (
-            <Button
-              key={option.id}
-              variant={viewId === option.id ? 'primary' : 'ghost'}
-              size="sm"
-              aria-pressed={viewId === option.id}
-              onClick={() => {
-                setViewId(option.id);
-                setOffset(0);
-              }}
-            >
-              {option.label}
-            </Button>
-          ))}
-        </div>
-
-        <div className="relative lg:w-80">
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-[var(--space-3)] size-4 -translate-y-1/2 text-[var(--color-text-subtle)]"
-          />
-          <Input
-            type="search"
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setOffset(0);
-            }}
-            placeholder="Reference, supplier or invoice number"
-            aria-label="Search invoices"
-            className="pl-9"
-          />
-        </div>
-      </div>
-
       {isError ? (
         <Card className="mb-[var(--space-6)] border-[var(--color-danger-600)]">
           <CardContent>
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               Could not load the register
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {error instanceof Error ? error.message : 'The request did not complete.'} Nothing
               has been lost; every invoice is stored and will still be here.
             </p>
@@ -328,13 +352,15 @@ export function InvoiceRegisterPage() {
         </Card>
       ) : null}
 
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-[var(--space-5)]">
-              <SkeletonText lines={6} />
-            </div>
-          ) : items.length === 0 ? (
+      {isLoading ? (
+        <Card>
+          <CardContent>
+            <SkeletonText lines={6} />
+          </CardContent>
+        </Card>
+      ) : items.length === 0 ? (
+        <Card>
+          <CardContent className="p-0">
             <EmptyState
               icon={searching ? Search : Receipt}
               title={searching ? `Nothing matches “${search.trim()}”` : view.empty}
@@ -357,15 +383,17 @@ export function InvoiceRegisterPage() {
                 ? {}
                 : { secondaryAction: { label: 'Show everything', onClick: () => setViewId('all') } })}
             />
-          ) : (
-            <ul className="m-0 list-none p-0">
-              {items.map((invoice) => (
-                <InvoiceRow key={invoice.id} invoice={invoice} />
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : (
+        <DataTable
+          ariaLabel="Invoices"
+          columns={invoiceColumns}
+          rows={items}
+          getRowKey={(invoice) => invoice.id}
+          getRowHref={(invoice) => `/invoices/${invoice.id}`}
+        />
+      )}
 
       {total > PAGE_SIZE ? (
         <nav
@@ -374,7 +402,7 @@ export function InvoiceRegisterPage() {
         >
           <p
             aria-live="polite"
-            className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]"
+            className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]"
           >
             Showing {offset + 1} to {showingTo} of {total}
           </p>

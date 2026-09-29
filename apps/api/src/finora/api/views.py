@@ -229,3 +229,43 @@ def transition_out(
         reason=reason,
         occurred_at=occurred_at,
     )
+
+
+# --------------------------------------------------------- register summaries
+
+
+class RegisterStatOut(BaseModel):
+    """One headline figure in a register's stat band, already display-ready.
+
+    The value is a formatted string rather than a number so a stat band can mix
+    money, counts and durations without the client re-deciding how each is
+    written. The tone is advisory colour only; the label beside it carries the
+    meaning.
+    """
+
+    key: str
+    label: str
+    value: str
+    tone: str = "neutral"
+
+
+class RegisterSliceOut(BaseModel):
+    """One wedge of a register's status donut."""
+
+    label: str
+    count: int
+    tone: str
+
+
+class RegisterSummaryOut(BaseModel):
+    """A register's whole-dataset headline figures and status mix.
+
+    Every figure is counted or summed from the same records the register lists,
+    under the same visibility rules, so a stat band never claims more than the
+    caller could reach by opening the table behind it. An empty register returns
+    zeros, never a blank or a guess.
+    """
+
+    count: int
+    stats: list[RegisterStatOut]
+    status_mix: list[RegisterSliceOut]

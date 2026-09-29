@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
-import { CreditCard, Upload } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { CreditCard, Plus, Upload } from 'lucide-react';
 
 import type { CreditCardPeriodSummary, CreditCardStanding } from '@finora/shared-types';
 
-import { cn } from '@/lib/utils';
+import { formatDate } from '@/lib/dates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { DataTable, type Column } from '@/components/ui/data-table';
+import { ViewTabs } from '@/components/ui/view-tabs';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Field, Input, Select } from '@/components/ui/field';
 import { SkeletonText } from '@/components/ui/skeleton';
@@ -39,7 +40,7 @@ const VIEWS: RegisterView[] = [
     standing: 'open',
     empty: 'No open statement periods',
     emptyExplanation:
-      'Import a statement to open a period. Coding each line and closing the period are what make the charges accountable.',
+      'Every imported statement has been closed, or none has been imported yet. Coding each line and closing the period are what make the charges accountable.',
   },
   {
     id: 'closed',
@@ -57,40 +58,74 @@ const VIEWS: RegisterView[] = [
   },
 ];
 
-function PeriodRow({ row }: { row: CreditCardPeriodSummary }) {
-  return (
-    <li className="border-b border-[var(--color-divider)] last:border-b-0">
-      <Link
-        to={`/credit-cards/${row.id}`}
-        className={cn(
-          'motion-interactive flex flex-col gap-[var(--space-2)] px-[var(--space-5)] py-[var(--space-4)]',
-          'no-underline hover:bg-[var(--color-surface-subtle)]',
-          'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]',
-          'sm:flex-row sm:items-center sm:gap-[var(--space-5)]',
-        )}
-      >
-        <div className="min-w-0 flex-1">
-          <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-            <span className="tabular text-[var(--text-caption)] text-[var(--color-text-subtle)]">
-              {row.reference}
-            </span>
-            <span className="truncate font-semibold text-[var(--color-text-strong)]">
-              {row.card.label} ·••• {row.card.last_four}
-            </span>
-          </p>
-          <p className="m-0 truncate text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-            {row.period_start} – {row.period_end} · {row.transaction_count} lines ·{' '}
-            {periodWaitingOn(row.uncoded_count, row.missing_receipt_count, row.standing)}
-          </p>
-        </div>
-        <ToneBadge
-          tone={row.standing === 'closed' ? 'neutral' : 'warning'}
-          label={row.standing_label}
-        />
-      </Link>
-    </li>
-  );
-}
+const periodColumns: Column<CreditCardPeriodSummary>[] = [
+  {
+    key: 'reference',
+    header: 'Reference',
+    width: 'w-44',
+    cell: (row) => (
+      <span className="flex flex-col">
+        <span className="tabular font-medium text-[var(--color-text-strong)]">
+          {row.reference}
+        </span>
+        <span className="tabular text-[11px] text-[var(--color-text-subtle)]">
+          {formatDate(row.period_start)} – {formatDate(row.period_end)}
+        </span>
+      </span>
+    ),
+  },
+  {
+    key: 'card',
+    header: 'Card',
+    cell: (row) => (
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate">
+          {row.card.label} ·••• {row.card.last_four}
+        </span>
+        <span className="truncate text-[11px] text-[var(--color-text-subtle)]">
+          Statement {formatDate(row.statement_date)}
+        </span>
+      </span>
+    ),
+  },
+  {
+    key: 'lines',
+    header: 'Lines',
+    width: 'w-28',
+    cell: (row) => (
+      <span className="flex flex-col">
+        <span className="tabular">{row.transaction_count}</span>
+        <span className="text-[11px] text-[var(--color-text-subtle)]">{row.currency}</span>
+      </span>
+    ),
+  },
+  {
+    key: 'waiting',
+    header: 'Waiting on',
+    hideBelow: 'md',
+    cell: (row) => (
+      <span>{periodWaitingOn(row.uncoded_count, row.missing_receipt_count, row.standing)}</span>
+    ),
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    width: 'w-36',
+    cell: (row) => (
+      <ToneBadge
+        tone={row.standing === 'closed' ? 'neutral' : 'warning'}
+        label={row.standing_label}
+      />
+    ),
+  },
+  {
+    key: 'cardholder',
+    header: 'Cardholder',
+    width: 'w-40',
+    hideBelow: 'lg',
+    cell: (row) => <span>{row.card.cardholder_name}</span>,
+  },
+];
 
 export function CreditCardRegisterPage() {
   const { user } = useAuth();
@@ -116,28 +151,42 @@ export function CreditCardRegisterPage() {
   const rows = periods.data ?? [];
   const cardOptions = useMemo(() => cards.data ?? [], [cards.data]);
 
+  // Until a card exists the same form registers one first, so the action says so.
+  const needsCard = !cards.isLoading && cardOptions.length === 0;
+
   return (
-    <div className="flex flex-col gap-[var(--space-6)]">
+    <>
       <PageHeader
         title="Credit cards"
-        purpose={PERIOD_PURPOSE}
+        purpose="Statement periods, coding progress and close controls."
+        toolbar={<ViewTabs tabs={VIEWS} value={view.id} onChange={setViewId} />}
         actions={
           canCode ? (
-            <Button type="button" onClick={() => setShowImport((open) => !open)}>
-              <Upload className="size-4" aria-hidden />
-              Import statement
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              aria-expanded={showImport}
+              onClick={() => setShowImport((open) => !open)}
+            >
+              {needsCard ? (
+                <Plus className="size-4" aria-hidden />
+              ) : (
+                <Upload className="size-4" aria-hidden />
+              )}
+              {needsCard ? 'Register card' : 'Import statement'}
             </Button>
           ) : null
         }
       />
 
       {showImport && canCode ? (
-        <Card className="surface-card">
+        <Card className="surface-card mb-[var(--space-5)]">
           <CardContent className="flex flex-col gap-[var(--space-4)] p-[var(--space-5)]">
-            <h2 className="m-0 text-[var(--text-title-sm)] text-[var(--color-text-strong)]">
+            <h2 className="m-0 text-[length:var(--text-title-sm)] text-[var(--color-text-strong)]">
               Import a statement
             </h2>
-            <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               CSV with columns date, merchant, amount and cardholder. The same file
               cannot be imported twice against the same card.
             </p>
@@ -311,55 +360,44 @@ export function CreditCardRegisterPage() {
         </Card>
       ) : null}
 
-      <div
-        role="group"
-        aria-label="Choose a view"
-        className="flex flex-wrap gap-[var(--space-2)]"
-      >
-        {VIEWS.map((item) => (
-          <Button
-            key={item.id}
-            type="button"
-            size="sm"
-            variant={item.id === view.id ? 'primary' : 'secondary'}
-            aria-pressed={item.id === view.id}
-            onClick={() => setViewId(item.id)}
-          >
-            {item.label}
-          </Button>
-        ))}
-      </div>
-
-      <Card className="surface-card overflow-hidden">
-        {periods.isLoading ? (
-          <CardContent className="p-[var(--space-5)]">
+      {periods.isLoading ? (
+        <Card>
+          <CardContent>
             <SkeletonText lines={4} />
           </CardContent>
-        ) : rows.length === 0 ? (
-          <EmptyState
-            icon={CreditCard}
-            title={view.empty}
-            explanation={view.emptyExplanation}
-            nextStep={
-              canCode
-                ? 'Import a statement to open a period.'
-                : 'Statements are imported by the people who code charges. Nothing is needed from you here.'
-            }
-            {...(viewId === 'all'
-              ? {}
-              : {
-                  secondaryAction: {
-                    label: 'Show everything',
-                    onClick: () => setViewId('all'),
-                  },
-                })}
-          />
-        ) : (
-          <ul className="m-0 list-none p-0">{rows.map((row) => (
-            <PeriodRow key={row.id} row={row} />
-          ))}</ul>
-        )}
-      </Card>
-    </div>
+        </Card>
+      ) : rows.length === 0 ? (
+        <Card>
+          <CardContent className="p-0">
+            <EmptyState
+              icon={CreditCard}
+              title={view.empty}
+              explanation={view.emptyExplanation}
+              nextStep={
+                canCode
+                  ? 'Import a statement to open a period.'
+                  : 'Statements are imported by the people who code charges. Nothing is needed from you here.'
+              }
+              {...(viewId === 'all'
+                ? {}
+                : {
+                    secondaryAction: {
+                      label: 'Show everything',
+                      onClick: () => setViewId('all'),
+                    },
+                  })}
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <DataTable
+          ariaLabel="Credit-card statement periods"
+          columns={periodColumns}
+          rows={rows}
+          getRowKey={(row) => row.id}
+          getRowHref={(row) => `/credit-cards/${row.id}`}
+        />
+      )}
+    </>
   );
 }

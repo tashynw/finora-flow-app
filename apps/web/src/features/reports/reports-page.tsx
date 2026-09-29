@@ -6,15 +6,7 @@
  */
 
 import { Link } from 'react-router-dom';
-import {
-  CalendarClock,
-  ChevronRight,
-  CreditCard,
-  FileCheck2,
-  ScrollText,
-  Wallet,
-  type LucideIcon,
-} from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { PageHeader } from '@/features/shared/page-header';
@@ -25,44 +17,38 @@ type ReportLink = {
   title: string;
   description: string;
   permission: string;
-  icon: LucideIcon;
 };
 
 const REPORT_LINKS: ReportLink[] = [
   {
     to: '/audit',
     title: 'Audit trail',
-    description: 'The complete record of decisions, exports and configuration changes.',
+    description: 'Every decision, export and configuration change.',
     permission: 'audit:view',
-    icon: ScrollText,
   },
   {
     to: '/payments',
-    title: 'Payment packages / manifests',
-    description: 'Open packages and download payment manifests for bank submission.',
+    title: 'Payment manifests',
+    description: 'Payment packages and the manifests downloaded for bank submission.',
     permission: 'payment:view',
-    icon: Wallet,
   },
   {
     to: '/accruals',
     title: 'Accrual exports',
-    description: 'Period registers and finalized accrual export packs.',
+    description: 'Month-end registers and finalized export packs, by period.',
     permission: 'accrual:view',
-    icon: CalendarClock,
   },
   {
     to: '/work',
     title: 'My work queue',
-    description: 'Items waiting on you — approvals, reviews and confirmations.',
+    description: 'Everything waiting on you — approvals, reviews and confirmations.',
     permission: 'report:view',
-    icon: FileCheck2,
   },
   {
     to: '/credit-cards',
     title: 'Credit-card periods',
-    description: 'Statement periods, coding progress and period close.',
+    description: 'Open and closed statement periods, with coding progress.',
     permission: 'credit_card:view',
-    icon: CreditCard,
   },
 ];
 
@@ -80,49 +66,36 @@ export function ReportsPage() {
     <>
       <PageHeader
         title="Reports"
-        purpose="Export and review surfaces that already exist in Finora — audit trail, payment manifests, accrual packs, your work queue and credit-card periods. Analytics charts are not part of this hub."
+        purpose="Operational reports and finance control outputs."
       />
 
       {links.length === 0 ? (
-        <p className="m-0 text-[var(--text-body)] text-[var(--color-text-muted)]">
+        <p className="m-0 text-[length:var(--text-body)] text-[var(--color-text-muted)]">
           No report destinations are available with your current access. Contact an
           administrator if you need export or review rights.
         </p>
       ) : (
-        <ul className="m-0 flex list-none flex-col gap-[var(--space-3)] p-0">
+        <ul className="m-0 grid list-none grid-cols-1 gap-[var(--space-4)] p-0 md:grid-cols-2">
           {links.map((link) => (
             <li key={link.to}>
               <Link
                 to={link.to}
                 className={cn(
-                  'motion-interactive flex items-start gap-[var(--space-4)]',
-                  'rounded-[var(--radius-md)] border border-[var(--color-border)]',
-                  'bg-[var(--color-surface)] px-[var(--space-5)] py-[var(--space-4)]',
-                  'no-underline hover:bg-[var(--color-surface-subtle)]',
+                  'surface-card group motion-interactive flex h-full flex-col px-[var(--space-4)] py-[var(--space-4)]',
+                  'no-underline hover:border-[var(--color-primary-600)]',
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]',
                 )}
               >
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    'flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-md)]',
-                    'bg-[var(--color-primary-50)] text-[var(--color-primary-700)]',
-                  )}
-                >
-                  <link.icon className="size-5" />
+                <span className="text-[14px] font-semibold text-[var(--color-text-strong)]">
+                  {link.title}
                 </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block font-semibold text-[var(--color-text-strong)]">
-                    {link.title}
-                  </span>
-                  <span className="mt-1 block text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-                    {link.description}
-                  </span>
+                <span className="mt-1.5 text-[12px] text-[var(--color-text-muted)]">
+                  {link.description}
                 </span>
-                <ChevronRight
-                  aria-hidden="true"
-                  className="mt-1 size-5 shrink-0 text-[var(--color-text-subtle)]"
-                />
+                <span className="mt-auto inline-flex items-center gap-1 pt-[var(--space-4)] text-[12px] font-medium text-[var(--color-primary-600)] group-hover:underline">
+                  Open report
+                  <ArrowRight aria-hidden="true" className="size-3.5" />
+                </span>
               </Link>
             </li>
           ))}

@@ -32,6 +32,11 @@ export interface EmptyStateProps {
   nextStep: string;
   action?: EmptyStateAction;
   secondaryAction?: EmptyStateAction;
+  /**
+   * Heading level of the title. A page-level empty state sits under the page's
+   * h1; one inside a titled card or section should be a level below that.
+   */
+  titleAs?: 'h1' | 'h2' | 'h3';
   className?: string;
 }
 
@@ -40,7 +45,7 @@ function ActionButton({
   variant,
 }: {
   action: EmptyStateAction;
-  variant: 'primary' | 'ghost';
+  variant: 'primary' | 'secondary' | 'ghost';
 }) {
   if (action.to !== undefined) {
     return (
@@ -63,6 +68,7 @@ export function EmptyState({
   nextStep,
   action,
   secondaryAction,
+  titleAs: Title = 'h2',
   className,
 }: EmptyStateProps) {
   return (
@@ -85,14 +91,14 @@ export function EmptyState({
         </span>
       ) : null}
 
-      <h3 className="text-[length:var(--text-heading-3)] font-semibold text-[var(--color-text-strong)]">
+      <Title className="text-[length:var(--text-heading-3)] font-semibold text-[var(--color-text-strong)]">
         {title}
-      </h3>
+      </Title>
 
-      <p className="m-0 max-w-prose text-[var(--text-body)] text-[var(--color-text-muted)]">
+      <p className="m-0 max-w-prose text-[length:var(--text-body)] text-[var(--color-text-muted)]">
         {explanation}
       </p>
-      <p className="m-0 max-w-prose text-[var(--text-body-sm)] text-[var(--color-text)]">
+      <p className="m-0 max-w-prose text-[length:var(--text-body-sm)] text-[var(--color-text)]">
         {nextStep}
       </p>
 
@@ -100,7 +106,8 @@ export function EmptyState({
         <div className="mt-[var(--space-3)] flex flex-wrap items-center justify-center gap-[var(--space-3)]">
           {action ? <ActionButton action={action} variant="primary" /> : null}
           {secondaryAction ? (
-            <ActionButton action={secondaryAction} variant="ghost" />
+            // On its own, a ghost button reads as a line of text.
+            <ActionButton action={secondaryAction} variant={action ? 'ghost' : 'secondary'} />
           ) : null}
         </div>
       ) : null}

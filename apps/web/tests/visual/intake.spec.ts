@@ -17,7 +17,7 @@ test.describe('intake queue', () => {
     await page.goto('/intake');
     await settle(page);
 
-    await expect(page.getByRole('heading', { name: 'Intake', level: 1 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Inbox', level: 1 })).toBeVisible();
     await expect(page).toHaveScreenshot('intake-queue.png', { fullPage: true });
   });
 
@@ -34,7 +34,7 @@ test.describe('intake queue', () => {
     await page.goto('/intake');
     await settle(page);
 
-    await pageAction(page, 'Intake', /upload a document/i).click();
+    await pageAction(page, 'Inbox', /^upload$/i).click();
 
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
@@ -63,7 +63,7 @@ test.describe('intake queue', () => {
 
     // From there the page's primary action is a few tabs away rather than a few
     // dozen. Bounded, so a focus trap fails the test instead of hanging it.
-    const upload = pageAction(page, 'Intake', /upload a document/i);
+    const upload = pageAction(page, 'Inbox', /^upload$/i);
     let reached = false;
     for (let i = 0; i < 8 && !reached; i += 1) {
       await page.keyboard.press('Tab');

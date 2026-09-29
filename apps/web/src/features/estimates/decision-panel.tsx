@@ -56,7 +56,7 @@ export function DecisionPanel({
       <p className="m-0 font-semibold text-[var(--color-text-strong)]">
         Your decision as {step.level_label}
       </p>
-      <p className="mt-[var(--space-1)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+      <p className="mt-[var(--space-1)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
         You are deciding {amountFormatted}. Your name and the time are recorded against this step
         and cannot be removed.
       </p>
@@ -121,7 +121,7 @@ export function DecisionPanel({
               Back
             </Button>
             {reasonMissing ? (
-              <p className="m-0 text-[var(--text-caption)] text-[var(--color-text-muted)]">
+              <p className="m-0 text-[length:var(--text-caption)] text-[var(--color-text-muted)]">
                 A rejection needs a reason.
               </p>
             ) : null}

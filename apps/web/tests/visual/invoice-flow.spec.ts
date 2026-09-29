@@ -87,7 +87,7 @@ async function recordInvoice(page: Page): Promise<string> {
   await settle(page);
   await page
     .getByRole('group', { name: 'Invoices actions' })
-    .getByRole('button', { name: /record an invoice/i })
+    .getByRole('button', { name: /create invoice/i })
     .click();
   await page.waitForURL(/\/invoices\/[0-9a-f-]{36}$/);
   await settle(page);

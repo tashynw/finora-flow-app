@@ -12,10 +12,10 @@
 export function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-[var(--space-1)] border-b border-[var(--color-divider)] py-[var(--space-3)] last:border-b-0 sm:flex-row sm:gap-[var(--space-5)]">
-      <dt className="shrink-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)] sm:w-52">
+      <dt className="shrink-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)] sm:w-52">
         {label}
       </dt>
-      <dd className="m-0 min-w-0 text-[var(--text-body)] text-[var(--color-text-strong)]">
+      <dd className="m-0 min-w-0 text-[length:var(--text-body)] text-[var(--color-text-strong)]">
         {children}
       </dd>
     </div>

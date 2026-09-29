@@ -169,7 +169,7 @@ export function FieldCard({
         <>
           <p
             className={cn(
-              'mt-[var(--space-2)] mb-0 text-[var(--text-body-lg)]',
+              'mt-[var(--space-2)] mb-0 text-[length:var(--text-body-lg)]',
               field.text
                 ? 'font-[var(--font-mono)] text-[var(--color-text-strong)]'
                 : 'text-[var(--color-text-muted)] italic',
@@ -179,7 +179,7 @@ export function FieldCard({
           </p>
 
           {field.amount_minor_units !== null && field.currency ? (
-            <p className="mt-1 mb-0 text-[var(--text-caption)] text-[var(--color-text-subtle)]">
+            <p className="mt-1 mb-0 text-[length:var(--text-caption)] text-[var(--color-text-subtle)]">
               Stored as {field.amount_minor_units} minor units of {field.currency}.
             </p>
           ) : null}
@@ -188,7 +188,7 @@ export function FieldCard({
               what a clear reading means as well repeats the same sentence down
               the whole column, and a page of identical explanations is a page
               nobody reads, including on the one field that needed attention. */}
-          <p className="mt-[var(--space-2)] mb-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+          <p className="mt-[var(--space-2)] mb-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
             {origin.label}
             {field.review !== 'unreviewed'
               ? `. ${review.description}`
@@ -198,7 +198,7 @@ export function FieldCard({
           </p>
 
           {field.reader_text && field.reader_text !== field.text ? (
-            <p className="mt-[var(--space-2)] mb-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-[var(--space-2)] mb-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               The reader had{' '}
               <span className="font-[var(--font-mono)] line-through">{field.reader_text}</span>
               {field.correction_reason ? `. Changed because: ${field.correction_reason}` : '.'}
@@ -210,7 +210,7 @@ export function FieldCard({
               {field.adjustments.map((adjustment) => (
                 <li
                   key={adjustment.reason}
-                  className="text-[var(--text-caption)] text-[var(--color-text-subtle)]"
+                  className="text-[length:var(--text-caption)] text-[var(--color-text-subtle)]"
                 >
                   {adjustment.reason}
                 </li>
@@ -223,7 +223,7 @@ export function FieldCard({
               {field.notes.map((note) => (
                 <li
                   key={note}
-                  className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]"
+                  className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]"
                 >
                   {note}
                 </li>

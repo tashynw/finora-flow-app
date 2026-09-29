@@ -21,6 +21,11 @@
   --color-surface-raised: var(--color-surface-raised);
   --color-surface-glass: var(--color-surface-glass);
 
+  --color-heading: var(--color-text-heading);
+  --color-neutral-50: var(--color-neutral-50);
+  --color-neutral-700: var(--color-neutral-700);
+  --radius-2xl: var(--radius-2xl);
+
   --color-strong: var(--color-text-strong);
   --color-body: var(--color-text);
   --color-muted: var(--color-text-muted);
@@ -146,11 +151,24 @@
     color: transparent;
   }
 
+  /* Frosted white over the atmosphere, with a hairline that keeps the edge
+   * visible on the pale canvas. */
   .surface-card {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
+    background-color: rgb(255 255 255 / 0.8);
+    border: 1px solid rgb(226 233 248 / 0.95);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgb(70 100 180 / 0.08);
+    backdrop-filter: blur(16px);
+  }
+
+  /* The soft blue wash across the top of every product screen. */
+  .shell-atmosphere {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 220px;
+    background-image: var(--gradient-atmosphere);
+    opacity: 0.9;
+    pointer-events: none;
   }
 
   /* Glass, used sparingly: AI summary, launch imagery, command palette,

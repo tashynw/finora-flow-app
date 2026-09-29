@@ -7,11 +7,14 @@ import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { DataTable, type Column } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Field, Input, Textarea } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
+import { ViewTabs } from '@/components/ui/view-tabs';
 import { ToneBadge } from '@/components/workflow/status-badge';
+import { EmailText } from '@/features/shared/email-text';
 import { PageHeader } from '@/features/shared/page-header';
 import { useAuth } from '@/features/auth/auth-context';
 import {
@@ -23,6 +26,10 @@ import {
   type AdminUserOut,
 } from '@/features/administration/use-users';
 
+function roleLabel(id: string): string {
+  return ROLE_OPTIONS.find((role) => role.id === id)?.label ?? id.replaceAll('_', ' ');
+}
+
 function RoleEditor({
   selected,
   onChange,
@@ -32,7 +39,7 @@ function RoleEditor({
 }) {
   return (
     <fieldset className="m-0 border-0 p-0">
-      <legend className="mb-[var(--space-2)] text-[var(--text-body-sm)] font-semibold">
+      <legend className="mb-[var(--space-2)] text-[length:var(--text-body-sm)] font-semibold">
         Roles
       </legend>
       <ul className="m-0 flex list-none flex-col gap-[var(--space-2)] p-0">
@@ -57,7 +64,7 @@ function RoleEditor({
                   <span className="block font-medium text-[var(--color-text-strong)]">
                     {role.label}
                   </span>
-                  <span className="block text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                  <span className="block text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                     {role.help}
                   </span>
                 </span>
@@ -66,7 +73,7 @@ function RoleEditor({
           );
         })}
       </ul>
-      <p className="mt-[var(--space-3)] m-0 text-[var(--text-caption)] text-[var(--color-text-subtle)]">
+      <p className="mt-[var(--space-3)] m-0 text-[length:var(--text-caption)] text-[var(--color-text-subtle)]">
         Administrator and Approver cannot be combined: editing the approval matrix
         and deciding approvals must sit with different people.
       </p>
@@ -273,111 +280,161 @@ export function UsersPage() {
 
   const rows = users.data ?? [];
 
+  const columns: Column<AdminUserOut>[] = [
+    {
+      key: 'name',
+      header: 'Name',
+      width: 'w-52',
+      cell: (row) => (
+        <span
+          className={cn(
+            'font-semibold',
+            row.is_active ? 'text-[var(--color-text-strong)]' : 'text-[var(--color-text-muted)]',
+          )}
+        >
+          {row.display_name}
+        </span>
+      ),
+    },
+    {
+      key: 'email',
+      header: 'Email',
+      cell: (row) => <EmailText email={row.email} />,
+    },
+    {
+      key: 'department',
+      header: 'Department',
+      width: 'w-40',
+      hideBelow: 'lg',
+      cell: (row) => (
+        <span className={row.department ? undefined : 'text-[var(--color-text-subtle)]'}>
+          {row.department ?? 'No department'}
+        </span>
+      ),
+    },
+    {
+      key: 'roles',
+      header: 'Roles',
+      hideBelow: 'md',
+      cell: (row) => <span>{row.roles.map(roleLabel).join(', ') || 'No roles'}</span>,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: 'w-32',
+      cell: (row) =>
+        row.is_active ? (
+          <ToneBadge label="Active" tone="success" />
+        ) : (
+          <ToneBadge label="Deactivated" tone="neutral" />
+        ),
+    },
+    {
+      key: 'actions',
+      header: <span className="sr-only">Actions</span>,
+      width: 'w-52',
+      align: 'right',
+      cell: (row) => (
+        <span className="inline-flex flex-wrap justify-end gap-1">
+          <Button type="button" size="sm" variant="ghost" onClick={() => setEditing(row)}>
+            Edit roles
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            disabled={setActive.isPending || (me?.id === row.id && row.is_active)}
+            className={cn(!row.is_active && 'text-[var(--color-success-700)]')}
+            onClick={() => {
+              const reason = window.prompt(
+                row.is_active
+                  ? 'Why is this account being deactivated?'
+                  : 'Why is this account being reactivated?',
+              );
+              if (!reason || reason.trim().length < 3) return;
+              setActive.mutate({
+                userId: row.id,
+                body: { is_active: !row.is_active, reason: reason.trim() },
+              });
+            }}
+          >
+            {row.is_active ? 'Deactivate' : 'Reactivate'}
+          </Button>
+        </span>
+      ),
+    },
+  ];
+
   return (
-    <div className="flex flex-col gap-[var(--space-6)]">
+    <>
       <PageHeader
         title="Users and roles"
-        purpose="Who can sign in, and which roles they hold. Editing the approval matrix and deciding approvals cannot sit on the same account."
+        purpose="Accounts, roles, status and segregation controls: matrix editing and approving never share an account."
+        toolbar={
+          <ViewTabs
+            label="Which accounts"
+            tabs={[
+              { id: 'all', label: 'All accounts' },
+              { id: 'active', label: 'Active only' },
+            ]}
+            value={includeInactive ? 'all' : 'active'}
+            onChange={(id) => setIncludeInactive(id === 'all')}
+          />
+        }
         actions={
-          <Button type="button" onClick={() => setCreating(true)}>
+          <Button type="button" variant="primary" size="sm" onClick={() => setCreating(true)}>
             <UserPlus aria-hidden="true" className="size-4" />
             Create account
           </Button>
         }
       />
 
-      <label className="flex cursor-pointer items-center gap-[var(--space-2)] text-[var(--text-body-sm)]">
-        <input
-          type="checkbox"
-          className="size-4 accent-[var(--color-primary)]"
-          checked={includeInactive}
-          onChange={(event) => setIncludeInactive(event.target.checked)}
-        />
-        Show deactivated accounts
-      </label>
-
-      {users.isLoading ? (
-        <SkeletonText lines={8} />
-      ) : users.isError ? (
-        <p role="alert" className="m-0 text-[var(--color-danger-700)]">
-          {errorMessage(users.error) ?? 'The user list could not be loaded.'}
-        </p>
-      ) : rows.length === 0 ? (
-        <EmptyState
-          icon={Users}
-          title="No accounts yet"
-          explanation="Nobody has been granted access. Create an account to begin."
-          nextStep="Use Create account and name the roles they need."
-        />
-      ) : (
-        <Card className="surface-card overflow-hidden">
-          <CardContent className="p-0">
-            <ul className="m-0 list-none p-0">
-              {rows.map((row) => (
-                <li
-                  key={row.id}
-                  className="flex flex-col gap-[var(--space-3)] border-b border-[var(--color-divider)] px-[var(--space-5)] py-[var(--space-4)] last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div className="min-w-0">
-                    <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-                      <span className="font-semibold text-[var(--color-text-strong)]">
-                        {row.display_name}
-                      </span>
-                      <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-                        {row.email}
-                      </span>
-                      {!row.is_active ? (
-                        <ToneBadge label="Deactivated" tone="neutral" />
-                      ) : null}
-                    </p>
-                    <p className="m-0 truncate text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-                      {row.department ?? 'No department'}
-                      {' · '}
-                      {row.roles.map((role) => role.replaceAll('_', ' ')).join(', ') || 'No roles'}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 flex-wrap gap-[var(--space-2)]">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => setEditing(row)}
-                    >
-                      Edit roles
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      disabled={
-                        setActive.isPending || (me?.id === row.id && row.is_active)
-                      }
-                      className={cn(!row.is_active && 'text-[var(--color-success-700)]')}
-                      onClick={() => {
-                        const reason = window.prompt(
-                          row.is_active
-                            ? 'Why is this account being deactivated?'
-                            : 'Why is this account being reactivated?',
-                        );
-                        if (!reason || reason.trim().length < 3) return;
-                        setActive.mutate({
-                          userId: row.id,
-                          body: { is_active: !row.is_active, reason: reason.trim() },
-                        });
-                      }}
-                    >
-                      {row.is_active ? 'Deactivate' : 'Reactivate'}
-                    </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+      {setActive.isError ? (
+        <Card className="mb-[var(--space-5)] border-[var(--color-danger-600)]">
+          <CardContent>
+            <p role="alert" className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]">
+              {errorMessage(setActive.error) ?? 'The account could not be changed.'}
+            </p>
           </CardContent>
         </Card>
+      ) : null}
+
+      {users.isLoading ? (
+        <Card>
+          <CardContent>
+            <SkeletonText lines={8} />
+          </CardContent>
+        </Card>
+      ) : users.isError ? (
+        <Card className="border-[var(--color-danger-600)]">
+          <CardContent>
+            <p role="alert" className="m-0 text-[var(--color-danger-700)]">
+              {errorMessage(users.error) ?? 'The user list could not be loaded.'}
+            </p>
+          </CardContent>
+        </Card>
+      ) : rows.length === 0 ? (
+        <Card>
+          <CardContent className="p-0">
+            <EmptyState
+              icon={Users}
+              title="No accounts yet"
+              explanation="Nobody has been granted access. Create an account to begin."
+              nextStep="Use Create account and name the roles they need."
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <DataTable
+          ariaLabel="Accounts"
+          columns={columns}
+          rows={rows}
+          getRowKey={(row) => row.id}
+        />
       )}
 
       <CreateUserModal open={creating} onClose={() => setCreating(false)} />
       <EditRolesModal user={editing} onClose={() => setEditing(null)} />
-    </div>
+    </>
   );
 }

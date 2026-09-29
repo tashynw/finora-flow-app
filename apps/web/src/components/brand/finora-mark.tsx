@@ -4,6 +4,7 @@ import markMonoUrl from '@/assets/brand/finora-mark-mono.png';
 import markWhiteUrl from '@/assets/brand/finora-mark-white.png';
 
 type MarkVariant = 'color' | 'mono' | 'inverse';
+type MarkSize = 'sm' | 'md' | 'lg';
 
 const MARK_SRC: Record<MarkVariant, string> = {
   color: markUrl,
@@ -11,23 +12,36 @@ const MARK_SRC: Record<MarkVariant, string> = {
   inverse: markWhiteUrl,
 };
 
+const MARK_SIZE: Record<MarkSize, string> = {
+  sm: 'size-7',
+  md: 'size-8',
+  lg: 'size-10',
+};
+
+const WORD_SIZE: Record<MarkSize, string> = {
+  sm: 'text-[17px]',
+  md: 'text-[21px]',
+  lg: 'text-[27px]',
+};
+
 /**
  * Product mark.
  *
- * The flowing double-stroke F is the approved brand artwork, decoded from the
- * supplied logo to a transparent raster so it composites cleanly on the light
- * shell. `variant` selects the full-gradient art, a single-colour silhouette
- * for audit print and forced-colour contexts (5.3), or a white silhouette for
- * the gradient hero. The wordmark is drawn as live text so it stays crisp,
- * translatable and theme-aware.
+ * The flowing double-stroke F — the approved brand artwork — beside a live-text
+ * wordmark with "Flow" in brand blue. The wordmark is text so it stays crisp,
+ * translatable and theme-aware. `mono` and `inverse` swap the artwork for the
+ * single-colour and white silhouettes used in audit print, forced-colour
+ * contexts and dark surfaces.
  */
 export function FinoraMark({
   showWordmark = true,
   variant = 'color',
+  size = 'sm',
   className,
 }: {
   showWordmark?: boolean;
   variant?: MarkVariant;
+  size?: MarkSize;
   className?: string;
 }) {
   const inverse = variant === 'inverse';
@@ -39,31 +53,25 @@ export function FinoraMark({
         // product. Icon-only, it carries the accessible name itself.
         alt={showWordmark ? '' : 'Finora Flow'}
         aria-hidden={showWordmark ? true : undefined}
-        width={32}
-        height={32}
-        className="size-8 shrink-0 select-none"
+        className={cn('shrink-0 select-none object-contain', MARK_SIZE[size])}
         draggable={false}
       />
 
       {showWordmark ? (
-        <span className="flex min-w-0 flex-col leading-none">
+        <span
+          className={cn(
+            'truncate font-bold leading-none tracking-[-0.02em]',
+            WORD_SIZE[size],
+            inverse ? 'text-[var(--color-text-inverse)]' : 'text-[var(--color-text-heading)]',
+          )}
+        >
+          Finora{' '}
           <span
-            className={cn(
-              'truncate text-[15px] font-bold tracking-tight',
-              inverse ? 'text-[var(--color-text-inverse)]' : 'gradient-text',
-            )}
+            className={
+              inverse ? 'text-[var(--color-text-inverse)]' : 'text-[var(--color-primary-600)]'
+            }
           >
-            Finora Flow
-          </span>
-          <span
-            className={cn(
-              'truncate text-[10px] font-medium uppercase tracking-wider',
-              inverse
-                ? 'text-[var(--color-text-inverse)] opacity-80'
-                : 'text-[var(--color-text-subtle)]',
-            )}
-          >
-            Invoice automation
+            Flow
           </span>
         </span>
       ) : null}

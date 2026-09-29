@@ -43,7 +43,7 @@ test.describe('the approval matrix', () => {
     await page.goto('/settings/approval-matrix');
     await settle(page);
 
-    await expect(page.getByRole('heading', { name: 'Try an amount' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Route simulator' })).toBeVisible();
     // Worked out by the platform rather than by the browser. A second
     // implementation of the routing rules here would be the more convincing of
     // the two the moment they disagreed.
@@ -73,7 +73,7 @@ test.describe('the approval matrix', () => {
     // still occupies layout puts a second, phantom form under the real content.
     await expect(page.getByRole('dialog')).toHaveCount(0);
 
-    await page.getByRole('button', { name: /add a rule/i }).click();
+    await page.getByRole('button', { name: /^add rule$/i }).click();
     const dialog = page.getByRole('dialog', { name: 'Add a rule' });
     await expect(dialog).toBeVisible();
 

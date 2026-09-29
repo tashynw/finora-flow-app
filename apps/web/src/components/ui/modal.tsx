@@ -102,7 +102,7 @@ export function Modal({
           {description ? (
             <p
               id={descriptionId}
-              className="mt-1 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]"
+              className="mt-1 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]"
             >
               {description}
             </p>

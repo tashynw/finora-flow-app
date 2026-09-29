@@ -1,14 +1,15 @@
 /*
- * Design tokens: Executive Signature Flow.
+ * Design tokens: Finora Flow Product Redesign v2.
  *
- * Values are taken verbatim from section 6 of the implementation standard.
- * Components consume the semantic names below and never raw colour values, so a
- * theme change is a single-file edit rather than a codebase sweep.
+ * Values come from the Figma file "Finora Flow — Product Redesign v2"
+ * (00 · Design System and 01 · Product Screens). Components consume the
+ * semantic names below and never raw colour values, so a theme change is a
+ * single-file edit rather than a codebase sweep.
  */
 
 :root {
   /* ------------------------------------------------------------ typography */
-  --font-sans: 'Inter', 'Geist', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Inter Variable', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
 
   --text-display-xl: 48px;
@@ -61,84 +62,95 @@
   --text-money--font-weight: 620;
 
   /* ---------------------------------------------------------- core colours */
-  --color-background: #f7f9fc;
-  --color-background-warm: #fbfcfe;
+  /* Canvas is the soft product blue from the screen frames; the design-system
+   * page shows a neutral #F6F7F9 canvas, but every product screen uses this. */
+  --color-background: #f4f8ff;
+  --color-background-warm: #f7fbff;
   --color-surface: #ffffff;
-  --color-surface-subtle: #f4f7fb;
-  --color-surface-raised: rgb(255 255 255 / 0.88);
-  --color-surface-glass: rgb(255 255 255 / 0.72);
+  --color-surface-subtle: #f8fafc;
+  --color-surface-raised: rgb(255 255 255 / 0.9);
+  --color-surface-glass: rgb(255 255 255 / 0.86);
 
-  --color-text-strong: #0b1739;
-  --color-text: #24324d;
-  --color-text-muted: #66738c;
-  --color-text-subtle: #8c98ad;
+  --color-text-strong: #111827;
+  --color-text-heading: #111b4b;
+  --color-text: #475467;
+  --color-text-muted: #667085;
+  /* 4.6:1 on white: it carries meaningful sub-lines, not only decoration. */
+  --color-text-subtle: #6b7588;
   --color-text-inverse: #ffffff;
 
-  --color-border: #e2e8f2;
-  --color-border-strong: #cbd5e3;
-  --color-divider: #e9eef5;
+  --color-border: #e5e7eb;
+  --color-border-strong: #d0d5dd;
+  --color-divider: #eef0f3;
 
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
+  --color-primary-50: #eef3ff;
+  --color-primary-100: #dce6ff;
+  --color-primary-200: #c7d6fd;
+  --color-primary-300: #a4bcfb;
+  --color-primary-400: #7196f8;
+  --color-primary-500: #4f7ff6;
+  --color-primary-600: #3569f4;
+  --color-primary-700: #2449b8;
+  --color-primary-800: #1d3a93;
   --color-primary-900: #172e78;
 
-  --color-indigo-500: #6366f1;
+  --color-indigo-500: #5a6cf0;
   --color-indigo-600: #4f46e5;
-  --color-violet-500: #8b5cf6;
+  --color-violet-500: #7047eb;
   --color-violet-600: #7c3aed;
   --color-cyan-500: #06b6d4;
 
-  --color-success-50: #ecfdf5;
-  --color-success-600: #059669;
-  --color-success-700: #047857;
-  --color-warning-50: #fff7ed;
-  --color-warning-600: #ea580c;
-  --color-warning-700: #c2410c;
-  --color-danger-50: #fef2f2;
-  --color-danger-600: #dc2626;
-  --color-danger-700: #b91c1c;
-  --color-info-50: #eff6ff;
-  --color-info-600: #2563eb;
+  --color-success-50: #ecf8f2;
+  --color-success-600: #1f8a5b;
+  --color-success-700: #1a7550;
+  --color-warning-50: #fff7e8;
+  --color-warning-600: #b7791f;
+  --color-warning-700: #9a6700;
+  --color-danger-50: #fff0ef;
+  --color-danger-600: #c2413b;
+  --color-danger-700: #b42318;
+  --color-info-50: #eef3ff;
+  --color-info-600: #3569f4;
+  --color-neutral-50: #f2f4f7;
+  --color-neutral-700: #475467;
 
-  /* --------------------------------------------------- signature gradients */
-  /* Reserved for the product title, launch visuals, small AI indicators,
-   * selected callouts, the footer strip and active navigation. Not for
-   * ordinary cards or body text. */
-  --gradient-signature: linear-gradient(110deg, #2563eb 0%, #4f46e5 48%, #8b5cf6 100%);
-  --gradient-signature-soft: linear-gradient(
-    135deg,
-    rgb(37 99 235 / 0.12),
-    rgb(139 92 246 / 0.1)
+  /* ------------------------------------------------------------ gradients */
+  /* Kept narrow. "Keep AI entry points visually secondary" and "prefer borders,
+   * spacing and typography over shadows" are the design-system rules, so the
+   * signature gradient appears only on the sign-in call to action, chart bars
+   * and the brand mark. Active navigation is a flat tint. */
+  --gradient-signature: linear-gradient(90deg, #2563eb 0%, #3569f4 72%, #7c3aed 100%);
+  --gradient-signature-soft: linear-gradient(0deg, #eef3ff, #eef3ff);
+  --gradient-ai: linear-gradient(90deg, #2563eb 0%, #3569f4 72%, #7c3aed 100%);
+  --gradient-footer: linear-gradient(90deg, #eef3ff, #eef3ff);
+  --gradient-bar: linear-gradient(0deg, rgb(53 105 244 / 0.98) 0%, rgb(90 139 255 / 0.88) 58%, rgb(138 109 255 / 0.72) 100%);
+  --gradient-atmosphere: linear-gradient(
+    90deg,
+    rgb(234 243 255 / 0.72) 0%,
+    rgb(243 238 255 / 0.44) 48%,
+    rgb(255 255 255 / 0) 100%
   );
-  --gradient-ai: linear-gradient(135deg, #2563eb 0%, #7c3aed 55%, #38bdf8 100%);
-  --gradient-footer: linear-gradient(90deg, #102a72 0%, #274ac7 52%, #8b5cf6 100%);
 
   /* -------------------------------------------------------------- radius */
   --radius-xs: 6px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 22px;
+  --radius-sm: 9px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
   --radius-pill: 999px;
 
   /* ------------------------------------------------ shadows and elevation */
-  --shadow-xs: 0 1px 2px rgb(15 23 42 / 0.05);
-  --shadow-sm: 0 4px 14px rgb(30 64 175 / 0.06);
-  --shadow-md: 0 10px 30px rgb(30 64 175 / 0.09);
-  --shadow-lg: 0 22px 60px rgb(30 41 59 / 0.14);
-  --shadow-focus: 0 0 0 3px rgb(37 99 235 / 0.22);
+  --shadow-xs: 0 1px 2px rgb(16 24 40 / 0.04);
+  --shadow-sm: 0 8px 20px rgb(82 118 184 / 0.1);
+  --shadow-md: 0 8px 22px rgb(78 114 200 / 0.12);
+  --shadow-lg: 0 20px 40px rgb(77 115 216 / 0.18);
+  --shadow-focus: 0 0 0 3px rgb(53 105 244 / 0.22);
 
   /* ------------------------------------------------------- blur and glass */
   /* Glass is an accent. Never behind tables, forms or document text. */
   --glass-blur: 18px;
-  --glass-border: rgb(255 255 255 / 0.62);
+  --glass-border: rgb(217 229 255 / 0.75);
 
   /* -------------------------------------------------------------- spacing */
   --space-1: 4px;
@@ -157,8 +169,8 @@
   --shell-sidebar-width: 232px;
   --shell-sidebar-collapsed-width: 72px;
   --shell-topbar-height: 64px;
-  --shell-content-max-width: 1760px;
-  --shell-page-padding: var(--space-6);
+  --shell-content-max-width: 1440px;
+  --shell-page-padding: 40px;
 
   /* ---------------------------------------------------------------- motion */
   --duration-instant: 90ms;

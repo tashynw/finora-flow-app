@@ -99,7 +99,7 @@ export function ReviewDialog({
     >
       <div className="flex flex-col gap-[var(--space-5)]">
         {/* Said in a sentence, not set as a default. */}
-        <p className="m-0 rounded-[var(--radius-md)] bg-[var(--color-surface-subtle)] p-[var(--space-4)] text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+        <p className="m-0 rounded-[var(--radius-md)] bg-[var(--color-surface-subtle)] p-[var(--space-4)] text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
           <span className="font-semibold text-[var(--color-text-strong)]">
             What the evidence looks like:
           </span>{' '}
@@ -146,7 +146,7 @@ export function ReviewDialog({
         {review.isError ? (
           <p
             role="alert"
-            className="m-0 rounded-[var(--radius-md)] border border-[var(--color-danger-600)] p-[var(--space-4)] text-[var(--text-body-sm)] text-[var(--color-danger-700)]"
+            className="m-0 rounded-[var(--radius-md)] border border-[var(--color-danger-600)] p-[var(--space-4)] text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]"
           >
             {errorMessage(review.error) ?? 'The decision was not recorded.'}
           </p>

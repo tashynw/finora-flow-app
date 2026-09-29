@@ -73,7 +73,7 @@ async function addUsdRule(
 
   await page
     .getByRole('group', { name: 'Approval matrix actions' })
-    .getByRole('button', { name: /add a rule/i })
+    .getByRole('button', { name: /^add rule$/i })
     .click();
 
   const dialog = page.getByRole('dialog', { name: /add a rule/i });
@@ -136,7 +136,7 @@ test.describe('a payment package, from approved invoices to the bank', () => {
       await settle(finance);
       await finance
         .getByRole('group', { name: 'Purchase orders actions' })
-        .getByRole('button', { name: /raise an order/i })
+        .getByRole('button', { name: /create po/i })
         .click();
       await finance.waitForURL(/\/purchase-orders\/[0-9a-f-]{36}$/);
       await settle(finance);
@@ -174,7 +174,7 @@ test.describe('a payment package, from approved invoices to the bank', () => {
       await settle(finance);
       await finance
         .getByRole('group', { name: 'Invoices actions' })
-        .getByRole('button', { name: /record an invoice/i })
+        .getByRole('button', { name: /create invoice/i })
         .click();
       await finance.waitForURL(/\/invoices\/[0-9a-f-]{36}$/);
       await settle(finance);
@@ -228,7 +228,7 @@ test.describe('a payment package, from approved invoices to the bank', () => {
 
       await payments
         .getByRole('group', { name: 'Payment packages actions' })
-        .getByRole('button', { name: /start a package/i })
+        .getByRole('button', { name: /new package/i })
         .click();
       await payments.waitForURL(/\/payments\/[0-9a-f-]{36}$/);
       await settle(payments);
@@ -394,7 +394,7 @@ test.describe('a payment package, from approved invoices to the bank', () => {
 
       await payments
         .getByRole('group', { name: 'Payment packages actions' })
-        .getByRole('button', { name: /start a package/i })
+        .getByRole('button', { name: /new package/i })
         .click();
       await payments.waitForURL(/\/payments\/[0-9a-f-]{36}$/);
       await settle(payments);

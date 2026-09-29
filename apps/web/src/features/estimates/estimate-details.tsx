@@ -19,7 +19,7 @@ export function EstimateDetails({ estimate }: { estimate: EstimateDetail }) {
       <p className="tabular m-0 text-[length:var(--text-heading-2)] leading-[var(--text-heading-2--line-height)] font-bold text-[var(--color-text-strong)]">
         {estimate.total_formatted ?? 'No amount'}
       </p>
-      <p className="mt-[var(--space-1)] mb-[var(--space-5)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+      <p className="mt-[var(--space-1)] mb-[var(--space-5)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
         {estimate.description || 'No description'}
       </p>
 
@@ -29,7 +29,7 @@ export function EstimateDetails({ estimate }: { estimate: EstimateDetail }) {
           {estimate.vendor_id ? null : (
             // Worth saying. A name with no supplier record behind it is a name
             // somebody typed, and finance has to reconcile it before payment.
-            <span className="block text-[var(--text-caption)] text-[var(--color-text-muted)]">
+            <span className="block text-[length:var(--text-caption)] text-[var(--color-text-muted)]">
               Not yet matched to a supplier record.
             </span>
           )}
@@ -66,7 +66,7 @@ export function EstimateDetails({ estimate }: { estimate: EstimateDetail }) {
               <FileText aria-hidden="true" className="size-4" />
               The supplier’s own document
             </Link>
-            <span className="block text-[var(--text-caption)] text-[var(--color-text-muted)]">
+            <span className="block text-[length:var(--text-caption)] text-[var(--color-text-muted)]">
               These figures were copied from that reading when this estimate was raised, and do
               not change if it is read again.
             </span>

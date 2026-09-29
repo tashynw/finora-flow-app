@@ -57,7 +57,7 @@ export function Field({
     <div className={cn('flex flex-col gap-[var(--space-2)]', className)}>
       <label
         htmlFor={inputId}
-        className="text-[var(--text-body-sm)] font-semibold text-[var(--color-text-strong)]"
+        className="text-[length:var(--text-body-sm)] font-semibold text-[var(--color-text-strong)]"
       >
         {label}
         {required ? (
@@ -92,7 +92,7 @@ export function Field({
           // hear the problem. Content present on first render is not announced
           // by either, which is why a form is never noisy just for opening.
           aria-live="polite"
-          className="m-0 flex items-start gap-1.5 text-[var(--text-caption)] text-[var(--color-danger-700)]"
+          className="m-0 flex items-start gap-1.5 text-[length:var(--text-caption)] text-[var(--color-danger-700)]"
         >
           <AlertCircle aria-hidden="true" className="mt-px size-3.5 shrink-0" />
           {error}
@@ -102,7 +102,7 @@ export function Field({
       {help || formatHint ? (
         <p
           id={helpId}
-          className="m-0 text-[var(--text-caption)] text-[var(--color-text-muted)]"
+          className="m-0 text-[length:var(--text-caption)] text-[var(--color-text-muted)]"
         >
           {help}
           {help && formatHint ? ' ' : ''}
@@ -116,7 +116,7 @@ export function Field({
 const inputClasses = [
   'h-11 w-full rounded-[var(--radius-sm)] bg-[var(--color-surface)]',
   'border border-[var(--color-border-strong)]',
-  'px-[var(--space-3)] text-[var(--text-body)] text-[var(--color-text-strong)]',
+  'px-[var(--space-3)] text-[length:var(--text-body)] text-[var(--color-text-strong)]',
   'placeholder:text-[var(--color-text-subtle)]',
   'transition-[border-color,box-shadow] duration-[var(--duration-fast)]',
   'hover:border-[var(--color-primary-300)]',

@@ -5,7 +5,8 @@ import type { ApprovalDelegationOut } from '@finora/shared-types';
 
 import { errorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
+import { DataTable, type Column } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Field, Input, Select } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
@@ -53,6 +54,61 @@ function noCoverYet(userId: string, name: string): ApprovalDelegationOut {
   };
 }
 
+function otherColumns(
+  onEdit: (row: ApprovalDelegationOut) => void,
+): Column<ApprovalDelegationOut>[] {
+  return [
+    {
+      key: 'approver',
+      header: 'Approver',
+      cell: (row) => (
+        <span className="font-semibold text-[var(--color-text-strong)]">{row.user_name}</span>
+      ),
+    },
+    {
+      key: 'cover',
+      header: 'Covered by',
+      cell: (row) =>
+        row.delegate_to_name ? (
+          <span>{row.delegate_to_name}</span>
+        ) : (
+          <span className="text-[var(--color-text-subtle)]">No cover arranged</span>
+        ),
+    },
+    {
+      key: 'until',
+      header: 'Until the end of',
+      width: 'w-40',
+      hideBelow: 'md',
+      cell: (row) => <span className="tabular">{endsOn(row.out_of_office_until)}</span>,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: 'w-36',
+      cell: (row) =>
+        row.is_in_effect ? (
+          <ToneBadge label="In effect" tone="progress" />
+        ) : row.delegate_to_name ? (
+          <ToneBadge label="Not in effect" tone="neutral" />
+        ) : (
+          <span className="text-[var(--color-text-subtle)]">—</span>
+        ),
+    },
+    {
+      key: 'actions',
+      header: <span className="sr-only">Actions</span>,
+      width: 'w-28',
+      align: 'right',
+      cell: (row) => (
+        <Button variant="ghost" size="sm" onClick={() => onEdit(row)}>
+          {row.delegate_to_name ? 'Change' : 'Arrange'}
+        </Button>
+      ),
+    },
+  ];
+}
+
 export function DelegationPage() {
   const { user, can } = useAuth();
   const [editing, setEditing] = useState<ApprovalDelegationOut | null>(null);
@@ -94,7 +150,7 @@ export function DelegationPage() {
     <>
       <PageHeader
         title="Cover while away"
-        purpose="Who decides in an approver's place while they are away. Cover does not change what the matrix asks for; it changes who is asked."
+        purpose="Delegate approval work for a defined period. Cover does not change what the matrix asks for; it changes who is asked."
       />
 
       {isError ? (
@@ -103,7 +159,7 @@ export function DelegationPage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               Could not load the arrangements
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {errorMessage(error) ?? 'The request did not complete.'}
             </p>
           </CardContent>
@@ -120,81 +176,86 @@ export function DelegationPage() {
         <div className="flex flex-col gap-[var(--space-6)]">
           {mine && can('approval:delegate') ? (
             <Card>
-              <CardHeader className="flex-row items-start justify-between gap-[var(--space-4)]">
-                <div>
-                  <CardTitle>Your cover</CardTitle>
-                  <CardDescription>
+              <CardContent className="flex flex-col gap-[var(--space-4)] sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <CardTitle>Your current cover</CardTitle>
+                  <p className="mt-2 m-0 text-[12px] text-[var(--color-text-muted)]">
                     {mine.is_in_effect
                       ? `${mine.delegate_to_name} is deciding in your place until the end of ${endsOn(mine.out_of_office_until)}. Anything routed to you goes to them.`
                       : mine.delegate_to_name
                         ? `${mine.delegate_to_name} is named as your cover, but it is not in effect. Set a return date in the future to start it.`
                         : 'Nobody is covering for you. Work routed to you waits until you decide it.'}
-                  </CardDescription>
+                  </p>
+                  {mine.delegate_to_name ? (
+                    <div className="mt-[var(--space-3)]">
+                      <ToneBadge
+                        label={mine.is_in_effect ? 'In effect' : 'Not in effect'}
+                        tone={mine.is_in_effect ? 'progress' : 'neutral'}
+                      />
+                    </div>
+                  ) : null}
                 </div>
-                <Button variant="secondary" size="sm" onClick={() => setEditing(mine)}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="shrink-0"
+                  onClick={() => setEditing(mine)}
+                >
                   <UserRoundCheck aria-hidden="true" className="size-4" />
                   {mine.is_in_effect ? 'Change or end it' : 'Arrange cover'}
                 </Button>
-              </CardHeader>
+              </CardContent>
             </Card>
           ) : null}
 
+          <Card>
+            <CardContent>
+              <CardTitle>How cover works</CardTitle>
+              <p className="mt-2 m-0 text-[12px] text-[var(--color-text-muted)]">
+                Anything the matrix routes to an approver goes to their cover instead, until the
+                end of their return date. The record still shows who actually decided it. Cover
+                does not chain: if the cover is away too, work waits rather than moving on again.
+              </p>
+            </CardContent>
+          </Card>
+
           {administers ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>Everybody else</CardTitle>
-                <CardDescription>
+            <section aria-labelledby="everybody-else" className="flex flex-col gap-[var(--space-3)]">
+              <div>
+                <h2
+                  id="everybody-else"
+                  className="m-0 text-[14px] font-semibold text-[var(--color-text-heading)]"
+                >
+                  Everybody else
+                </h2>
+                <p className="mt-1 m-0 text-[12px] text-[var(--color-text-muted)]">
                   Everybody who can decide something, and who is standing in for them.{' '}
                   {inEffect.length > 0
                     ? `${inEffect.length} ${inEffect.length === 1 ? 'person is' : 'people are'} being covered right now.`
                     : 'Nobody is being covered right now.'}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                {others.length === 0 ? (
-                  <EmptyState
-                    icon={UserRoundCheck}
-                    title="Nobody else can decide anything"
-                    explanation="Cover stands somebody in for an approver, so there is nobody to arrange it for until at least one other person holds a level."
-                    nextStep="Put somebody at a level first, on the screen for who approves what."
-                  />
-                ) : (
-                  <ul className="m-0 list-none p-0">
-                    {others.map((row) => (
-                      <li
-                        key={row.user_id}
-                        className="flex flex-col gap-[var(--space-2)] border-b border-[var(--color-divider)] px-[var(--space-5)] py-[var(--space-4)] last:border-b-0 sm:flex-row sm:items-center"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <p className="m-0 font-semibold text-[var(--color-text-strong)]">
-                            {row.user_name}
-                          </p>
-                          <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-                            {row.delegate_to_name
-                              ? `Covered by ${row.delegate_to_name}${
-                                  row.out_of_office_until
-                                    ? ` until the end of ${endsOn(row.out_of_office_until)}`
-                                    : ''
-                                }`
-                              : 'No cover arranged'}
-                          </p>
-                        </div>
-                        <div className="flex shrink-0 items-center gap-[var(--space-3)]">
-                          {row.is_in_effect ? (
-                            <ToneBadge label="In effect" tone="progress" />
-                          ) : row.delegate_to_name ? (
-                            <ToneBadge label="Not in effect" tone="neutral" />
-                          ) : null}
-                          <Button variant="ghost" size="sm" onClick={() => setEditing(row)}>
-                            {row.delegate_to_name ? 'Change' : 'Arrange'}
-                          </Button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </CardContent>
-            </Card>
+                </p>
+              </div>
+              {others.length === 0 ? (
+                <Card>
+                  <CardContent className="p-0">
+                    <EmptyState
+                      titleAs="h3"
+                      icon={UserRoundCheck}
+                      title="Nobody else can decide anything"
+                      explanation="Cover stands somebody in for an approver, so there is nobody to arrange it for until at least one other person holds a level."
+                      nextStep="Put somebody at a level first, on the screen for who approves what."
+                    />
+                  </CardContent>
+                </Card>
+              ) : (
+                <DataTable
+                  ariaLabel="Cover for other approvers"
+                  columns={otherColumns(setEditing)}
+                  rows={others}
+                  getRowKey={(row) => row.user_id}
+                />
+              )}
+            </section>
           ) : null}
         </div>
       )}
@@ -285,7 +346,7 @@ function CoverDialog({
     >
       <div className="flex flex-col gap-[var(--space-5)]">
         {setCover.isError ? (
-          <p role="alert" className="m-0 text-[var(--text-body-sm)] text-[var(--color-danger-700)]">
+          <p role="alert" className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]">
             {errorMessage(setCover.error)}
           </p>
         ) : null}

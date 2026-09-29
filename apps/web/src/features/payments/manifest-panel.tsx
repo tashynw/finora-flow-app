@@ -63,11 +63,11 @@ export function ManifestPanel({
         {isLoading ? (
           <SkeletonText lines={5} />
         ) : unavailable ? (
-          <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+          <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
             {unavailable}
           </p>
         ) : !manifest ? (
-          <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+          <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
             There is nothing to show yet.
           </p>
         ) : (
@@ -78,7 +78,7 @@ export function ManifestPanel({
                   <AlertTriangle aria-hidden="true" className="mt-px size-4 shrink-0" />
                   This no longer matches what was sent
                 </p>
-                <p className="mt-[var(--space-2)] m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+                <p className="mt-[var(--space-2)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                   The file rebuilt now hashes to something other than the fingerprint recorded at
                   submission. The payment itself is unaffected, but this package can no longer
                   demonstrate what the bank was given. Raise it with whoever administers the
@@ -91,7 +91,7 @@ export function ManifestPanel({
               className={[
                 'm-0 overflow-x-auto rounded-[var(--radius-sm)] border border-[var(--color-border)]',
                 'bg-[var(--color-surface-subtle)] p-[var(--space-3)]',
-                'font-mono text-[var(--text-caption)] leading-relaxed text-[var(--color-text)]',
+                'font-mono text-[length:var(--text-caption)] leading-relaxed text-[var(--color-text)]',
               ].join(' ')}
             >
               {preview.join('\n')}
@@ -110,10 +110,10 @@ export function ManifestPanel({
 
             <dl className="mt-[var(--space-4)] m-0 flex flex-col gap-[var(--space-2)]">
               <div>
-                <dt className="m-0 text-[var(--text-caption)] text-[var(--color-text-muted)]">
+                <dt className="m-0 text-[length:var(--text-caption)] text-[var(--color-text-muted)]">
                   Invoices listed
                 </dt>
-                <dd className="m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+                <dd className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                   {/* The file has more lines than this: a header, and a control
                       total per currency after the invoices. Counting those in
                       would make the figure disagree with the number of payments
@@ -122,10 +122,10 @@ export function ManifestPanel({
                 </dd>
               </div>
               <div>
-                <dt className="m-0 text-[var(--text-caption)] text-[var(--color-text-muted)]">
+                <dt className="m-0 text-[length:var(--text-caption)] text-[var(--color-text-muted)]">
                   {isSubmitted ? 'Fingerprint recorded at submission' : 'Fingerprint (SHA-256)'}
                 </dt>
-                <dd className="m-0 font-mono text-[var(--text-caption)] break-all text-[var(--color-text)]">
+                <dd className="m-0 font-mono text-[length:var(--text-caption)] break-all text-[var(--color-text)]">
                   {manifest.submitted_digest ?? manifest.digest}
                 </dd>
               </div>

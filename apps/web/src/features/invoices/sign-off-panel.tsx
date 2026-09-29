@@ -65,7 +65,7 @@ export function SignOffPanel({
         </CardHeader>
         {signOff.note ? (
           <CardContent>
-            <p className="m-0 whitespace-pre-line text-[var(--text-body-sm)] text-[var(--color-text)]">
+            <p className="m-0 whitespace-pre-line text-[length:var(--text-body-sm)] text-[var(--color-text)]">
               {signOff.note}
             </p>
           </CardContent>
@@ -96,10 +96,10 @@ export function SignOffPanel({
         </CardHeader>
         {declined.reason ? (
           <CardContent>
-            <p className="m-0 whitespace-pre-line text-[var(--text-body-sm)] text-[var(--color-text)]">
+            <p className="m-0 whitespace-pre-line text-[length:var(--text-body-sm)] text-[var(--color-text)]">
               {declined.reason}
             </p>
-            <p className="mt-[var(--space-3)] m-0 text-[var(--text-caption)] text-[var(--color-text-muted)]">
+            <p className="mt-[var(--space-3)] m-0 text-[length:var(--text-caption)] text-[var(--color-text-muted)]">
               Correct the invoice and ask again, or cancel it. Nothing is paid either way until
               somebody confirms the goods arrived.
             </p>
@@ -146,7 +146,7 @@ export function SignOffPanel({
         <div className="flex flex-wrap items-center gap-[var(--space-3)]">
           <ToneBadge label={chasing.label} tone={chasing.tone} detail={chasing.description} />
           {signOff.next_reminder_at ? (
-            <span className="inline-flex items-center gap-[var(--space-2)] text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <span className="inline-flex items-center gap-[var(--space-2)] text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               <Clock aria-hidden="true" className="size-4" />
               Next reminder{' '}
               <time dateTime={signOff.next_reminder_at} data-visual-volatile>
@@ -157,7 +157,7 @@ export function SignOffPanel({
         </div>
 
         {!mine ? (
-          <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+          <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
             Asked on{' '}
             <time dateTime={signOff.requested_at} data-visual-volatile>
               {formatMoment(signOff.requested_at)}
@@ -190,7 +190,7 @@ export function SignOffPanel({
                 <p className="m-0 font-semibold text-[var(--color-danger-700)]">
                   This was not confirmed
                 </p>
-                <p className="mt-1 m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+                <p className="mt-1 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                   {error}
                 </p>
               </div>
@@ -214,7 +214,7 @@ export function SignOffPanel({
               ) : null}
             </div>
 
-            <p className="m-0 text-[var(--text-caption)] text-[var(--color-text-muted)]">
+            <p className="m-0 text-[length:var(--text-caption)] text-[var(--color-text-muted)]">
               Confirming says the goods or services were received. It is not an approval of the
               spending, and it does not commit your budget — that comes afterwards, from the
               approvers the amount requires.

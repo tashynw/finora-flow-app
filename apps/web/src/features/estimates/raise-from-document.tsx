@@ -36,7 +36,7 @@ export function RaiseEstimatePanel({ document }: { document: DocumentDetail }) {
     <Card>
       <CardHeader>
         <CardTitle>{raised ? 'Raised as an estimate' : 'Raise an estimate from this'}</CardTitle>
-        <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+        <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
           {raised
             ? 'This quotation has already been turned into a request for spending approval.'
             : 'The supplier, quotation number, date and total are copied across. You add what it is for, why it is needed and the cost centre, then send it for approval.'}
@@ -52,7 +52,7 @@ export function RaiseEstimatePanel({ document }: { document: DocumentDetail }) {
                 <ArrowRight aria-hidden="true" className="size-4" />
               </Link>
             </Button>
-            <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <span className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {raised.state_label}
             </span>
           </div>
@@ -61,7 +61,7 @@ export function RaiseEstimatePanel({ document }: { document: DocumentDetail }) {
             {create.error ? (
               <p
                 role="alert"
-                className="m-0 text-[var(--text-body-sm)] text-[var(--color-danger-700)]"
+                className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]"
               >
                 {create.error instanceof Error
                   ? create.error.message

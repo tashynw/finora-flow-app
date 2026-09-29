@@ -126,7 +126,7 @@ export function UploadDialog({ open, onClose }: UploadDialogProps) {
           )}
 
           <div className="min-w-0">
-            <p className="m-0 text-[var(--text-body)] text-[var(--color-text-strong)]">
+            <p className="m-0 text-[length:var(--text-body)] text-[var(--color-text-strong)]">
               {quarantined
                 ? 'The malware scanner flagged this file, so it cannot be opened. An administrator can review it from the quarantine workflow.'
                 : rejected
@@ -139,7 +139,7 @@ export function UploadDialog({ open, onClose }: UploadDialogProps) {
                 {warnings.map((warning) => (
                   <li
                     key={warning}
-                    className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]"
+                    className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]"
                   >
                     {warning}
                   </li>
@@ -201,7 +201,7 @@ export function UploadDialog({ open, onClose }: UploadDialogProps) {
                 'file:mr-[var(--space-3)] file:rounded-[var(--radius-sm)]',
                 'file:border-0 file:bg-[var(--color-surface-subtle)]',
                 'file:px-[var(--space-3)] file:py-[var(--space-2)]',
-                'file:text-[var(--text-body-sm)] file:font-semibold',
+                'file:text-[length:var(--text-body-sm)] file:font-semibold',
                 'file:text-[var(--color-text-strong)]',
               )}
             />
@@ -209,7 +209,7 @@ export function UploadDialog({ open, onClose }: UploadDialogProps) {
         </Field>
 
         {file ? (
-          <p className="m-0 text-[var(--text-caption)] text-[var(--color-text-muted)]">
+          <p className="m-0 text-[length:var(--text-caption)] text-[var(--color-text-muted)]">
             {file.name} · {formatBytes(file.size)}
           </p>
         ) : null}

@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, date, datetime
-from typing import Annotated
+from typing import Annotated, Final
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
@@ -42,6 +42,9 @@ from finora.api.security import Principal
 from finora.api.views import (
     NamedRefOut,
     PlannedStepOut,
+    RegisterSliceOut,
+    RegisterStatOut,
+    RegisterSummaryOut,
     RouteOut,
     TransitionOut,
     awaiting_labels,
@@ -733,6 +736,118 @@ def _sees_everything(user: User) -> bool:
         user.roles
         & {Role.approver, Role.finance, Role.auditor, Role.administrator, Role.payment_coordinator}
     )
+
+
+#: Invoice states that still owe money — approved through to outstanding. Draft,
+#: rejected, cancelled and paid are excluded, matching the dashboard's aggregate.
+_PAYABLE_STATES: Final[frozenset[WorkflowState]] = frozenset(
+    {
+        WorkflowState.approved,
+        WorkflowState.ready_for_submission,
+        WorkflowState.submitted,
+        WorkflowState.outstanding,
+        WorkflowState.accrual_needed,
+    }
+)
+
+
+#: The status bands the register donut groups invoice states into. Kept beside
+#: the register so the donut and the rows can never drift apart.
+_STATUS_MIX: Final[tuple[tuple[str, str, tuple[WorkflowState, ...]], ...]] = (
+    ("Draft", "neutral", (WorkflowState.draft,)),
+    (
+        "In approval",
+        "primary",
+        (WorkflowState.pending_sign_off, WorkflowState.pending_approval),
+    ),
+    (
+        "In flight",
+        "info",
+        (
+            WorkflowState.approved,
+            WorkflowState.ready_for_submission,
+            WorkflowState.submitted,
+        ),
+    ),
+    (
+        "Outstanding",
+        "warning",
+        (WorkflowState.outstanding, WorkflowState.accrual_needed),
+    ),
+    ("Paid", "success", (WorkflowState.paid,)),
+    ("Exception", "danger", (WorkflowState.exception,)),
+)
+
+
+@router.get("/summary", response_model=RegisterSummaryOut)
+def summarise_invoices(
+    session: SessionDep,
+    user: CurrentUserDep,
+    _: Annotated[Principal, Depends(RequirePermission(Permission.invoice_view))],
+) -> RegisterSummaryOut:
+    """Whole-register headline figures and status mix for the stat band.
+
+    Scoped to exactly the invoices this caller may list, so the totals here can
+    always be reached by opening the register. Amounts are summed per currency
+    and reported in the one carrying the most invoices; a mixed-currency
+    deployment is never silently added together.
+    """
+    conditions: list[ColumnElement[bool]] = [Invoice.archived_at.is_(None)]
+    if not _sees_everything(user):
+        conditions.append(or_(Invoice.requester_id == user.id, Invoice.created_by_id == user.id))
+
+    invoices = list(session.execute(select(Invoice).where(*conditions)).scalars())
+
+    by_currency: dict[str, int] = {}
+    for invoice in invoices:
+        if invoice.currency:
+            by_currency[invoice.currency] = by_currency.get(invoice.currency, 0) + 1
+    primary = max(by_currency, key=lambda code: by_currency[code]) if by_currency else "JMD"
+
+    def summed(states: frozenset[WorkflowState]) -> int:
+        total = 0
+        for invoice in invoices:
+            if invoice.state in states and invoice.currency == primary and invoice.total_minor_units:
+                total += invoice.total_minor_units
+        return total
+
+    outstanding_minor = summed(_PAYABLE_STATES)
+    paid_minor = summed(frozenset({WorkflowState.paid}))
+
+    stats = [
+        RegisterStatOut(
+            key="count",
+            label="Total invoices",
+            value=str(len(invoices)),
+            tone="primary",
+        ),
+        RegisterStatOut(
+            key="outstanding",
+            label="Outstanding to pay",
+            value=Money(outstanding_minor, primary).format(with_currency=True),
+            tone="warning",
+        ),
+        RegisterStatOut(
+            key="paid",
+            label="Settled",
+            value=Money(paid_minor, primary).format(with_currency=True),
+            tone="success",
+        ),
+    ]
+
+    counts: dict[WorkflowState, int] = {}
+    for invoice in invoices:
+        counts[invoice.state] = counts.get(invoice.state, 0) + 1
+    status_mix = [
+        RegisterSliceOut(
+            label=label,
+            count=sum(counts.get(state, 0) for state in states),
+            tone=tone,
+        )
+        for label, tone, states in _STATUS_MIX
+    ]
+
+    return RegisterSummaryOut(count=len(invoices), stats=stats, status_mix=status_mix)
 
 
 @router.get("/{invoice_id}", response_model=InvoiceDetail)

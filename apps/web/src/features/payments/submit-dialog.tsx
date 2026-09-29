@@ -79,19 +79,19 @@ export function SubmitDialog({
       }
     >
       <div className="rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] p-[var(--space-4)]">
-        <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+        <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
           {contentsSummary(invoiceCount, vendorCount)}, coming to
         </p>
         <CurrencyTotals totals={totals} emphasis className="mt-[var(--space-2)]" />
         {totals.length > 1 ? (
-          <p className="mt-[var(--space-2)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+          <p className="mt-[var(--space-2)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
             Two currencies, so two figures. They are separate amounts and there is no total that
             combines them.
           </p>
         ) : null}
       </div>
 
-      <p className="mt-[var(--space-4)] m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+      <p className="mt-[var(--space-4)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
         Send the manifest to the bank first, then record here what came back. Every invoice in the
         package moves to Submitted, and each supplier is then asked to confirm the payment
         arrived.
@@ -120,7 +120,7 @@ export function SubmitDialog({
       </div>
 
       {digest ? (
-        <p className="mt-[var(--space-4)] m-0 text-[var(--text-caption)] text-[var(--color-text-muted)]">
+        <p className="mt-[var(--space-4)] m-0 text-[length:var(--text-caption)] text-[var(--color-text-muted)]">
           The manifest going with this hashes to{' '}
           <span className="font-mono break-all">{digest}</span>. That fingerprint is stored with
           the package, so the file can be proved later to be the one that was sent.

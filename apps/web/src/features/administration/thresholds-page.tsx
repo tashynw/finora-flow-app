@@ -8,10 +8,12 @@ import { errorMessage } from '@/lib/api-client';
 import { amountInputValue, formatMoney, isKnownCurrency, parseAmount } from '@/lib/money';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { DataTable, type Column } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Field, Input, Textarea } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
+import { ViewTabs } from '@/components/ui/view-tabs';
 import { ToneBadge } from '@/components/workflow/status-badge';
 import { PageHeader } from '@/features/shared/page-header';
 import {
@@ -149,110 +151,144 @@ export function ThresholdsPage() {
 
   const rows = thresholds.data ?? [];
 
+  const columns: Column<ThresholdOut>[] = [
+    {
+      key: 'currency',
+      header: 'Currency',
+      width: 'w-32',
+      cell: (row) => (
+        <span className="font-semibold text-[var(--color-text-strong)]">{row.currency}</span>
+      ),
+    },
+    {
+      key: 'threshold',
+      header: 'Threshold',
+      width: 'w-48',
+      cell: (row) => (
+        <span className="tabular">
+          {formatMoney({ minorUnits: row.applies_above_minor_units, currency: row.currency })}
+        </span>
+      ),
+    },
+    {
+      key: 'rule',
+      header: 'Rule',
+      hideBelow: 'md',
+      cell: () => (
+        <span className="flex flex-col">
+          <span>PO required above</span>
+          <span className="text-[11px] text-[var(--color-text-subtle)]">
+            An invoice for exactly this amount needs no purchase order.
+          </span>
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: 'w-32',
+      cell: (row) =>
+        row.is_active ? (
+          <ToneBadge label="Active" tone="success" />
+        ) : (
+          <ToneBadge label="Deactivated" tone="neutral" />
+        ),
+    },
+    {
+      key: 'actions',
+      header: <span className="sr-only">Actions</span>,
+      width: 'w-48',
+      align: 'right',
+      cell: (row) => (
+        <span className="inline-flex gap-1">
+          <Button type="button" size="sm" variant="ghost" onClick={() => setEditing(row)}>
+            Edit
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            disabled={setActive.isPending}
+            className={cn(!row.is_active && 'text-[var(--color-success-700)]')}
+            onClick={() => {
+              const reason = window.prompt(
+                row.is_active
+                  ? 'Why is this threshold being deactivated?'
+                  : 'Why is this threshold being reactivated?',
+              );
+              if (!reason || reason.trim().length < 3) return;
+              setActive.mutate({
+                id: row.id,
+                body: {
+                  is_active: !row.is_active,
+                  reason: reason.trim(),
+                },
+              });
+            }}
+          >
+            {row.is_active ? 'Deactivate' : 'Reactivate'}
+          </Button>
+        </span>
+      ),
+    },
+  ];
+
   return (
-    <div className="flex flex-col gap-[var(--space-6)]">
+    <>
       <PageHeader
         title="PO thresholds"
-        purpose="The amount above which an invoice must name a purchase order, per currency. Soft-deactivate rather than delete so the configured figure remains for audit."
+        purpose="Purchase-order requirements by currency. Deactivate rather than delete so the configured figure remains for audit."
+        toolbar={
+          <ViewTabs
+            label="Which thresholds"
+            tabs={[
+              { id: 'all', label: 'All thresholds' },
+              { id: 'active', label: 'Active only' },
+            ]}
+            value={includeInactive ? 'all' : 'active'}
+            onChange={(id) => setIncludeInactive(id === 'all')}
+          />
+        }
         actions={
-          <Button type="button" onClick={() => setCreating(true)}>
+          <Button type="button" variant="primary" size="sm" onClick={() => setCreating(true)}>
             <Plus aria-hidden="true" className="size-4" />
-            Add threshold
+            Add currency
           </Button>
         }
       />
 
-      <label className="flex cursor-pointer items-center gap-[var(--space-2)] text-[var(--text-body-sm)]">
-        <input
-          type="checkbox"
-          className="size-4 accent-[var(--color-primary)]"
-          checked={includeInactive}
-          onChange={(event) => setIncludeInactive(event.target.checked)}
-        />
-        Show deactivated thresholds
-      </label>
-
       {thresholds.isLoading ? (
-        <SkeletonText lines={6} />
-      ) : thresholds.isError ? (
-        <p role="alert" className="m-0 text-[var(--color-danger-700)]">
-          {errorMessage(thresholds.error) ?? 'The threshold list could not be loaded.'}
-        </p>
-      ) : rows.length === 0 ? (
-        <EmptyState
-          icon={BadgeDollarSign}
-          title="No thresholds yet"
-          explanation="A currency with no row requires a purchase order on every invoice in that currency."
-          nextStep="Use Add threshold and name the amount that starts requiring a PO."
-        />
-      ) : (
-        <Card className="surface-card overflow-hidden">
-          <CardContent className="p-0">
-            <ul className="m-0 list-none p-0">
-              {rows.map((row) => (
-                <li
-                  key={row.id}
-                  className="flex flex-col gap-[var(--space-3)] border-b border-[var(--color-divider)] px-[var(--space-5)] py-[var(--space-4)] last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div className="min-w-0">
-                    <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-                      <span className="font-semibold text-[var(--color-text-strong)]">
-                        {row.currency}
-                      </span>
-                      <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-                        Applies above{' '}
-                        {formatMoney({
-                          minorUnits: row.applies_above_minor_units,
-                          currency: row.currency,
-                        })}
-                      </span>
-                      {!row.is_active ? (
-                        <ToneBadge label="Deactivated" tone="neutral" />
-                      ) : null}
-                    </p>
-                    <p className="m-0 text-[var(--text-caption)] text-[var(--color-text-subtle)]">
-                      An invoice for exactly this amount needs no purchase order.
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 flex-wrap gap-[var(--space-2)]">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => setEditing(row)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="secondary"
-                      disabled={setActive.isPending}
-                      className={cn(!row.is_active && 'text-[var(--color-success-700)]')}
-                      onClick={() => {
-                        const reason = window.prompt(
-                          row.is_active
-                            ? 'Why is this threshold being deactivated?'
-                            : 'Why is this threshold being reactivated?',
-                        );
-                        if (!reason || reason.trim().length < 3) return;
-                        setActive.mutate({
-                          id: row.id,
-                          body: {
-                            is_active: !row.is_active,
-                            reason: reason.trim(),
-                          },
-                        });
-                      }}
-                    >
-                      {row.is_active ? 'Deactivate' : 'Reactivate'}
-                    </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+        <Card>
+          <CardContent>
+            <SkeletonText lines={6} />
           </CardContent>
         </Card>
+      ) : thresholds.isError ? (
+        <Card className="border-[var(--color-danger-600)]">
+          <CardContent>
+            <p role="alert" className="m-0 text-[var(--color-danger-700)]">
+              {errorMessage(thresholds.error) ?? 'The threshold list could not be loaded.'}
+            </p>
+          </CardContent>
+        </Card>
+      ) : rows.length === 0 ? (
+        <Card>
+          <CardContent className="p-0">
+            <EmptyState
+              icon={BadgeDollarSign}
+              title="No thresholds yet"
+              explanation="A currency with no row requires a purchase order on every invoice in that currency."
+              nextStep="Use Add currency and name the amount that starts requiring a PO."
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <DataTable
+          ariaLabel="PO thresholds"
+          columns={columns}
+          rows={rows}
+          getRowKey={(row) => row.id}
+        />
       )}
 
       <ThresholdFormModal
@@ -263,6 +299,6 @@ export function ThresholdsPage() {
           setEditing(null);
         }}
       />
-    </div>
+    </>
   );
 }

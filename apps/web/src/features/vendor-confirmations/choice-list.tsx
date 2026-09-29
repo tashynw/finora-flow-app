@@ -35,7 +35,7 @@ export function ChoiceList<T extends string>({
 }) {
   return (
     <fieldset className="m-0 border-0 p-0">
-      <legend className="m-0 p-0 text-[var(--text-body-sm)] font-semibold text-[var(--color-text-strong)]">
+      <legend className="m-0 p-0 text-[length:var(--text-body-sm)] font-semibold text-[var(--color-text-strong)]">
         {legend}{' '}
         <span aria-hidden="true" className="text-[var(--color-danger-600)]">
           *
@@ -49,7 +49,7 @@ export function ChoiceList<T extends string>({
           // application: an assertive announcement interrupts somebody
           // mid-sentence to tell them about a box they have not reached.
           aria-live="polite"
-          className="mt-[var(--space-2)] m-0 text-[var(--text-caption)] text-[var(--color-danger-700)]"
+          className="mt-[var(--space-2)] m-0 text-[length:var(--text-caption)] text-[var(--color-danger-700)]"
         >
           {error}
         </p>
@@ -79,7 +79,7 @@ export function ChoiceList<T extends string>({
             <span className="font-semibold text-[var(--color-text-strong)]">
               {choice.label}
             </span>
-            <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <span className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {choice.help}
             </span>
           </label>

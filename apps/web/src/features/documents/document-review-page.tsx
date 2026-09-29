@@ -147,7 +147,7 @@ export function DocumentReviewPage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               Could not load this document
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {error instanceof Error ? error.message : 'The document could not be found.'}
             </p>
             <div className="mt-[var(--space-4)]">
@@ -200,10 +200,10 @@ export function DocumentReviewPage() {
         meta={
           <div className="flex flex-wrap items-center gap-[var(--space-3)]">
             <ToneBadge label={status.label} tone={status.tone} />
-            <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <span className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {document.kind_label}
             </span>
-            <span className="text-[var(--text-body-sm)] text-[var(--color-text-subtle)]">
+            <span className="text-[length:var(--text-body-sm)] text-[var(--color-text-subtle)]">
               {document.content_type} · {formatBytes(document.size_bytes)}
             </span>
             <Button variant="link" size="sm" asChild>
@@ -303,7 +303,7 @@ export function DocumentReviewPage() {
                       {document.acceptance_blockers.map((blocker) => (
                         <li
                           key={blocker}
-                          className="text-[var(--text-body-sm)] text-[var(--color-text)]"
+                          className="text-[length:var(--text-body-sm)] text-[var(--color-text)]"
                         >
                           {blocker}
                         </li>
@@ -316,7 +316,7 @@ export function DocumentReviewPage() {
               <Card className="overflow-hidden">
                 <CardHeader>
                   <CardTitle>What was read</CardTitle>
-                  <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                  <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                     Anything at or above {formatConfidence(extraction.review_threshold)} was
                     read clearly enough to stand without checking. Everything else is
                     marked.
@@ -324,7 +324,7 @@ export function DocumentReviewPage() {
                 </CardHeader>
                 <CardContent className="p-0">
                   {fields.length === 0 ? (
-                    <p className="m-0 px-[var(--space-5)] py-[var(--space-6)] text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                    <p className="m-0 px-[var(--space-5)] py-[var(--space-6)] text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                       Nothing was read from this document. Every value has to be typed in
                       from the page beside this.
                     </p>
@@ -392,7 +392,7 @@ export function DocumentReviewPage() {
                         <p className="m-0 font-semibold text-[var(--color-text-strong)]">
                           This reading has been accepted
                         </p>
-                        <p className="mt-1 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                        <p className="mt-1 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                           {extraction.accepted_note
                             ? extraction.accepted_note
                             : 'Its values are available to the rest of the platform. Ask an administrator to reopen it if something is wrong.'}
@@ -407,7 +407,7 @@ export function DocumentReviewPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Accept this reading</CardTitle>
-                    <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                    <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                       Accepting says these values are what the document says, and makes
                       them available to the rest of the platform. It is recorded against
                       your name.
@@ -431,7 +431,7 @@ export function DocumentReviewPage() {
                     {accept.error ? (
                       <p
                         role="alert"
-                        className="m-0 text-[var(--text-body-sm)] text-[var(--color-danger-700)]"
+                        className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]"
                       >
                         {accept.error instanceof Error
                           ? accept.error.message
@@ -453,7 +453,7 @@ export function DocumentReviewPage() {
                         Accept this reading
                       </Button>
                       {!canAccept ? (
-                        <p className="mt-[var(--space-2)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                        <p className="mt-[var(--space-2)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                           {isBeingRead
                             ? 'Wait for reading to finish.'
                             : 'Everything listed above has to be dealt with first.'}
@@ -469,7 +469,7 @@ export function DocumentReviewPage() {
       ) : (
         <Card>
           <CardContent>
-            <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               This document has not been read yet, so there are no values to review. It is
               stored, and reading can be started from the document list.
             </p>
@@ -511,7 +511,7 @@ function Notice({
         >
           {title}
         </p>
-        <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+        <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
           {children}
         </p>
       </CardContent>
@@ -564,7 +564,7 @@ function SignalPanel({
                     <ToneBadge label="Acknowledged" tone="success" />
                   ) : null}
                 </div>
-                <p className="mt-[var(--space-2)] m-0 max-w-prose text-[var(--text-body-sm)] text-[var(--color-text)]">
+                <p className="mt-[var(--space-2)] m-0 max-w-prose text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                   {signal.explanation}
                 </p>
               </div>
@@ -593,7 +593,7 @@ function SignalPanel({
         {error ? (
           <p
             role="alert"
-            className="m-0 px-[var(--space-5)] py-[var(--space-3)] text-[var(--text-body-sm)] text-[var(--color-danger-700)]"
+            className="m-0 px-[var(--space-5)] py-[var(--space-3)] text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]"
           >
             {error}
           </p>
@@ -624,7 +624,7 @@ function KindPanel({
     <Card className="mb-[var(--space-6)] border-[color-mix(in_srgb,var(--color-warning-600)_38%,white)]">
       <CardHeader>
         <CardTitle>What kind of document is this?</CardTitle>
-        <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+        <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
           Nothing on the page said clearly enough. Answering this decides which values
           are needed, so the document is read again once you have.
         </p>
@@ -748,7 +748,7 @@ function ProvenancePanel({ document }: { document: DocumentDetail }) {
         {extraction.notes.length > 0 ? (
           <ul className="mt-[var(--space-4)] mb-0 flex list-disc flex-col gap-1 pl-[var(--space-5)]">
             {extraction.notes.map((note) => (
-              <li key={note} className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+              <li key={note} className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                 {note}
               </li>
             ))}
@@ -762,8 +762,8 @@ function ProvenancePanel({ document }: { document: DocumentDetail }) {
 function Definition({ term, children }: { term: string; children: React.ReactNode }) {
   return (
     <div className="flex min-w-0 flex-col gap-0.5">
-      <dt className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-subtle)]">{term}</dt>
-      <dd className="m-0 min-w-0 break-words text-[var(--text-body-sm)] text-[var(--color-text-strong)]">
+      <dt className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-subtle)]">{term}</dt>
+      <dd className="m-0 min-w-0 break-words text-[length:var(--text-body-sm)] text-[var(--color-text-strong)]">
         {children}
       </dd>
     </div>

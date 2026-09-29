@@ -167,7 +167,7 @@ export function EstimateDetailPage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               {missing ? 'That estimate could not be found' : 'Could not load this estimate'}
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {missing
                 ? 'It may have been raised by somebody else, in which case it is not yours to see.'
                 : (errorMessage(error) ?? 'The request did not complete.')}
@@ -224,7 +224,7 @@ export function EstimateDetailPage() {
         meta={
           <div className="flex flex-wrap items-center gap-[var(--space-3)]">
             <StatusBadge state={estimate.state} />
-            <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <span className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               Raised by {estimate.requester_label} ·{' '}
               <time dateTime={estimate.created_at} data-visual-volatile>
                 {formatMoment(estimate.created_at)}
@@ -295,10 +295,10 @@ export function EstimateDetailPage() {
               <p className="m-0 font-semibold text-[var(--color-danger-700)]">
                 {submit.error ? 'This was not sent for approval' : 'Your changes were not saved'}
               </p>
-              <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+              <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                 {errorMessage(submit.error ?? save.error)}
               </p>
-              <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+              <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                 {submit.error
                   ? 'Nothing has gone to an approver, and what you have typed is still here.'
                   : 'What you have typed is still on the screen. Nothing was lost.'}
@@ -306,7 +306,7 @@ export function EstimateDetailPage() {
             </CardContent>
           </Card>
         ) : savedAt && !dirty ? (
-          <p className="mb-[var(--space-5)] m-0 text-[var(--text-body-sm)] text-[var(--color-success-700)]">
+          <p className="mb-[var(--space-5)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-success-700)]">
             Draft saved at{' '}
             {/* Fixed width so a longer clock reading cannot shift the rest of
                 the sentence when the visual suite hides the time. */}
@@ -346,7 +346,7 @@ export function EstimateDetailPage() {
                   {estimate.problems.map((problem) => (
                     <li
                       key={problem.problem}
-                      className="text-[var(--text-body-sm)] text-[var(--color-text)]"
+                      className="text-[length:var(--text-body-sm)] text-[var(--color-text)]"
                     >
                       {problem.explanation}
                     </li>
@@ -400,7 +400,7 @@ export function EstimateDetailPage() {
                         <span className="font-semibold text-[var(--color-text-strong)]">
                           {entry.to_state_label}
                         </span>
-                        <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                        <span className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                           {entry.actor_label ?? 'The system'} ·{' '}
                           <time dateTime={entry.occurred_at} data-visual-volatile>
                             {formatMoment(entry.occurred_at)}
@@ -408,7 +408,7 @@ export function EstimateDetailPage() {
                         </span>
                       </p>
                       {entry.reason ? (
-                        <p className="mt-[var(--space-2)] m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+                        <p className="mt-[var(--space-2)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                           {entry.reason}
                         </p>
                       ) : null}
@@ -459,7 +459,7 @@ export function EstimateDetailPage() {
               ) : estimate.planned_route && estimate.planned_route.length > 0 ? (
                 <>
                   <PlannedRoute steps={estimate.planned_route} />
-                  <p className="mt-[var(--space-4)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                  <p className="mt-[var(--space-4)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                     The route the amount on the draft would take today. Changing the amount can
                     change it.
                   </p>
@@ -469,12 +469,12 @@ export function EstimateDetailPage() {
                   <p className="m-0 font-semibold text-[var(--color-warning-700)]">
                     No route can be worked out yet
                   </p>
-                  <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+                  <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                     {estimate.planned_route_problem}
                   </p>
                 </>
               ) : (
-                <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                   Enter the total and its currency, and the approvals it will need appear here.
                 </p>
               )}
@@ -493,7 +493,7 @@ export function EstimateDetailPage() {
               <CardContent className="flex flex-col gap-[var(--space-6)]">
                 {estimate.route_history.map((route) => (
                   <div key={route.id}>
-                    <p className="mb-[var(--space-3)] m-0 text-[var(--text-body-sm)] font-semibold text-[var(--color-text-strong)]">
+                    <p className="mb-[var(--space-3)] m-0 text-[length:var(--text-body-sm)] font-semibold text-[var(--color-text-strong)]">
                       Round {route.attempt} · {route.amount_formatted}
                     </p>
                     <ApprovalRoute route={route} />
@@ -521,7 +521,7 @@ export function EstimateDetailPage() {
           </>
         }
       >
-        <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+        <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
           Nothing has been sent to an approver either way. Staying here lets you press Save draft
           first, and a saved draft is still only visible to you.
         </p>

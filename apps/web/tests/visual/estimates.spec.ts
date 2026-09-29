@@ -53,7 +53,7 @@ test.describe('the estimate register, as a requester', () => {
 
     await expect(
       page.getByRole('group', { name: 'Estimates actions' }).getByRole('button', {
-        name: /new estimate/i,
+        name: /create estimate/i,
       }),
     ).toBeEnabled();
   });
@@ -75,7 +75,7 @@ test.describe('the estimate register, as an approver', () => {
 
     // An approver raises nothing. Offering them the button and refusing the
     // request afterwards would be the interface disagreeing with the server.
-    await expect(page.getByRole('button', { name: /new estimate/i })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /create estimate/i })).toHaveCount(0);
 
     await expect(page).toHaveScreenshot('estimates-register-approver.png', { fullPage: true });
   });

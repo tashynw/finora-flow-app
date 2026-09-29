@@ -6,7 +6,15 @@ import globals from 'globals';
 
 export default tseslint.config(
   {
-    ignores: ['dist', 'coverage', 'storybook-static', 'playwright-report', 'test-results'],
+    ignores: [
+      'dist',
+      'coverage',
+      'storybook-static',
+      'playwright-report',
+      'test-results',
+      'verify-shots',
+      'verify-shots.mjs',
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,

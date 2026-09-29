@@ -87,7 +87,7 @@ export function App() {
         className="flex min-h-dvh flex-col items-center justify-center gap-4"
       >
         <FinoraMark showWordmark />
-        <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+        <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
           Checking your session
         </p>
       </div>

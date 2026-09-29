@@ -102,7 +102,7 @@ function StepRow({ step, showConnector, children }: StepRowProps) {
         </div>
 
         {decided && step.decided_by_label ? (
-          <p className="mt-[var(--space-1)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+          <p className="mt-[var(--space-1)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
             {step.state === 'rejected' ? 'Rejected' : 'Approved'} by{' '}
             <span className="font-semibold text-[var(--color-text-strong)]">
               {step.decided_by_label}
@@ -113,7 +113,7 @@ function StepRow({ step, showConnector, children }: StepRowProps) {
             </time>
           </p>
         ) : (
-          <p className="mt-[var(--space-1)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+          <p className="mt-[var(--space-1)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
             {descriptor.description}
           </p>
         )}
@@ -125,7 +125,7 @@ function StepRow({ step, showConnector, children }: StepRowProps) {
           <blockquote
             className={cn(
               'mt-[var(--space-3)] m-0 border-l-2 pl-[var(--space-3)]',
-              'text-[var(--text-body-sm)] text-[var(--color-text)]',
+              'text-[length:var(--text-body-sm)] text-[var(--color-text)]',
               step.state === 'rejected'
                 ? 'border-[var(--color-danger-600)]'
                 : 'border-[var(--color-border-strong)]',
@@ -136,7 +136,7 @@ function StepRow({ step, showConnector, children }: StepRowProps) {
         ) : null}
 
         {step.would_act_for ? (
-          <p className="mt-[var(--space-2)] m-0 text-[var(--text-caption)] text-[var(--color-text-muted)]">
+          <p className="mt-[var(--space-2)] m-0 text-[length:var(--text-caption)] text-[var(--color-text-muted)]">
             You would be deciding this as {step.would_act_for}&rsquo;s delegate, and their name
             will be recorded alongside yours.
           </p>
@@ -177,7 +177,7 @@ export function ApprovalRoute({ route, renderDecision, className }: ApprovalRout
           return (
             <li key={group[0]?.step_order ?? groupIndex}>
               {group.length > 1 ? (
-                <p className="mb-[var(--space-2)] ml-12 m-0 text-[var(--text-caption)] text-[var(--color-text-muted)]">
+                <p className="mb-[var(--space-2)] ml-12 m-0 text-[length:var(--text-caption)] text-[var(--color-text-muted)]">
                   Both are needed, in either order.
                 </p>
               ) : null}

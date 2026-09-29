@@ -654,6 +654,93 @@
         "title": "AcknowledgeRequest",
         "type": "object"
       },
+      "ActiveRequest": {
+        "properties": {
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "is_active",
+          "reason"
+        ],
+        "title": "ActiveRequest",
+        "type": "object"
+      },
+      "ActivityOut": {
+        "properties": {
+          "amount_formatted": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Formatted"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "kind_label": {
+            "title": "Kind Label",
+            "type": "string"
+          },
+          "reference": {
+            "title": "Reference",
+            "type": "string"
+          },
+          "state_label": {
+            "title": "State Label",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "tone": {
+            "title": "Tone",
+            "type": "string"
+          },
+          "when": {
+            "format": "date-time",
+            "title": "When",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "kind_label",
+          "reference",
+          "title",
+          "state_label",
+          "tone",
+          "when"
+        ],
+        "title": "ActivityOut",
+        "type": "object"
+      },
+      "ActorType": {
+        "enum": [
+          "user",
+          "service",
+          "scheduler",
+          "ai",
+          "external_vendor",
+          "anonymous"
+        ],
+        "title": "ActorType",
+        "type": "string"
+      },
       "AddLinesRequest": {
         "properties": {
           "invoice_ids": {
@@ -945,6 +1032,41 @@
         ],
         "title": "ApprovalOutcome",
         "type": "string"
+      },
+      "ApprovalPerformanceOut": {
+        "properties": {
+          "approval_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Rate"
+          },
+          "avg_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Hours"
+          },
+          "decided": {
+            "title": "Decided",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "decided"
+        ],
+        "title": "ApprovalPerformanceOut",
+        "type": "object"
       },
       "ApprovalPersonOut": {
         "description": "Somebody who could be put at a level, or named as cover.",
@@ -1298,6 +1420,191 @@
           "model_name"
         ],
         "title": "AttemptSummary",
+        "type": "object"
+      },
+      "AuditAction": {
+        "enum": [
+          "sign_in",
+          "sign_in_failed",
+          "sign_out",
+          "permission_denied",
+          "record_created",
+          "record_updated",
+          "state_changed",
+          "document_stored",
+          "document_viewed",
+          "document_downloaded",
+          "document_quarantined",
+          "document_released",
+          "message_ingested",
+          "message_duplicate_detected",
+          "intake_retried",
+          "scan_completed",
+          "extraction_completed",
+          "extraction_corrected",
+          "extraction_accepted",
+          "ai_suggestion_produced",
+          "ai_suggestion_accepted",
+          "ai_suggestion_rejected",
+          "ai_kill_switch_changed",
+          "approval_requested",
+          "approval_withdrawn",
+          "sign_off_requested",
+          "signed_off",
+          "sign_off_declined",
+          "approved",
+          "rejected",
+          "delegated",
+          "overridden",
+          "package_submitted",
+          "marked_paid",
+          "vendor_confirmation_received",
+          "vendor_confirmation_reviewed",
+          "vendor_confirmation_requested",
+          "credit_card_statement_imported",
+          "credit_card_transaction_coded",
+          "credit_card_receipt_matched",
+          "credit_card_period_closed",
+          "accrual_period_opened",
+          "accrual_candidates_generated",
+          "accrual_candidate_edited",
+          "accrual_candidate_finalized",
+          "period_locked",
+          "export_generated",
+          "mail_sent",
+          "mail_failed",
+          "reminder_sent",
+          "escalated",
+          "link_issued",
+          "link_followed",
+          "link_refused",
+          "configuration_changed",
+          "role_assigned"
+        ],
+        "title": "AuditAction",
+        "type": "string"
+      },
+      "AuditEntryOut": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/AuditAction"
+          },
+          "actor_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Id"
+          },
+          "actor_label": {
+            "title": "Actor Label",
+            "type": "string"
+          },
+          "actor_type": {
+            "$ref": "#/components/schemas/ActorType"
+          },
+          "correlation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correlation Id"
+          },
+          "detail": {
+            "additionalProperties": true,
+            "title": "Detail",
+            "type": "object"
+          },
+          "entry_hash": {
+            "title": "Entry Hash",
+            "type": "string"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "previous_hash": {
+            "title": "Previous Hash",
+            "type": "string"
+          },
+          "sequence": {
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "subject_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject Id"
+          },
+          "subject_type": {
+            "title": "Subject Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sequence",
+          "entry_hash",
+          "previous_hash",
+          "occurred_at",
+          "action",
+          "actor_type",
+          "actor_label",
+          "actor_id",
+          "subject_type",
+          "subject_id",
+          "correlation_id",
+          "detail"
+        ],
+        "title": "AuditEntryOut",
+        "type": "object"
+      },
+      "AuditEntryPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AuditEntryOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "AuditEntryPage",
         "type": "object"
       },
       "AuthMethodsResponse": {
@@ -2201,6 +2508,128 @@
           "text"
         ],
         "title": "CorrectionRequest",
+        "type": "object"
+      },
+      "CostCentreCreateRequest": {
+        "properties": {
+          "code": {
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "department": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Department"
+          },
+          "name": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "reason"
+        ],
+        "title": "CostCentreCreateRequest",
+        "type": "object"
+      },
+      "CostCentreOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "department": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Department"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "department",
+          "is_active"
+        ],
+        "title": "CostCentreOut",
+        "type": "object"
+      },
+      "CostCentreUpdateRequest": {
+        "properties": {
+          "department": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Department"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "CostCentreUpdateRequest",
         "type": "object"
       },
       "CreditCardCloseBody": {
@@ -4615,6 +5044,92 @@
         "title": "FieldReview",
         "type": "string"
       },
+      "GlAccountCreateRequest": {
+        "properties": {
+          "code": {
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "reason"
+        ],
+        "title": "GlAccountCreateRequest",
+        "type": "object"
+      },
+      "GlAccountOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "is_active"
+        ],
+        "title": "GlAccountOut",
+        "type": "object"
+      },
+      "GlAccountUpdateRequest": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "GlAccountUpdateRequest",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -5692,6 +6207,44 @@
         "title": "JoinRefusal",
         "type": "string"
       },
+      "KillSwitchRequest": {
+        "properties": {
+          "engaged": {
+            "title": "Engaged",
+            "type": "boolean"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "engaged",
+          "reason"
+        ],
+        "title": "KillSwitchRequest",
+        "type": "object"
+      },
+      "KillSwitchResponse": {
+        "properties": {
+          "engaged": {
+            "title": "Engaged",
+            "type": "boolean"
+          },
+          "kill_switch_effective": {
+            "title": "Kill Switch Effective",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "engaged",
+          "kill_switch_effective"
+        ],
+        "title": "KillSwitchResponse",
+        "type": "object"
+      },
       "KindRequest": {
         "properties": {
           "kind": {
@@ -5702,6 +6255,49 @@
           "kind"
         ],
         "title": "KindRequest",
+        "type": "object"
+      },
+      "KpiOut": {
+        "properties": {
+          "hint": {
+            "title": "Hint",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "money": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OverviewMoneyOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tone": {
+            "title": "Tone",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "value",
+          "hint",
+          "tone"
+        ],
+        "title": "KpiOut",
         "type": "object"
       },
       "LinkedEstimateOut": {
@@ -6741,6 +7337,39 @@
         "title": "MoneyOut",
         "type": "object"
       },
+      "MonthlySpendOut": {
+        "properties": {
+          "accruals": {
+            "title": "Accruals",
+            "type": "integer"
+          },
+          "credit_cards": {
+            "title": "Credit Cards",
+            "type": "integer"
+          },
+          "invoices": {
+            "title": "Invoices",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "purchase_orders": {
+            "title": "Purchase Orders",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "label",
+          "invoices",
+          "purchase_orders",
+          "credit_cards",
+          "accruals"
+        ],
+        "title": "MonthlySpendOut",
+        "type": "object"
+      },
       "NamedRefOut": {
         "description": "A coded reference, resolved so a screen never shows a bare identifier.",
         "properties": {
@@ -6814,6 +7443,116 @@
           "concerns"
         ],
         "title": "OperationsReport",
+        "type": "object"
+      },
+      "OverviewMoneyOut": {
+        "properties": {
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "formatted": {
+            "title": "Formatted",
+            "type": "string"
+          },
+          "minor_units": {
+            "title": "Minor Units",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "minor_units",
+          "currency",
+          "formatted"
+        ],
+        "title": "OverviewMoneyOut",
+        "type": "object"
+      },
+      "OverviewOut": {
+        "properties": {
+          "aging": {
+            "items": {
+              "$ref": "#/components/schemas/SliceOut"
+            },
+            "title": "Aging",
+            "type": "array"
+          },
+          "approval_performance": {
+            "$ref": "#/components/schemas/ApprovalPerformanceOut"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "invoice_states": {
+            "items": {
+              "$ref": "#/components/schemas/SliceOut"
+            },
+            "title": "Invoice States",
+            "type": "array"
+          },
+          "kpis": {
+            "items": {
+              "$ref": "#/components/schemas/KpiOut"
+            },
+            "title": "Kpis",
+            "type": "array"
+          },
+          "monthly_activity": {
+            "items": {
+              "$ref": "#/components/schemas/TrendOut"
+            },
+            "title": "Monthly Activity",
+            "type": "array"
+          },
+          "monthly_spend": {
+            "items": {
+              "$ref": "#/components/schemas/MonthlySpendOut"
+            },
+            "title": "Monthly Spend",
+            "type": "array"
+          },
+          "primary_currency": {
+            "title": "Primary Currency",
+            "type": "string"
+          },
+          "recent_activity": {
+            "items": {
+              "$ref": "#/components/schemas/ActivityOut"
+            },
+            "title": "Recent Activity",
+            "type": "array"
+          },
+          "spend_cards": {
+            "items": {
+              "$ref": "#/components/schemas/SpendCardOut"
+            },
+            "title": "Spend Cards",
+            "type": "array"
+          },
+          "top_vendors": {
+            "items": {
+              "$ref": "#/components/schemas/VendorSpendOut"
+            },
+            "title": "Top Vendors",
+            "type": "array"
+          }
+        },
+        "required": [
+          "generated_at",
+          "primary_currency",
+          "kpis",
+          "spend_cards",
+          "top_vendors",
+          "recent_activity",
+          "approval_performance",
+          "invoice_states",
+          "aging",
+          "monthly_activity",
+          "monthly_spend"
+        ],
+        "title": "OverviewOut",
         "type": "object"
       },
       "PackageDraftRequest": {
@@ -8444,6 +9183,89 @@
         "title": "RefusedOut",
         "type": "object"
       },
+      "RegisterSliceOut": {
+        "description": "One wedge of a register's status donut.",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "tone": {
+            "title": "Tone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "count",
+          "tone"
+        ],
+        "title": "RegisterSliceOut",
+        "type": "object"
+      },
+      "RegisterStatOut": {
+        "description": "One headline figure in a register's stat band, already display-ready.\n\nThe value is a formatted string rather than a number so a stat band can mix\nmoney, counts and durations without the client re-deciding how each is\nwritten. The tone is advisory colour only; the label beside it carries the\nmeaning.",
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "tone": {
+            "default": "neutral",
+            "title": "Tone",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "value"
+        ],
+        "title": "RegisterStatOut",
+        "type": "object"
+      },
+      "RegisterSummaryOut": {
+        "description": "A register's whole-dataset headline figures and status mix.\n\nEvery figure is counted or summed from the same records the register lists,\nunder the same visibility rules, so a stat band never claims more than the\ncaller could reach by opening the table behind it. An empty register returns\nzeros, never a blank or a guess.",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "stats": {
+            "items": {
+              "$ref": "#/components/schemas/RegisterStatOut"
+            },
+            "title": "Stats",
+            "type": "array"
+          },
+          "status_mix": {
+            "items": {
+              "$ref": "#/components/schemas/RegisterSliceOut"
+            },
+            "title": "Status Mix",
+            "type": "array"
+          }
+        },
+        "required": [
+          "count",
+          "stats",
+          "status_mix"
+        ],
+        "title": "RegisterSummaryOut",
+        "type": "object"
+      },
       "ReminderPurpose": {
         "description": "What a record is being chased for.\n\nKept distinct because they run on the same clock but climb different ladders.\nA sign-off is chased towards the requester and then their management line; an\napproval is chased towards whoever the matrix put on the step.\n\n`payment_check_in` is the odd one and is marked as such wherever it is used:\nthe party being chased is a supplier outside the organisation, so it climbs\nno ladder at all \u2014 there is nobody senior to them here to copy in \u2014 and it\nruns on a policy measured in days rather than working hours. Chasing a\nsupplier about our own payment every three hours would be both rude and a\nreliable way to have the platform's mail classified as spam, after which the\nmessages that matter go there too.",
         "enum": [
@@ -8493,6 +9315,61 @@
         "title": "ResolvedOut",
         "type": "object"
       },
+      "RetentionPolicyOut": {
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "record_class": {
+            "title": "Record Class",
+            "type": "string"
+          },
+          "retention_days": {
+            "title": "Retention Days",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "record_class",
+          "retention_days",
+          "description",
+          "is_active"
+        ],
+        "title": "RetentionPolicyOut",
+        "type": "object"
+      },
+      "RetentionUpdateRequest": {
+        "properties": {
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          },
+          "retention_days": {
+            "minimum": 1.0,
+            "title": "Retention Days",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "retention_days",
+          "reason"
+        ],
+        "title": "RetentionUpdateRequest",
+        "type": "object"
+      },
       "ReviewOutcome": {
         "description": "What somebody inside the organisation concluded.",
         "enum": [
@@ -8513,6 +9390,19 @@
         ],
         "title": "ReviewRequest",
         "type": "object"
+      },
+      "Role": {
+        "enum": [
+          "requester",
+          "approver",
+          "payment_coordinator",
+          "finance",
+          "administrator",
+          "operations",
+          "auditor"
+        ],
+        "title": "Role",
+        "type": "string"
       },
       "RouteOut": {
         "properties": {
@@ -8661,6 +9551,116 @@
         "title": "RouteState",
         "type": "string"
       },
+      "SavedViewCreateRequest": {
+        "properties": {
+          "definition": {
+            "additionalProperties": true,
+            "title": "Definition",
+            "type": "object"
+          },
+          "is_default": {
+            "default": false,
+            "title": "Is Default",
+            "type": "boolean"
+          },
+          "name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "scope": {
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Scope",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope",
+          "name",
+          "definition"
+        ],
+        "title": "SavedViewCreateRequest",
+        "type": "object"
+      },
+      "SavedViewOut": {
+        "properties": {
+          "definition": {
+            "additionalProperties": true,
+            "title": "Definition",
+            "type": "object"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_default": {
+            "title": "Is Default",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "scope",
+          "name",
+          "definition",
+          "is_default"
+        ],
+        "title": "SavedViewOut",
+        "type": "object"
+      },
+      "SavedViewUpdateRequest": {
+        "properties": {
+          "definition": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Definition"
+          },
+          "is_default": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Default"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "title": "SavedViewUpdateRequest",
+        "type": "object"
+      },
       "ScanVerdict": {
         "enum": [
           "clean",
@@ -8670,6 +9670,109 @@
         ],
         "title": "ScanVerdict",
         "type": "string"
+      },
+      "SearchHitOut": {
+        "properties": {
+          "amount_formatted": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Formatted"
+          },
+          "record_id": {
+            "format": "uuid",
+            "title": "Record Id",
+            "type": "string"
+          },
+          "record_path": {
+            "title": "Record Path",
+            "type": "string"
+          },
+          "record_type": {
+            "$ref": "#/components/schemas/SearchRecordType"
+          },
+          "reference": {
+            "title": "Reference",
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          },
+          "subtitle": {
+            "title": "Subtitle",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "type_label": {
+            "title": "Type Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "record_type",
+          "type_label",
+          "record_id",
+          "record_path",
+          "reference",
+          "title",
+          "subtitle"
+        ],
+        "title": "SearchHitOut",
+        "type": "object"
+      },
+      "SearchRecordType": {
+        "enum": [
+          "estimate",
+          "invoice",
+          "purchase_order",
+          "payment_package",
+          "document",
+          "vendor_check_in"
+        ],
+        "title": "SearchRecordType",
+        "type": "string"
+      },
+      "SearchResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SearchHitOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "query",
+          "items",
+          "total"
+        ],
+        "title": "SearchResponse",
+        "type": "object"
       },
       "SignInRequest": {
         "properties": {
@@ -8878,6 +9981,117 @@
         "title": "SignedUrlResponse",
         "type": "object"
       },
+      "SliceOut": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "tone": {
+            "title": "Tone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "count",
+          "tone"
+        ],
+        "title": "SliceOut",
+        "type": "object"
+      },
+      "SpendCardOut": {
+        "properties": {
+          "count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Count"
+          },
+          "delta_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta Pct"
+          },
+          "hint": {
+            "title": "Hint",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "money": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OverviewMoneyOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "month_money": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OverviewMoneyOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "previous_money": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OverviewMoneyOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "series": {
+            "default": [],
+            "items": {
+              "type": "integer"
+            },
+            "title": "Series",
+            "type": "array"
+          },
+          "tone": {
+            "title": "Tone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "hint",
+          "tone"
+        ],
+        "title": "SpendCardOut",
+        "type": "object"
+      },
       "StepOut": {
         "properties": {
           "comment": {
@@ -9029,6 +10243,63 @@
         "title": "SuggestionOut",
         "type": "object"
       },
+      "ThresholdOut": {
+        "properties": {
+          "applies_above_minor_units": {
+            "title": "Applies Above Minor Units",
+            "type": "integer"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "currency",
+          "applies_above_minor_units",
+          "is_active"
+        ],
+        "title": "ThresholdOut",
+        "type": "object"
+      },
+      "ThresholdUpsertRequest": {
+        "properties": {
+          "applies_above_minor_units": {
+            "minimum": 0.0,
+            "title": "Applies Above Minor Units",
+            "type": "integer"
+          },
+          "currency": {
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Currency",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "currency",
+          "applies_above_minor_units",
+          "reason"
+        ],
+        "title": "ThresholdUpsertRequest",
+        "type": "object"
+      },
       "TransitionOut": {
         "properties": {
           "actor_label": {
@@ -9087,6 +10358,29 @@
         "title": "TransitionOut",
         "type": "object"
       },
+      "TrendOut": {
+        "properties": {
+          "estimates": {
+            "title": "Estimates",
+            "type": "integer"
+          },
+          "invoices": {
+            "title": "Invoices",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "invoices",
+          "estimates"
+        ],
+        "title": "TrendOut",
+        "type": "object"
+      },
       "UploadAccepted": {
         "properties": {
           "enrolled_documents": {
@@ -9130,6 +10424,156 @@
           "enrolled_documents"
         ],
         "title": "UploadAccepted",
+        "type": "object"
+      },
+      "UserActiveRequest": {
+        "properties": {
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "is_active",
+          "reason"
+        ],
+        "title": "UserActiveRequest",
+        "type": "object"
+      },
+      "UserCreateRequest": {
+        "properties": {
+          "department": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Department"
+          },
+          "display_name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 320,
+            "minLength": 3,
+            "title": "Email",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          },
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/Role"
+            },
+            "minItems": 1,
+            "title": "Roles",
+            "type": "array"
+          }
+        },
+        "required": [
+          "email",
+          "display_name",
+          "roles",
+          "reason"
+        ],
+        "title": "UserCreateRequest",
+        "type": "object"
+      },
+      "UserOut": {
+        "properties": {
+          "department": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Department"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "permissions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Permissions",
+            "type": "array"
+          },
+          "roles": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Roles",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "display_name",
+          "department",
+          "is_active",
+          "roles",
+          "permissions"
+        ],
+        "title": "UserOut",
+        "type": "object"
+      },
+      "UserRolesRequest": {
+        "properties": {
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          },
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/Role"
+            },
+            "title": "Roles",
+            "type": "array"
+          }
+        },
+        "required": [
+          "roles",
+          "reason"
+        ],
+        "title": "UserRolesRequest",
         "type": "object"
       },
       "ValidationError": {
@@ -9215,6 +10659,78 @@
         "title": "VendorAnswerResponse",
         "type": "object"
       },
+      "VendorCreateRequest": {
+        "properties": {
+          "code": {
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "default_currency": {
+            "default": "JMD",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Default Currency",
+            "type": "string"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "maxLength": 320,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "name": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "payment_terms_days": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Terms Days"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "reason"
+        ],
+        "title": "VendorCreateRequest",
+        "type": "object"
+      },
       "VendorLineOut": {
         "properties": {
           "amount": {
@@ -9255,6 +10771,76 @@
           "due_date"
         ],
         "title": "VendorLineOut",
+        "type": "object"
+      },
+      "VendorOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "default_currency": {
+            "title": "Default Currency",
+            "type": "string"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "payment_terms_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Terms Days"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "email",
+          "phone",
+          "default_currency",
+          "payment_terms_days",
+          "is_active"
+        ],
+        "title": "VendorOut",
         "type": "object"
       },
       "VendorQuestionOut": {
@@ -9323,6 +10909,177 @@
         "title": "VendorQuestionOut",
         "type": "object"
       },
+      "VendorSpendOut": {
+        "properties": {
+          "money": {
+            "$ref": "#/components/schemas/OverviewMoneyOut"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "share": {
+            "title": "Share",
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "money",
+          "share"
+        ],
+        "title": "VendorSpendOut",
+        "type": "object"
+      },
+      "VendorUpdateRequest": {
+        "properties": {
+          "default_currency": {
+            "anyOf": [
+              {
+                "maxLength": 3,
+                "minLength": 3,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Currency"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "maxLength": 320,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "payment_terms_days": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Terms Days"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "VendorUpdateRequest",
+        "type": "object"
+      },
+      "VerifyRequest": {
+        "properties": {
+          "limit": {
+            "anyOf": [
+              {
+                "maximum": 10000.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit"
+          },
+          "start_sequence": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Start Sequence",
+            "type": "integer"
+          }
+        },
+        "title": "VerifyRequest",
+        "type": "object"
+      },
+      "VerifyResponse": {
+        "description": "Whether a contiguous slice of the chain still holds together.",
+        "properties": {
+          "checked_count": {
+            "title": "Checked Count",
+            "type": "integer"
+          },
+          "first_bad_sequence": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Bad Sequence"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "required": [
+          "ok",
+          "checked_count",
+          "first_bad_sequence",
+          "message"
+        ],
+        "title": "VerifyResponse",
+        "type": "object"
+      },
       "ViewerUrl": {
         "properties": {
           "content_type": {
@@ -9349,6 +11106,162 @@
           "content_type"
         ],
         "title": "ViewerUrl",
+        "type": "object"
+      },
+      "WorkBadgesOut": {
+        "description": "Counts keyed exactly as the web navigation badge slots expect.",
+        "properties": {
+          "awaitingMyApproval": {
+            "title": "Awaitingmyapproval",
+            "type": "integer"
+          },
+          "documentsNeedingReview": {
+            "title": "Documentsneedingreview",
+            "type": "integer"
+          },
+          "intakeUnprocessed": {
+            "title": "Intakeunprocessed",
+            "type": "integer"
+          },
+          "myWork": {
+            "title": "Mywork",
+            "type": "integer"
+          },
+          "operationalAlerts": {
+            "title": "Operationalalerts",
+            "type": "integer"
+          },
+          "vendorNeedingReview": {
+            "title": "Vendorneedingreview",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "myWork",
+          "awaitingMyApproval",
+          "documentsNeedingReview",
+          "intakeUnprocessed",
+          "vendorNeedingReview",
+          "operationalAlerts"
+        ],
+        "title": "WorkBadgesOut",
+        "type": "object"
+      },
+      "WorkItemOut": {
+        "properties": {
+          "amount_formatted": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Formatted"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/WorkKind"
+          },
+          "kind_label": {
+            "title": "Kind Label",
+            "type": "string"
+          },
+          "record_id": {
+            "format": "uuid",
+            "title": "Record Id",
+            "type": "string"
+          },
+          "record_path": {
+            "title": "Record Path",
+            "type": "string"
+          },
+          "reference": {
+            "title": "Reference",
+            "type": "string"
+          },
+          "subtitle": {
+            "title": "Subtitle",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "waiting_hours": {
+            "title": "Waiting Hours",
+            "type": "integer"
+          },
+          "waiting_since": {
+            "format": "date-time",
+            "title": "Waiting Since",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "kind_label",
+          "record_id",
+          "record_path",
+          "reference",
+          "title",
+          "subtitle",
+          "waiting_since",
+          "waiting_hours"
+        ],
+        "title": "WorkItemOut",
+        "type": "object"
+      },
+      "WorkKind": {
+        "description": "What kind of action this row is asking for.",
+        "enum": [
+          "approval",
+          "sign_off",
+          "document_review",
+          "vendor_review",
+          "intake"
+        ],
+        "title": "WorkKind",
+        "type": "string"
+      },
+      "WorkQueueOut": {
+        "properties": {
+          "counts_by_kind": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Counts By Kind",
+            "type": "object"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/WorkItemOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "counts_by_kind"
+        ],
+        "title": "WorkQueueOut",
         "type": "object"
       },
       "WorkflowState": {
@@ -10236,6 +12149,71 @@
         ]
       }
     },
+    "/api/v1/admin/operational-settings": {
+      "get": {
+        "description": "AI status and workflow policy snapshot. No secrets.",
+        "operationId": "read_operational_settings_api_v1_admin_operational_settings_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Read Operational Settings Api V1 Admin Operational Settings Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Read Operational Settings",
+        "tags": [
+          "operational-settings"
+        ]
+      }
+    },
+    "/api/v1/admin/operational-settings/ai-kill-switch": {
+      "post": {
+        "operationId": "post_ai_kill_switch_api_v1_admin_operational_settings_ai_kill_switch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KillSwitchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KillSwitchResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Post Ai Kill Switch",
+        "tags": [
+          "operational-settings"
+        ]
+      }
+    },
     "/api/v1/admin/people": {
       "get": {
         "description": "Everybody who could hold a level or be named as somebody's cover.\n\nClosed accounts are left out entirely: anything routed to them waits\nindefinitely, and offering the name is offering a way to stop a queue.",
@@ -10259,6 +12237,1109 @@
         "summary": "Read People",
         "tags": [
           "administration"
+        ]
+      }
+    },
+    "/api/v1/admin/reference/cost-centres": {
+      "get": {
+        "operationId": "list_cost_centres_api_v1_admin_reference_cost_centres_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "include_inactive",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Include Inactive",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CostCentreOut"
+                  },
+                  "title": "Response List Cost Centres Api V1 Admin Reference Cost Centres Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Cost Centres",
+        "tags": [
+          "reference-admin"
+        ]
+      },
+      "post": {
+        "operationId": "create_cost_centre_api_v1_admin_reference_cost_centres_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CostCentreCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CostCentreOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Cost Centre",
+        "tags": [
+          "reference-admin"
+        ]
+      }
+    },
+    "/api/v1/admin/reference/cost-centres/{centre_id}": {
+      "put": {
+        "operationId": "update_cost_centre_api_v1_admin_reference_cost_centres__centre_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "centre_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Centre Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CostCentreUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CostCentreOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Cost Centre",
+        "tags": [
+          "reference-admin"
+        ]
+      }
+    },
+    "/api/v1/admin/reference/cost-centres/{centre_id}/active": {
+      "post": {
+        "operationId": "set_cost_centre_active_api_v1_admin_reference_cost_centres__centre_id__active_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "centre_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Centre Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActiveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CostCentreOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Cost Centre Active",
+        "tags": [
+          "reference-admin"
+        ]
+      }
+    },
+    "/api/v1/admin/reference/gl-accounts": {
+      "get": {
+        "operationId": "list_gl_accounts_api_v1_admin_reference_gl_accounts_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "include_inactive",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Include Inactive",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GlAccountOut"
+                  },
+                  "title": "Response List Gl Accounts Api V1 Admin Reference Gl Accounts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Gl Accounts",
+        "tags": [
+          "reference-admin"
+        ]
+      },
+      "post": {
+        "operationId": "create_gl_account_api_v1_admin_reference_gl_accounts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GlAccountCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GlAccountOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Gl Account",
+        "tags": [
+          "reference-admin"
+        ]
+      }
+    },
+    "/api/v1/admin/reference/gl-accounts/{account_id}": {
+      "put": {
+        "operationId": "update_gl_account_api_v1_admin_reference_gl_accounts__account_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Account Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GlAccountUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GlAccountOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Gl Account",
+        "tags": [
+          "reference-admin"
+        ]
+      }
+    },
+    "/api/v1/admin/reference/gl-accounts/{account_id}/active": {
+      "post": {
+        "operationId": "set_gl_account_active_api_v1_admin_reference_gl_accounts__account_id__active_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Account Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActiveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GlAccountOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Gl Account Active",
+        "tags": [
+          "reference-admin"
+        ]
+      }
+    },
+    "/api/v1/admin/reference/vendors": {
+      "get": {
+        "operationId": "list_vendors_api_v1_admin_reference_vendors_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "include_inactive",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Include Inactive",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/VendorOut"
+                  },
+                  "title": "Response List Vendors Api V1 Admin Reference Vendors Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Vendors",
+        "tags": [
+          "reference-admin"
+        ]
+      },
+      "post": {
+        "operationId": "create_vendor_api_v1_admin_reference_vendors_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VendorCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendorOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Vendor",
+        "tags": [
+          "reference-admin"
+        ]
+      }
+    },
+    "/api/v1/admin/reference/vendors/{vendor_id}": {
+      "put": {
+        "operationId": "update_vendor_api_v1_admin_reference_vendors__vendor_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "vendor_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Vendor Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VendorUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendorOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Vendor",
+        "tags": [
+          "reference-admin"
+        ]
+      }
+    },
+    "/api/v1/admin/reference/vendors/{vendor_id}/active": {
+      "post": {
+        "operationId": "set_vendor_active_api_v1_admin_reference_vendors__vendor_id__active_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "vendor_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Vendor Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActiveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendorOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Vendor Active",
+        "tags": [
+          "reference-admin"
+        ]
+      }
+    },
+    "/api/v1/admin/retention": {
+      "get": {
+        "operationId": "list_policies_api_v1_admin_retention_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "include_inactive",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Include Inactive",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RetentionPolicyOut"
+                  },
+                  "title": "Response List Policies Api V1 Admin Retention Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Policies",
+        "tags": [
+          "retention"
+        ]
+      }
+    },
+    "/api/v1/admin/retention/{policy_id}": {
+      "patch": {
+        "operationId": "update_policy_api_v1_admin_retention__policy_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "policy_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Policy Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetentionUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetentionPolicyOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Policy",
+        "tags": [
+          "retention"
+        ]
+      }
+    },
+    "/api/v1/admin/retention/{policy_id}/active": {
+      "post": {
+        "operationId": "set_policy_active_api_v1_admin_retention__policy_id__active_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "policy_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Policy Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActiveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetentionPolicyOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Policy Active",
+        "tags": [
+          "retention"
+        ]
+      }
+    },
+    "/api/v1/admin/thresholds": {
+      "get": {
+        "operationId": "list_thresholds_api_v1_admin_thresholds_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "include_inactive",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Include Inactive",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ThresholdOut"
+                  },
+                  "title": "Response List Thresholds Api V1 Admin Thresholds Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Thresholds",
+        "tags": [
+          "thresholds"
+        ]
+      },
+      "put": {
+        "operationId": "upsert_threshold_api_v1_admin_thresholds_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThresholdUpsertRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThresholdOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Upsert Threshold",
+        "tags": [
+          "thresholds"
+        ]
+      }
+    },
+    "/api/v1/admin/thresholds/{threshold_id}/active": {
+      "post": {
+        "operationId": "set_threshold_active_api_v1_admin_thresholds__threshold_id__active_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "threshold_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Threshold Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActiveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThresholdOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Threshold Active",
+        "tags": [
+          "thresholds"
+        ]
+      }
+    },
+    "/api/v1/admin/users": {
+      "get": {
+        "operationId": "list_users_api_v1_admin_users_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "include_inactive",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Include Inactive",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UserOut"
+                  },
+                  "title": "Response List Users Api V1 Admin Users Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Users",
+        "tags": [
+          "users"
+        ]
+      },
+      "post": {
+        "operationId": "create_user_api_v1_admin_users_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create User",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/admin/users/{user_id}": {
+      "get": {
+        "operationId": "read_user_api_v1_admin_users__user_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "User Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read User",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/admin/users/{user_id}/active": {
+      "post": {
+        "operationId": "set_active_api_v1_admin_users__user_id__active_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "User Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserActiveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Active",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/admin/users/{user_id}/roles": {
+      "put": {
+        "operationId": "set_roles_api_v1_admin_users__user_id__roles_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "User Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRolesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Roles",
+        "tags": [
+          "users"
         ]
       }
     },
@@ -10337,6 +13418,215 @@
         "summary": "Read Queue",
         "tags": [
           "approvals"
+        ]
+      }
+    },
+    "/api/v1/audit/entries": {
+      "get": {
+        "description": "Paginated trail, oldest first, with optional filters.",
+        "operationId": "list_entries_api_v1_audit_entries_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "action",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/AuditAction"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Action"
+            }
+          },
+          {
+            "in": "query",
+            "name": "subject_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 80,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Subject Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "subject_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Subject Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "actor_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Actor Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditEntryPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Entries",
+        "tags": [
+          "audit"
+        ]
+      }
+    },
+    "/api/v1/audit/entries/{sequence}": {
+      "get": {
+        "description": "One entry by its place in the chain.",
+        "operationId": "read_entry_api_v1_audit_entries__sequence__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sequence",
+            "required": true,
+            "schema": {
+              "title": "Sequence",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditEntryOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Entry",
+        "tags": [
+          "audit"
+        ]
+      }
+    },
+    "/api/v1/audit/verify": {
+      "post": {
+        "description": "Check that a contiguous range of the chain still holds.\n\nOffered as a range because a mature trail is too large to hash in one\nrequest; an auditor checks segments and the segments join because each\ncarries its predecessor's hash.",
+        "operationId": "verify_chain_api_v1_audit_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Verify Chain",
+        "tags": [
+          "audit"
         ]
       }
     },
@@ -12436,6 +15726,28 @@
         ]
       }
     },
+    "/api/v1/invoices/summary": {
+      "get": {
+        "description": "Whole-register headline figures and status mix for the stat band.\n\nScoped to exactly the invoices this caller may list, so the totals here can\nalways be reached by opening the register. Amounts are summed per currency\nand reported in the one carrying the most invoices; a mixed-currency\ndeployment is never silently added together.",
+        "operationId": "summarise_invoices_api_v1_invoices_summary_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterSummaryOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Summarise Invoices",
+        "tags": [
+          "invoices"
+        ]
+      }
+    },
     "/api/v1/invoices/{invoice_id}": {
       "get": {
         "description": "One invoice, its linkage, its sign-off position, and what this caller may do.",
@@ -12885,6 +16197,52 @@
         "summary": "Resolve Link",
         "tags": [
           "links"
+        ]
+      }
+    },
+    "/api/v1/overview/metrics": {
+      "get": {
+        "description": "Counts, amounts, aging and recent activity for the home dashboard.",
+        "operationId": "read_metrics_api_v1_overview_metrics_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "months",
+            "required": false,
+            "schema": {
+              "default": 6,
+              "maximum": 12,
+              "minimum": 3,
+              "title": "Months",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverviewOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Metrics",
+        "tags": [
+          "overview"
         ]
       }
     },
@@ -13467,7 +16825,7 @@
     },
     "/api/v1/payment-packages/{package_id}/manifest.csv": {
       "get": {
-        "description": "The manifest as a file, which is what actually goes to the bank.",
+        "description": "The manifest as a file, which is what actually goes to the bank.\n\nTaking a copy of the organisation's outgoing payments is an export, so it\nis recorded as one \u2014 the same action accruals use when a period file leaves.",
         "operationId": "download_manifest_api_v1_payment_packages__package_id__manifest_csv_get",
         "parameters": [
           {
@@ -14162,6 +17520,258 @@
         ]
       }
     },
+    "/api/v1/saved-views": {
+      "get": {
+        "operationId": "list_views_api_v1_saved_views_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "scope",
+            "required": true,
+            "schema": {
+              "maxLength": 40,
+              "minLength": 1,
+              "title": "Scope",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SavedViewOut"
+                  },
+                  "title": "Response List Views Api V1 Saved Views Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Views",
+        "tags": [
+          "saved-views"
+        ]
+      },
+      "post": {
+        "operationId": "create_view_api_v1_saved_views_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavedViewCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedViewOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create View",
+        "tags": [
+          "saved-views"
+        ]
+      }
+    },
+    "/api/v1/saved-views/{view_id}": {
+      "delete": {
+        "operationId": "delete_view_api_v1_saved_views__view_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "view_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "View Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete View",
+        "tags": [
+          "saved-views"
+        ]
+      },
+      "patch": {
+        "operationId": "update_view_api_v1_saved_views__view_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "view_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "View Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavedViewUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedViewOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update View",
+        "tags": [
+          "saved-views"
+        ]
+      }
+    },
+    "/api/v1/search": {
+      "get": {
+        "description": "Find records by reference, vendor, description or filename.",
+        "operationId": "search_api_v1_search_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Limit to these record kinds",
+            "in": "query",
+            "name": "record_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "$ref": "#/components/schemas/SearchRecordType"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Limit to these record kinds",
+              "title": "Record Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 40,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Search",
+        "tags": [
+          "search"
+        ]
+      }
+    },
     "/api/v1/vendor-check-ins": {
       "get": {
         "description": "The review queue.\n\nOrdered so the ones needing a person come first: answered and unreviewed at\nthe top, then those still waiting, oldest first within each. A queue sorted\nby creation date buries the work under the things that have not happened\nyet.",
@@ -14487,6 +18097,152 @@
         "summary": "Send Check In",
         "tags": [
           "vendor confirmation"
+        ]
+      }
+    },
+    "/api/v1/work/badges": {
+      "get": {
+        "description": "Navigation badge counts for this caller.",
+        "operationId": "read_badges_api_v1_work_badges_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkBadgesOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Read Badges",
+        "tags": [
+          "work"
+        ]
+      }
+    },
+    "/api/v1/work/dashboard": {
+      "get": {
+        "description": "The handful of next actions the home page shows.",
+        "operationId": "read_dashboard_api_v1_work_dashboard_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 5,
+              "maximum": 20,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkQueueOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Dashboard",
+        "tags": [
+          "work"
+        ]
+      }
+    },
+    "/api/v1/work/queue": {
+      "get": {
+        "description": "Everything waiting on this caller, oldest first.",
+        "operationId": "read_queue_api_v1_work_queue_get",
+        "parameters": [
+          {
+            "description": "Limit to these kinds of work",
+            "in": "query",
+            "name": "kind",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "$ref": "#/components/schemas/WorkKind"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Limit to these kinds of work",
+              "title": "Kind"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkQueueOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Queue",
+        "tags": [
+          "work"
         ]
       }
     }

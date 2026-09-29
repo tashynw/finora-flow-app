@@ -6,9 +6,11 @@ import type { MatrixOut, MatrixRuleOut } from '@finora/shared-types';
 import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { DataTable, type Column } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SkeletonText } from '@/components/ui/skeleton';
+import { ViewTabs } from '@/components/ui/view-tabs';
 import { ToneBadge } from '@/components/workflow/status-badge';
 import { PageHeader } from '@/features/shared/page-header';
 import { ReasonDialog } from '@/features/shared/reason-dialog';
@@ -20,6 +22,95 @@ import {
   useMatrix,
   useRetireRule,
 } from '@/features/administration/use-administration';
+
+function ruleColumns({
+  onReplace,
+  onRetire,
+}: {
+  onReplace: (rule: MatrixRuleOut) => void;
+  onRetire: (rule: MatrixRuleOut) => void;
+}): Column<MatrixRuleOut>[] {
+  return [
+    {
+      key: 'rule',
+      header: 'Rule',
+      cell: (rule) => (
+        <span className="flex min-w-0 flex-col">
+          <span
+            className={cn(
+              'font-semibold',
+              rule.is_active
+                ? 'text-[var(--color-text-strong)]'
+                : 'text-[var(--color-text-muted)]',
+            )}
+          >
+            {rule.name}
+          </span>
+          {rule.department ? (
+            <span className="text-[11px] text-[var(--color-text-subtle)]">
+              {rule.department} only
+            </span>
+          ) : null}
+        </span>
+      ),
+    },
+    {
+      key: 'band',
+      header: 'Band',
+      width: 'w-56',
+      cell: (rule) => <span className="tabular">{rule.band_label}</span>,
+    },
+    {
+      key: 'currency',
+      header: 'Currency',
+      width: 'w-24',
+      hideBelow: 'md',
+      cell: (rule) => <span>{rule.currency}</span>,
+    },
+    {
+      key: 'level',
+      header: 'Required level',
+      width: 'w-56',
+      cell: (rule) => (
+        <span className="flex flex-col">
+          <span>{rule.level_label}</span>
+          <span className="text-[11px] text-[var(--color-text-subtle)]">
+            Step {rule.step_order}
+            {rule.is_parallel ? ' · decides alongside others' : ''}
+          </span>
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: 'w-28',
+      cell: (rule) =>
+        rule.is_active ? (
+          <ToneBadge label="Live" tone="success" />
+        ) : (
+          <ToneBadge label="Retired" tone="neutral" />
+        ),
+    },
+    {
+      key: 'actions',
+      header: <span className="sr-only">Actions</span>,
+      width: 'w-44',
+      align: 'right',
+      cell: (rule) =>
+        rule.is_active ? (
+          <span className="inline-flex gap-1">
+            <Button variant="ghost" size="sm" onClick={() => onReplace(rule)}>
+              Replace
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => onRetire(rule)}>
+              Retire
+            </Button>
+          </span>
+        ) : null,
+    },
+  ];
+}
 
 /**
  * The approval matrix, one record type at a time.
@@ -54,32 +145,34 @@ export function MatrixPage() {
     <>
       <PageHeader
         title="Approval matrix"
-        purpose="Who has to agree to what, by amount. A change here takes effect on the next record submitted; records already in flight keep the route they were given."
+        purpose="Amount bands and required approval levels."
+        toolbar={
+          <div className="flex flex-wrap items-center gap-[var(--space-3)]">
+            <ViewTabs
+              label="Choose a record type"
+              tabs={[...RECORD_TYPES]}
+              value={recordType}
+              onChange={setRecordType}
+            />
+            <span aria-hidden="true" className="h-5 w-px bg-[var(--color-border)]" />
+            <Button
+              variant="secondary"
+              size="sm"
+              aria-pressed={showRetired}
+              onClick={() => setShowRetired(!showRetired)}
+              className="h-9 text-[12px]"
+            >
+              {showRetired ? 'Hide retired' : 'Show retired'}
+            </Button>
+          </div>
+        }
         actions={
-          <Button variant="primary" onClick={() => setAdding(true)}>
+          <Button variant="primary" size="sm" onClick={() => setAdding(true)}>
             <Plus aria-hidden="true" className="size-4" />
-            Add a rule
+            Add rule
           </Button>
         }
       />
-
-      <div
-        role="group"
-        aria-label="Choose a record type"
-        className="mb-[var(--space-4)] flex flex-wrap gap-[var(--space-2)]"
-      >
-        {RECORD_TYPES.map((option) => (
-          <Button
-            key={option.id}
-            variant={recordType === option.id ? 'primary' : 'ghost'}
-            size="sm"
-            aria-pressed={recordType === option.id}
-            onClick={() => setRecordType(option.id)}
-          >
-            {option.label}
-          </Button>
-        ))}
-      </div>
 
       {isError ? (
         <Card className="mb-[var(--space-6)] border-[var(--color-danger-600)]">
@@ -87,7 +180,7 @@ export function MatrixPage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               Could not load the matrix
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {errorMessage(error) ?? 'The request did not complete.'} Nothing has been changed.
             </p>
           </CardContent>
@@ -101,50 +194,37 @@ export function MatrixPage() {
           </CardContent>
         </Card>
       ) : data ? (
-        <div className="flex flex-col gap-[var(--space-6)]">
+        <div className="flex flex-col gap-[var(--space-5)]">
           <MatrixVerdict matrix={data} />
 
-          <Card>
-            <CardHeader className="flex-row items-start justify-between gap-[var(--space-4)]">
-              <div>
-                <CardTitle>Rules</CardTitle>
-                <CardDescription>
-                  Each rule puts one level into the route for records in its band. Two levels
-                  sharing a step number decide together rather than one after the other.
-                </CardDescription>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                aria-pressed={showRetired}
-                onClick={() => setShowRetired(!showRetired)}
-              >
-                {showRetired ? 'Hide retired' : 'Show retired'}
-              </Button>
-            </CardHeader>
-            <CardContent className="p-0">
-              {rules.length === 0 ? (
+          {rules.length === 0 ? (
+            <Card>
+              <CardContent className="p-0">
                 <EmptyState
                   icon={Scale}
                   title="No rules for this record type"
                   explanation="With no rules, nothing of this kind can be submitted: the platform will not invent a route, and refuses rather than letting spend through unapproved."
                   nextStep="Add a rule for the lowest band first, then work upwards. Leave the top band with no ceiling so there is nothing above the matrix."
-                  action={{ label: 'Add a rule', onClick: () => setAdding(true) }}
+                  action={{ label: 'Add rule', onClick: () => setAdding(true) }}
                 />
-              ) : (
-                <ul className="m-0 list-none p-0">
-                  {rules.map((rule) => (
-                    <RuleRow
-                      key={rule.id}
-                      rule={rule}
-                      onReplace={() => setReplacing(rule)}
-                      onRetire={() => setRetiring(rule)}
-                    />
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ) : (
+            <div>
+              <DataTable
+                ariaLabel={`${data.record_type_label} approval rules`}
+                columns={ruleColumns({ onReplace: setReplacing, onRetire: setRetiring })}
+                rows={rules}
+                getRowKey={(rule) => rule.id}
+              />
+              <p className="mt-2 m-0 text-[11px] text-[var(--color-text-subtle)]">
+                Each rule puts one level into the route for records in its band. Two levels
+                sharing a step number decide together rather than one after the other. A change
+                takes effect on the next record submitted; records already in flight keep their
+                route.
+              </p>
+            </div>
+          )}
 
           <RoutePreview recordType={recordType} />
         </div>
@@ -216,21 +296,19 @@ function MatrixVerdict({ matrix }: { matrix: MatrixOut }) {
   if (faults.length === 0 && gaps.length === 0) {
     return (
       <Card>
-        <CardContent className="flex items-start gap-[var(--space-3)]">
+        <CardContent className="flex items-center gap-[var(--space-3)] py-[var(--space-4)]">
           <Info
             aria-hidden="true"
-            className="mt-0.5 size-5 shrink-0 text-[var(--color-success-700)]"
+            className="size-4 shrink-0 text-[var(--color-success-700)]"
           />
-          <div>
-            <p className="m-0 font-semibold text-[var(--color-text-strong)]">
-              Every amount has a route
-            </p>
-            <p className="mt-1 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-              {readings.length > 0
-                ? `Checked at ${readings.length} amounts across the bands, including the boundaries between them.`
-                : 'Nothing is configured to check.'}
-            </p>
-          </div>
+          <p className="m-0 text-[12px] text-[var(--color-text-muted)]">
+            <span className="font-semibold text-[var(--color-text-strong)]">
+              Every amount has a route.
+            </span>{' '}
+            {readings.length > 0
+              ? `Checked at ${readings.length} amounts across the bands, including the boundaries between them.`
+              : 'Nothing is configured to check.'}
+          </p>
         </CardContent>
       </Card>
     );
@@ -261,7 +339,7 @@ function MatrixVerdict({ matrix }: { matrix: MatrixOut }) {
               ? 'This matrix contradicts itself'
               : 'Some amounts have no route'}
           </p>
-          <ul className="mt-2 mb-0 flex list-disc flex-col gap-1 pl-5 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+          <ul className="mt-2 mb-0 flex list-disc flex-col gap-1 pl-5 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
             {faults.map((note) => (
               <li key={`${note.kind}-${note.message}`}>{note.message}</li>
             ))}
@@ -269,72 +347,12 @@ function MatrixVerdict({ matrix }: { matrix: MatrixOut }) {
               <li key={`${note.kind}-${note.message}`}>{note.message}</li>
             ))}
           </ul>
-          <p className="mt-2 m-0 text-[var(--text-caption)] text-[var(--color-text-subtle)]">
+          <p className="mt-2 m-0 text-[length:var(--text-caption)] text-[var(--color-text-subtle)]">
             A record that lands in one of these cannot be submitted at all. It is refused at
             the point of submission, in front of somebody who cannot fix it from there.
           </p>
         </div>
       </CardContent>
     </Card>
-  );
-}
-
-function RuleRow({
-  rule,
-  onReplace,
-  onRetire,
-}: {
-  rule: MatrixRuleOut;
-  onReplace: () => void;
-  onRetire: () => void;
-}) {
-  return (
-    <li
-      className={cn(
-        'flex flex-col gap-[var(--space-3)] border-b border-[var(--color-divider)] px-[var(--space-5)] py-[var(--space-4)] last:border-b-0',
-        'sm:flex-row sm:items-center',
-        !rule.is_active && 'bg-[var(--color-surface-subtle)]',
-      )}
-    >
-      <div className="min-w-0 flex-1">
-        <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-          <span
-            className={cn(
-              'font-semibold',
-              rule.is_active
-                ? 'text-[var(--color-text-strong)]'
-                : 'text-[var(--color-text-muted)]',
-            )}
-          >
-            {rule.name}
-          </span>
-          {rule.department ? (
-            <span className="text-[var(--text-caption)] text-[var(--color-text-subtle)]">
-              {rule.department} only
-            </span>
-          ) : null}
-        </p>
-        <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-          <span className="tabular">{rule.band_label}</span> · step {rule.step_order} ·{' '}
-          {rule.level_label}
-          {rule.is_parallel ? ' · decides alongside others at this step' : ''}
-        </p>
-      </div>
-
-      <div className="flex shrink-0 flex-wrap items-center gap-[var(--space-2)]">
-        {rule.is_active ? (
-          <>
-            <Button variant="ghost" size="sm" onClick={onReplace}>
-              Replace
-            </Button>
-            <Button variant="ghost" size="sm" onClick={onRetire}>
-              Retire
-            </Button>
-          </>
-        ) : (
-          <ToneBadge label="Retired" tone="neutral" />
-        )}
-      </div>
-    </li>
   );
 }

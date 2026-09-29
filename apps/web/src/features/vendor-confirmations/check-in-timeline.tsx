@@ -166,13 +166,13 @@ export function CheckInTimeline({ checkIn }: { checkIn: CheckInDetailOut }) {
                   <time
                     dateTime={step.when}
                     data-visual-volatile
-                    className="text-[var(--text-caption)] text-[var(--color-text-subtle)]"
+                    className="text-[length:var(--text-caption)] text-[var(--color-text-subtle)]"
                   >
                     {formatMoment(step.when)}
                   </time>
                 ) : null}
               </p>
-              <p className="mt-1 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+              <p className="mt-1 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                 {step.detail}
               </p>
             </div>

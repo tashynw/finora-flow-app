@@ -1,118 +1,102 @@
 import { useState } from 'react';
 import { Inbox, Paperclip, RefreshCw, ShieldAlert, Upload } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 import type { IntakeStatus, MessageSummary } from '@finora/shared-types';
 
-import { cn } from '@/lib/utils';
+import { formatMoment, formatRelative } from '@/lib/dates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { DataTable, type Column } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SkeletonText } from '@/components/ui/skeleton';
+import { ViewTabs } from '@/components/ui/view-tabs';
 import { ToneBadge } from '@/components/workflow/status-badge';
 import { PageHeader } from '@/features/shared/page-header';
 import { INTAKE_SOURCE, INTAKE_STATUS } from '@/features/intake/intake-vocabulary';
 import { PAGE_SIZE, useMessages } from '@/features/intake/use-intake';
 import { UploadDialog } from '@/features/intake/upload-dialog';
 
-const FILTERS: { value: IntakeStatus | 'all'; label: string }[] = [
-  { value: 'all', label: 'Everything' },
-  { value: 'ready', label: 'Ready to review' },
-  { value: 'quarantined', label: 'Quarantined' },
-  { value: 'failed', label: 'Needs attention' },
-  { value: 'scanning', label: 'Scanning' },
+const FILTERS: { id: IntakeStatus | 'all'; label: string }[] = [
+  { id: 'all', label: 'Everything' },
+  { id: 'ready', label: 'Ready to review' },
+  { id: 'quarantined', label: 'Quarantined' },
+  { id: 'failed', label: 'Needs attention' },
+  { id: 'scanning', label: 'Scanning' },
 ];
 
-/** Absolute time with a relative hint, because "2 hours ago" alone is useless in
- * an audit conversation and an absolute timestamp alone is hard to scan. */
-function formatReceived(iso: string): { absolute: string; relative: string } {
-  const date = new Date(iso);
-  const minutes = Math.round((Date.now() - date.getTime()) / 60_000);
-
-  let relative: string;
-  if (minutes < 1) relative = 'just now';
-  else if (minutes < 60) relative = `${minutes} min ago`;
-  else if (minutes < 60 * 24) relative = `${Math.round(minutes / 60)} h ago`;
-  else relative = `${Math.round(minutes / (60 * 24))} d ago`;
-
-  return {
-    absolute: date.toLocaleString(undefined, {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }),
-    relative,
-  };
-}
-
-function MessageRow({ message }: { message: MessageSummary }) {
-  const status = INTAKE_STATUS[message.status];
-  const received = formatReceived(message.received_at);
-
-  return (
-    <li className="border-b border-[var(--color-divider)] last:border-b-0">
-      <Link
-        to={`/intake/${message.id}`}
-        className={cn(
-          'motion-interactive flex flex-col gap-[var(--space-2)] px-[var(--space-5)] py-[var(--space-4)]',
-          'no-underline hover:bg-[var(--color-surface-subtle)]',
-          'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]',
-          'sm:flex-row sm:items-center sm:gap-[var(--space-5)]',
-        )}
-      >
-        <div className="min-w-0 flex-1">
-          <p className="m-0 truncate font-semibold text-[var(--color-text-strong)]">
-            {message.subject || 'No subject'}
-          </p>
-          <p className="m-0 truncate text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-            {message.from_display_name ?? message.from_address ?? 'Unknown sender'}
-            {message.forwarded_from_address ? (
-              <>
-                {' '}
-                <span className="text-[var(--color-text-subtle)]">
-                  (forwarded from {message.forwarded_from_address})
-                </span>
-              </>
-            ) : null}
-          </p>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-[var(--space-4)]">
-          {message.attachment_count > 0 ? (
-            <span className="inline-flex items-center gap-1 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-              <Paperclip aria-hidden="true" className="size-3.5" />
-              {message.attachment_count}
-              <span className="sr-only">
-                {message.attachment_count === 1 ? 'attachment' : 'attachments'}
-              </span>
-            </span>
-          ) : null}
-
-          {message.quarantined_count > 0 ? (
-            <span className="inline-flex items-center gap-1 text-[var(--text-body-sm)] font-semibold text-[var(--color-danger-700)]">
-              <ShieldAlert aria-hidden="true" className="size-3.5" />
-              {message.quarantined_count} quarantined
-            </span>
-          ) : null}
-
-          <span className="text-[var(--text-caption)] text-[var(--color-text-subtle)]">
-            {INTAKE_SOURCE[message.source]}
+const messageColumns: Column<MessageSummary>[] = [
+  {
+    key: 'message',
+    header: 'Message',
+    cell: (message) => (
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate font-medium text-[var(--color-text-strong)]">
+          {message.subject || 'No subject'}
+        </span>
+        <span className="truncate text-[11px] text-[var(--color-text-subtle)]">
+          {message.from_display_name ?? message.from_address ?? 'Unknown sender'}
+          {message.forwarded_from_address
+            ? ` (forwarded from ${message.forwarded_from_address})`
+            : ''}
+        </span>
+      </span>
+    ),
+  },
+  {
+    key: 'source',
+    header: 'Source',
+    width: 'w-36',
+    hideBelow: 'sm',
+    cell: (message) => <span>{INTAKE_SOURCE[message.source]}</span>,
+  },
+  {
+    key: 'attachments',
+    header: 'Attachments',
+    width: 'w-40',
+    cell: (message) => (
+      // A quarantined count is shown on the row rather than discovered on
+      // click, so nobody plans work around a document they cannot get to.
+      <span className="flex flex-col">
+        <span className="inline-flex items-center gap-1">
+          <Paperclip aria-hidden="true" className="size-3.5 text-[var(--color-text-subtle)]" />
+          {message.attachment_count} {message.attachment_count === 1 ? 'file' : 'files'}
+        </span>
+        {message.quarantined_count > 0 ? (
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--color-danger-700)]">
+            <ShieldAlert aria-hidden="true" className="size-3" />
+            {message.quarantined_count} quarantined
           </span>
-
-          <ToneBadge label={status.label} tone={status.tone} />
-
-          <time
-            data-visual-volatile
-            dateTime={message.received_at}
-            title={received.absolute}
-            className="w-[5.5rem] shrink-0 text-right text-[var(--text-caption)] text-[var(--color-text-subtle)]"
-          >
-            {received.relative}
-          </time>
-        </div>
-      </Link>
-    </li>
-  );
-}
+        ) : null}
+      </span>
+    ),
+  },
+  {
+    key: 'received',
+    header: 'Received',
+    width: 'w-44',
+    hideBelow: 'md',
+    // Absolute time with a relative hint, because "2 hours ago" alone is
+    // useless in an audit conversation and an absolute timestamp alone is hard
+    // to scan.
+    cell: (message) => (
+      <time dateTime={message.received_at} className="flex flex-col">
+        <span>{formatMoment(message.received_at)}</span>
+        <span data-visual-volatile className="text-[11px] text-[var(--color-text-subtle)]">
+          {formatRelative(message.received_at)}
+        </span>
+      </time>
+    ),
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    width: 'w-44',
+    cell: (message) => {
+      const status = INTAKE_STATUS[message.status];
+      return <ToneBadge label={status.label} tone={status.tone} />;
+    },
+  },
+];
 
 /**
  * Intake queue.
@@ -138,12 +122,24 @@ export function IntakeQueuePage() {
   return (
     <>
       <PageHeader
-        title="Intake"
-        purpose="Everything that has arrived by mailbox or upload, and what still needs a person."
+        title="Inbox"
+        purpose="Forwarded mail and manually uploaded finance documents."
+        toolbar={
+          <ViewTabs
+            tabs={FILTERS}
+            value={filter}
+            label="Filter by status"
+            onChange={(id) => {
+              setFilter(id as IntakeStatus | 'all');
+              setOffset(0);
+            }}
+          />
+        }
         actions={
           <>
             <Button
               variant="secondary"
+              size="sm"
               onClick={() => void refetch()}
               isLoading={isFetching && !isLoading}
               loadingLabel="Refreshing"
@@ -151,34 +147,13 @@ export function IntakeQueuePage() {
               <RefreshCw aria-hidden="true" className="size-4" />
               Refresh
             </Button>
-            <Button variant="primary" onClick={() => setUploadOpen(true)}>
+            <Button variant="primary" size="sm" onClick={() => setUploadOpen(true)}>
               <Upload aria-hidden="true" className="size-4" />
-              Upload a document
+              Upload
             </Button>
           </>
         }
       />
-
-      <div
-        role="group"
-        aria-label="Filter by status"
-        className="mb-[var(--space-4)] flex flex-wrap gap-[var(--space-2)]"
-      >
-        {FILTERS.map((option) => (
-          <Button
-            key={option.value}
-            variant={filter === option.value ? 'primary' : 'ghost'}
-            size="sm"
-            aria-pressed={filter === option.value}
-            onClick={() => {
-              setFilter(option.value);
-              setOffset(0);
-            }}
-          >
-            {option.label}
-          </Button>
-        ))}
-      </div>
 
       {isError ? (
         <Card className="mb-[var(--space-6)] border-[var(--color-danger-600)]">
@@ -186,7 +161,7 @@ export function IntakeQueuePage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               Could not load the intake queue
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {error instanceof Error
                 ? error.message
                 : 'The request did not complete.'}{' '}
@@ -197,13 +172,15 @@ export function IntakeQueuePage() {
         </Card>
       ) : null}
 
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-[var(--space-5)]">
-              <SkeletonText lines={6} />
-            </div>
-          ) : items.length === 0 ? (
+      {isLoading ? (
+        <Card>
+          <CardContent>
+            <SkeletonText lines={6} />
+          </CardContent>
+        </Card>
+      ) : items.length === 0 ? (
+        <Card>
+          <CardContent className="p-0">
             <EmptyState
               icon={Inbox}
               title={
@@ -227,15 +204,17 @@ export function IntakeQueuePage() {
                   : { label: 'Show everything', onClick: () => setFilter('all') }
               }
             />
-          ) : (
-            <ul className="m-0 list-none p-0">
-              {items.map((message) => (
-                <MessageRow key={message.id} message={message} />
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : (
+        <DataTable
+          ariaLabel="Messages received"
+          columns={messageColumns}
+          rows={items}
+          getRowKey={(message) => message.id}
+          getRowHref={(message) => `/intake/${message.id}`}
+        />
+      )}
 
       {total > PAGE_SIZE ? (
         <nav
@@ -244,7 +223,7 @@ export function IntakeQueuePage() {
         >
           <p
             aria-live="polite"
-            className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]"
+            className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]"
           >
             Showing {offset + 1} to {showingTo} of {total}
           </p>

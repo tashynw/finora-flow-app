@@ -10,6 +10,7 @@ export function NotFoundPage() {
   return (
     <Card>
       <EmptyState
+        titleAs="h1"
         icon={FileQuestion}
         title="That page does not exist"
         explanation="The address may have been mistyped, or the record may have been moved or archived."

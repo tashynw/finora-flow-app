@@ -139,7 +139,7 @@ function AskSuppliersCard({ packageId }: { packageId: string }) {
       <CardContent>
         {raise.isSuccess ? (
           <div aria-live="polite">
-            <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+            <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
               {raise.data.raised.length === 0
                 ? 'Every supplier in this package had already been asked.'
                 : `${raise.data.raised.length === 1 ? '1 question' : `${raise.data.raised.length} questions`} opened.`}
@@ -167,7 +167,7 @@ function AskSuppliersCard({ packageId }: { packageId: string }) {
             {raise.isError ? (
               <p
                 role="alert"
-                className="mt-[var(--space-3)] m-0 text-[var(--text-body-sm)] text-[var(--color-danger-700)]"
+                className="mt-[var(--space-3)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]"
               >
                 {errorMessage(raise.error) ?? 'Nobody was asked.'}
               </p>
@@ -269,7 +269,7 @@ export function PaymentPackageDetailPage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               {missing ? 'That package could not be found' : 'Could not load this package'}
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {missing
                 ? 'It may have been cancelled, or the link may be to a package that never existed.'
                 : (errorMessage(error) ?? 'The request did not complete.')}
@@ -305,7 +305,7 @@ export function PaymentPackageDetailPage() {
         meta={
           <div className="flex flex-wrap items-center gap-[var(--space-3)]">
             <ToneBadge label={standing.label} tone={standing.tone} />
-            <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <span className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               Started by {pkg.created_by_label || 'somebody'} ·{' '}
               <time dateTime={pkg.created_at} data-visual-volatile>
                 {formatMoment(pkg.created_at)}
@@ -378,13 +378,13 @@ export function PaymentPackageDetailPage() {
               <p className="m-0 font-semibold text-[var(--color-danger-700)]">
                 {remove.error ? 'That invoice was not taken out' : 'Your changes were not saved'}
               </p>
-              <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+              <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                 {errorMessage(remove.error ?? save.error)}
               </p>
             </CardContent>
           </Card>
         ) : savedAt && !dirty ? (
-          <p className="mb-[var(--space-5)] m-0 text-[var(--text-body-sm)] text-[var(--color-success-700)]">
+          <p className="mb-[var(--space-5)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-success-700)]">
             Saved at{' '}
             {/* Fixed width so a longer clock reading cannot shift the rest of
                 the sentence when the visual suite hides the time. */}
@@ -423,7 +423,7 @@ export function PaymentPackageDetailPage() {
                 {refused.map((item) => (
                   <li
                     key={item.invoice_id}
-                    className="text-[var(--text-body-sm)] text-[var(--color-text)]"
+                    className="text-[length:var(--text-body-sm)] text-[var(--color-text)]"
                   >
                     <span className="font-semibold">{item.invoice_reference}</span>{' '}
                     {item.explanation}
@@ -469,7 +469,7 @@ export function PaymentPackageDetailPage() {
                   {pkg.blockers.map((problem) => (
                     <li
                       key={problem.problem}
-                      className="text-[var(--text-body-sm)] text-[var(--color-text)]"
+                      className="text-[length:var(--text-body-sm)] text-[var(--color-text)]"
                     >
                       {problem.explanation}
                     </li>
@@ -494,7 +494,7 @@ export function PaymentPackageDetailPage() {
             </CardHeader>
             <CardContent className="p-0">
               {pkg.lines.length === 0 ? (
-                <p className="m-0 px-[var(--space-5)] py-[var(--space-5)] text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                <p className="m-0 px-[var(--space-5)] py-[var(--space-5)] text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                   Nothing in it yet. Add the approved invoices this package is meant to pay.
                 </p>
               ) : (
@@ -510,7 +510,7 @@ export function PaymentPackageDetailPage() {
                           <p className="m-0 truncate font-semibold text-[var(--color-text-strong)]">
                             {line.vendor_name}
                           </p>
-                          <p className="m-0 truncate text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                          <p className="m-0 truncate text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                             <Link
                               to={`/invoices/${line.invoice_id}`}
                               className="text-[var(--color-primary-700)]"
@@ -590,7 +590,7 @@ export function PaymentPackageDetailPage() {
             </CardHeader>
             <CardContent>
               <CurrencyTotals totals={pkg.totals} emphasis />
-              <p className="mt-[var(--space-3)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+              <p className="mt-[var(--space-3)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                 {contentsSummary(pkg.lines.length, pkg.vendor_count)}
               </p>
             </CardContent>
@@ -699,7 +699,7 @@ export function PaymentPackageDetailPage() {
                   {unfinished.map((problem) => (
                     <li
                       key={problem.problem}
-                      className="text-[var(--text-body-sm)] text-[var(--color-text)]"
+                      className="text-[length:var(--text-body-sm)] text-[var(--color-text)]"
                     >
                       {problem.explanation}
                     </li>
@@ -731,7 +731,7 @@ export function PaymentPackageDetailPage() {
                   </DetailRow>
                   <DetailRow label="Invoices sent">{pkg.manifest_line_count ?? '—'}</DetailRow>
                 </dl>
-                <p className="mt-[var(--space-4)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                <p className="mt-[var(--space-4)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                   Every invoice in this package is now with the bank and not yet confirmed paid.
                   Each supplier is asked to confirm the payment arrived, and only that turns an
                   invoice into a paid one.
@@ -748,14 +748,14 @@ export function PaymentPackageDetailPage() {
                 <CardTitle>Abandoned</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+                <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                   Abandoned on{' '}
                   <time dateTime={pkg.cancelled_at} data-visual-volatile>
                     {formatMoment(pkg.cancelled_at)}
                   </time>
                   {pkg.cancelled_reason ? `: ${pkg.cancelled_reason}` : '.'}
                 </p>
-                <p className="mt-[var(--space-3)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                <p className="mt-[var(--space-3)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                   Everything it held went back to being approved and unpaid, and can go into
                   another package.
                 </p>
@@ -781,7 +781,7 @@ export function PaymentPackageDetailPage() {
           </>
         }
       >
-        <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+        <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
           Nothing has been sent either way. The invoices in this package stay in it.
         </p>
       </Modal>

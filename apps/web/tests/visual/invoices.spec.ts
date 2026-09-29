@@ -56,7 +56,7 @@ test.describe('the invoice register, as finance', () => {
 
     await expect(
       page.getByRole('group', { name: 'Invoices actions' }).getByRole('button', {
-        name: /record an invoice/i,
+        name: /create invoice/i,
       }),
     ).toBeEnabled();
   });
@@ -80,7 +80,7 @@ test.describe('the invoice register, as the person who confirms deliveries', () 
 
     // A requester records no invoices. Offering the button and refusing the
     // request afterwards would be the interface disagreeing with the server.
-    await expect(page.getByRole('button', { name: /record an invoice/i })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /create invoice/i })).toHaveCount(0);
 
     await expect(page).toHaveScreenshot('invoices-register-requester.png', { fullPage: true });
   });

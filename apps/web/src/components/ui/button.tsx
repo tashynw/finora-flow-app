@@ -8,13 +8,13 @@ import { cn } from '@/lib/utils';
 /**
  * Button.
  *
- * One primary action per view. The signature gradient is reserved for the
- * primary variant, so a screen with two gradient buttons is a design defect.
+ * One primary action per view. Primary is flat brand blue; the gradient is
+ * reserved for the sign-in call to action, which sets it by class.
  */
 const buttonVariants = cva(
   [
     'inline-flex items-center justify-center gap-2 whitespace-nowrap',
-    'font-medium rounded-[var(--radius-sm)] motion-press',
+    'font-medium rounded-[var(--radius-md)] motion-press',
     'transition-colors duration-[var(--duration-fast)]',
     'focus-visible:outline-2 focus-visible:outline-offset-2',
     'focus-visible:outline-[var(--color-primary-600)]',
@@ -27,15 +27,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary: [
-          'text-[var(--color-text-inverse)] shadow-[var(--shadow-sm)]',
-          'bg-[image:var(--gradient-signature)]',
-          'hover:shadow-[var(--shadow-md)]',
-          'hover:brightness-[1.04]',
+          'bg-[var(--color-primary-600)] text-[var(--color-text-inverse)]',
+          'hover:bg-[var(--color-primary-700)]',
         ].join(' '),
         secondary: [
-          'bg-[var(--color-surface)] text-[var(--color-text-strong)]',
-          'border border-[var(--color-border-strong)]',
-          'hover:bg-[var(--color-surface-subtle)]',
+          'bg-[var(--color-surface)] text-[#344054]',
+          'border border-[var(--color-border)]',
+          'hover:bg-[var(--color-surface-subtle)] hover:border-[var(--color-border-strong)]',
         ].join(' '),
         ghost: [
           'text-[var(--color-text)] hover:bg-[var(--color-surface-subtle)]',
@@ -54,9 +52,9 @@ const buttonVariants = cva(
       size: {
         // 44px minimum height on interactive controls, per the accessibility
         // requirement, including the small variant.
-        sm: 'h-11 px-3 text-[var(--text-body-sm)]',
-        md: 'h-11 px-4 text-[var(--text-body)]',
-        lg: 'h-12 px-6 text-[var(--text-body-lg)]',
+        sm: 'h-11 px-3 text-[length:var(--text-body-sm)]',
+        md: 'h-11 px-4 text-[length:var(--text-body)]',
+        lg: 'h-12 px-6 text-[length:var(--text-body-lg)]',
         icon: 'h-11 w-11',
       },
       fullWidth: {

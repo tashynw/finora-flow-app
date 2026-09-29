@@ -129,7 +129,7 @@ export function RecordAnswerDialog({
         {record.isError ? (
           <p
             role="alert"
-            className="m-0 rounded-[var(--radius-md)] border border-[var(--color-danger-600)] p-[var(--space-4)] text-[var(--text-body-sm)] text-[var(--color-danger-700)]"
+            className="m-0 rounded-[var(--radius-md)] border border-[var(--color-danger-600)] p-[var(--space-4)] text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]"
           >
             {errorMessage(record.error) ?? 'That was not recorded.'}
           </p>

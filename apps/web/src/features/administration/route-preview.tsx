@@ -39,13 +39,59 @@ export function RoutePreview({ recordType }: { recordType: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Try an amount</CardTitle>
-        <CardDescription>
+        <CardTitle>Route simulator</CardTitle>
+        <CardDescription className="text-[12px]">
           What the live rules would do with a record of this size. Worked out by the platform
           itself, so what is shown here is what would happen.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-[var(--space-5)]">
+        <div aria-live="polite" className="min-h-9">
+          {minorUnits === null ? (
+            <p className="m-0 text-[12px] text-[var(--color-text-muted)]">
+              Enter an amount to see what it would do.
+            </p>
+          ) : isError ? (
+            <p className="m-0 text-[12px] text-[var(--color-danger-700)]">
+              {errorMessage(error) ?? 'The route could not be worked out.'}
+            </p>
+          ) : isFetching && !data ? (
+            <SkeletonText lines={2} />
+          ) : data?.unreachable ? (
+            <p className="m-0 flex items-start gap-[var(--space-2)] text-[12px] text-[var(--color-danger-700)]">
+              <CircleSlash aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+              <span>
+                <span className="font-semibold">
+                  {data.amount_formatted} cannot be submitted at all.
+                </span>{' '}
+                {data.unreachable}
+              </span>
+            </p>
+          ) : data ? (
+            <div className="flex flex-wrap items-center gap-x-[var(--space-6)] gap-y-[var(--space-2)]">
+              <p className="m-0 text-[13px] tabular text-[var(--color-text-strong)]">
+                {data.amount_formatted}
+                {data.department ? ` from ${data.department}` : ''} goes to
+              </p>
+              <ol className="m-0 flex flex-wrap items-center gap-[var(--space-2)] p-0">
+                {data.steps.map((step, index) => (
+                  <li key={step} className="flex list-none items-center gap-[var(--space-2)]">
+                    {index > 0 ? (
+                      <ArrowRight
+                        aria-hidden="true"
+                        className="size-3.5 text-[var(--color-text-subtle)]"
+                      />
+                    ) : null}
+                    <span className="inline-flex h-7 items-center rounded-[var(--radius-pill)] bg-[var(--color-info-50)] px-3 text-[11px] font-medium text-[var(--color-primary-700)]">
+                      {step}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ) : null}
+        </div>
+
         <div className="grid gap-[var(--space-4)] sm:grid-cols-3">
           <Field label="Amount" formatHint="1234.56">
             {({ inputId, describedBy, invalid }) => (
@@ -82,52 +128,6 @@ export function RoutePreview({ recordType }: { recordType: string }) {
               />
             )}
           </Field>
-        </div>
-
-        <div aria-live="polite">
-          {minorUnits === null ? (
-            <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-              Enter an amount to see what it would do.
-            </p>
-          ) : isError ? (
-            <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-danger-700)]">
-              {errorMessage(error) ?? 'The route could not be worked out.'}
-            </p>
-          ) : isFetching && !data ? (
-            <SkeletonText lines={2} />
-          ) : data?.unreachable ? (
-            <p className="m-0 flex items-start gap-[var(--space-2)] text-[var(--text-body-sm)] text-[var(--color-danger-700)]">
-              <CircleSlash aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-              <span>
-                <span className="font-semibold">
-                  {data.amount_formatted} cannot be submitted at all.
-                </span>{' '}
-                {data.unreachable}
-              </span>
-            </p>
-          ) : data ? (
-            <div>
-              <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-                {data.amount_formatted}
-                {data.department ? ` from ${data.department}` : ''} goes to:
-              </p>
-              <ol className="mt-2 mb-0 flex flex-wrap items-center gap-[var(--space-2)] p-0">
-                {data.steps.map((step, index) => (
-                  <li key={step} className="flex list-none items-center gap-[var(--space-2)]">
-                    {index > 0 ? (
-                      <ArrowRight
-                        aria-hidden="true"
-                        className="size-4 text-[var(--color-text-subtle)]"
-                      />
-                    ) : null}
-                    <span className="rounded-[var(--radius-sm)] bg-[var(--color-surface-subtle)] px-[var(--space-3)] py-1 text-[var(--text-body-sm)] font-semibold text-[var(--color-text-strong)]">
-                      {step}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          ) : null}
         </div>
       </CardContent>
     </Card>

@@ -5,10 +5,9 @@
 import { useEffect, useState } from 'react';
 import { Power, SlidersHorizontal } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Field, Textarea } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
@@ -104,9 +103,9 @@ function KillSwitchModal({
 
 function SnapshotRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-[var(--space-4)]">
-      <dt className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">{label}</dt>
-      <dd className="m-0 font-semibold text-[var(--color-text-strong)] sm:text-right">{value}</dd>
+    <div className="flex flex-col gap-0.5 sm:grid sm:grid-cols-[200px_minmax(0,1fr)] sm:items-baseline sm:gap-[var(--space-4)]">
+      <dt className="m-0 text-[12px] font-medium text-[var(--color-text-strong)]">{label}</dt>
+      <dd className="m-0 text-[12px] text-[var(--color-text-muted)]">{value}</dd>
     </div>
   );
 }
@@ -125,46 +124,68 @@ export function OperationalSettingsPage() {
   const workflow = snapshot.data?.workflow;
   const killEngaged = ai?.kill_switch_effective ?? false;
 
+  const aiStatus = killEngaged
+    ? { label: 'Kill switch engaged', tone: 'danger' as const }
+    : ai?.enabled
+      ? { label: 'Enabled', tone: 'success' as const }
+      : { label: 'Disabled by configuration', tone: 'neutral' as const };
+
   return (
-    <div className="flex flex-col gap-[var(--space-6)]">
+    <>
       <PageHeader
         title="Operational settings"
-        purpose="Trip or clear the AI kill switch, and review the workflow policy this process is running with. Secrets and credentials are not shown."
+        purpose="AI assistance and workflow configuration. Secrets and credentials are not shown."
       />
 
       {snapshot.isLoading ? (
-        <SkeletonText lines={8} />
+        <Card>
+          <CardContent>
+            <SkeletonText lines={8} />
+          </CardContent>
+        </Card>
       ) : snapshot.isError ? (
-        <p role="alert" className="m-0 text-[var(--color-danger-700)]">
-          {errorMessage(snapshot.error) ?? 'Operational settings could not be loaded.'}
-        </p>
+        <Card className="border-[var(--color-danger-600)]">
+          <CardContent>
+            <p role="alert" className="m-0 text-[var(--color-danger-700)]">
+              {errorMessage(snapshot.error) ?? 'Operational settings could not be loaded.'}
+            </p>
+          </CardContent>
+        </Card>
       ) : ai && workflow ? (
-        <>
+        <div className="flex flex-col gap-[var(--space-6)]">
           <Card>
-            <CardHeader>
-              <CardTitle as="h2" className="flex items-center gap-2">
-                <Power
-                  aria-hidden="true"
-                  className="size-[18px] text-[var(--color-primary-600)]"
-                />
-                AI kill switch
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-[var(--space-4)]">
-              <div className="flex flex-wrap items-center gap-[var(--space-3)]">
-                <ToneBadge
-                  label={killEngaged ? 'Engaged' : 'Clear'}
-                  tone={killEngaged ? 'danger' : 'success'}
-                />
-                <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-                  {killEngaged
-                    ? 'Assistive reading is not calling a model. Manual workflows are unaffected.'
-                    : ai.enabled
-                      ? 'Assistive reading may call the configured models when needed.'
-                      : 'AI is disabled by configuration, even with the kill switch clear.'}
-                </p>
+            <CardContent className="flex flex-col gap-[var(--space-5)]">
+              <div className="flex flex-col gap-[var(--space-4)] sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <CardTitle as="h2" className="flex items-center gap-2">
+                    <Power
+                      aria-hidden="true"
+                      className="size-4 text-[var(--color-primary-600)]"
+                    />
+                    AI assistance
+                  </CardTitle>
+                  <p className="mt-2 m-0 text-[12px] text-[var(--color-text-muted)]">
+                    {killEngaged
+                      ? 'The kill switch is engaged: assistive reading is not calling a model. Manual workflows are unaffected.'
+                      : ai.enabled
+                        ? 'Assistive reading may call the configured models when needed. Every document remains completable by hand.'
+                        : 'AI is disabled by configuration, even with the kill switch clear.'}
+                  </p>
+                </div>
+                <div className="flex shrink-0 flex-col items-start gap-[var(--space-3)] sm:items-end">
+                  <ToneBadge label={aiStatus.label} tone={aiStatus.tone} />
+                  {killEngaged ? (
+                    <Button type="button" variant="secondary" size="sm" onClick={() => setModal('clear')}>
+                      Clear kill switch
+                    </Button>
+                  ) : (
+                    <Button type="button" variant="danger" size="sm" onClick={() => setModal('engage')}>
+                      Engage kill switch
+                    </Button>
+                  )}
+                </div>
               </div>
-              <dl className="m-0 flex flex-col gap-[var(--space-3)]">
+              <dl className="m-0 flex flex-col gap-[var(--space-3)] border-t border-[var(--color-divider)] pt-[var(--space-4)]">
                 <SnapshotRow label="Configuration enabled" value={ai.enabled ? 'Yes' : 'No'} />
                 <SnapshotRow
                   label="Kill switch (environment)"
@@ -177,36 +198,19 @@ export function OperationalSettingsPage() {
                 <SnapshotRow label="Extraction model" value={ai.model_extraction} />
                 <SnapshotRow label="Classification model" value={ai.model_classification} />
               </dl>
-              <div className="flex flex-wrap gap-[var(--space-3)]">
-                {killEngaged ? (
-                  <Button type="button" variant="secondary" onClick={() => setModal('clear')}>
-                    Clear kill switch
-                  </Button>
-                ) : (
-                  <Button type="button" variant="danger" onClick={() => setModal('engage')}>
-                    Engage kill switch
-                  </Button>
-                )}
-              </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardContent>
               <CardTitle as="h2" className="flex items-center gap-2">
                 <SlidersHorizontal
                   aria-hidden="true"
-                  className="size-[18px] text-[var(--color-primary-600)]"
+                  className="size-4 text-[var(--color-primary-600)]"
                 />
                 Workflow snapshot
               </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p
-                className={cn(
-                  'mb-[var(--space-4)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]',
-                )}
-              >
+              <p className="mt-2 mb-[var(--space-5)] text-[12px] text-[var(--color-text-muted)]">
                 Read-only. These values come from process configuration and are not
                 changed from this screen.
               </p>
@@ -240,7 +244,7 @@ export function OperationalSettingsPage() {
               </dl>
             </CardContent>
           </Card>
-        </>
+        </div>
       ) : null}
 
       <KillSwitchModal
@@ -248,6 +252,6 @@ export function OperationalSettingsPage() {
         engage={modal === 'engage'}
         onClose={() => setModal(null)}
       />
-    </div>
+    </>
   );
 }

@@ -117,7 +117,7 @@ export function AddInvoicesDialog({
           <div className="mr-auto flex flex-wrap items-center gap-[var(--space-3)]">
             <span
               aria-live="polite"
-              className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]"
+              className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]"
             >
               {chosen.size === 0
                 ? 'Nothing chosen yet'
@@ -174,12 +174,12 @@ export function AddInvoicesDialog({
       {isLoading ? (
         <SkeletonText lines={6} />
       ) : invoices.length === 0 ? (
-        <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+        <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
           Nothing is waiting to be paid. An invoice appears here once it has been approved, and
           leaves again as soon as any package claims it.
         </p>
       ) : shown.length === 0 ? (
-        <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+        <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
           Nothing matches “{search.trim()}”. {invoices.length}{' '}
           {invoices.length === 1 ? 'invoice is' : 'invoices are'} waiting to be paid.
         </p>
@@ -208,14 +208,14 @@ export function AddInvoicesDialog({
                     <span className="block truncate font-semibold text-[var(--color-text-strong)]">
                       {invoice.vendor_name}
                     </span>
-                    <span className="block truncate text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                    <span className="block truncate text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                       {invoice.invoice_number ?? invoice.reference}
                       {invoice.department ? ` · ${invoice.department}` : ''}
                     </span>
                   </span>
                   <span className="shrink-0 text-right">
                     <MoneyDisplay value={toMoneyValue(invoice.amount)} size="md" />
-                    <span className="block text-[var(--text-caption)] text-[var(--color-text-subtle)]">
+                    <span className="block text-[length:var(--text-caption)] text-[var(--color-text-subtle)]">
                       {invoice.due_date ? `due ${formatDate(invoice.due_date)}` : 'no due date'}
                     </span>
                   </span>

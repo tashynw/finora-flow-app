@@ -9,7 +9,9 @@ import {
   CreditCard,
   FileCheck2,
   FileText,
+  History,
   Hourglass,
+  House,
   Inbox,
   LayoutDashboard,
   MailCheck,
@@ -230,6 +232,145 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
 ];
+
+/**
+ * The flat sidebar, in the order the redesign lists it.
+ *
+ * Operations and Settings are single entries that stand for a section. Each
+ * links to the first screen in its section the person can open, and stays
+ * active across the whole section. The screens inside a section are reached
+ * from the section tabs at the top of those pages.
+ */
+export interface SidebarEntry {
+  label: string;
+  to: string;
+  icon: LucideIcon;
+  badgeKey?: string | undefined;
+  /** Path prefixes that keep this entry highlighted. */
+  match: string[];
+}
+
+export interface SectionTab {
+  label: string;
+  to: string;
+}
+
+export interface SidebarGroup {
+  /** Null for the unlabelled main group. */
+  label: string | null;
+  entries: SidebarEntry[];
+}
+
+const MAIN_ORDER: { label?: string; icon?: LucideIcon; to: string }[] = [
+  { to: '/', label: 'Home', icon: House },
+  { to: '/work' },
+  { to: '/approvals' },
+  { to: '/invoices' },
+  { to: '/estimates' },
+  { to: '/purchase-orders' },
+  { to: '/payments' },
+  { to: '/credit-cards' },
+  { to: '/accruals' },
+  { to: '/vendor-confirmations', label: 'Vendor confirms' },
+  { to: '/reports' },
+];
+
+const SYSTEM_ORDER: { label?: string; icon?: LucideIcon; to: string }[] = [
+  { to: '/documents' },
+  { to: '/intake' },
+  { to: '/audit', icon: History },
+];
+
+const ALL_ITEMS = NAV_GROUPS.flatMap((group) => group.items);
+
+function findItem(to: string): NavItem | undefined {
+  return ALL_ITEMS.find((item) => item.to === to);
+}
+
+const OPERATIONS_ROUTES = ['/operations', '/operations/intake'];
+const SETTINGS_ROUTES = [
+  '/settings/users',
+  '/settings/reference',
+  '/settings/thresholds',
+  '/settings/retention',
+  '/settings/operations',
+  '/settings/approval-matrix',
+  '/settings/approvers',
+  '/settings/cover',
+];
+
+function permittedTabs(
+  routes: string[],
+  permissions: ReadonlySet<string>,
+): SectionTab[] {
+  return routes
+    .map((to) => findItem(to))
+    .filter((item): item is NavItem => Boolean(item && permissions.has(item.permission)))
+    .map((item) => ({ label: item.label, to: item.to }));
+}
+
+export function sectionTabs(
+  pathname: string,
+  permissions: ReadonlySet<string>,
+): SectionTab[] {
+  if (pathname.startsWith('/operations')) {
+    return permittedTabs(OPERATIONS_ROUTES, permissions);
+  }
+  if (pathname.startsWith('/settings')) {
+    return permittedTabs(SETTINGS_ROUTES, permissions);
+  }
+  return [];
+}
+
+function permittedEntries(
+  order: { label?: string; icon?: LucideIcon; to: string }[],
+  permissions: ReadonlySet<string>,
+): SidebarEntry[] {
+  const entries: SidebarEntry[] = [];
+  for (const slot of order) {
+    const item = findItem(slot.to);
+    if (!item || !permissions.has(item.permission)) continue;
+    entries.push({
+      label: slot.label ?? item.label,
+      to: item.to,
+      icon: slot.icon ?? item.icon,
+      badgeKey: item.badgeKey,
+      match: item.to === '/' ? [] : [item.to],
+    });
+  }
+  return entries;
+}
+
+export function sidebarGroups(permissions: ReadonlySet<string>): SidebarGroup[] {
+  const main = permittedEntries(MAIN_ORDER, permissions);
+  const system = permittedEntries(SYSTEM_ORDER, permissions);
+
+  const operations = permittedTabs(OPERATIONS_ROUTES, permissions);
+  if (operations[0]) {
+    system.push({
+      label: 'Operational health',
+      to: operations[0].to,
+      icon: Activity,
+      badgeKey: 'operationalAlerts',
+      match: ['/operations'],
+    });
+  }
+
+  const settings = permittedTabs(SETTINGS_ROUTES, permissions);
+  if (settings[0]) {
+    system.push({
+      label: 'Settings',
+      to: settings[0].to,
+      icon: Settings,
+      match: ['/settings'],
+    });
+  }
+
+  return [
+    { label: null, entries: main },
+    { label: 'System', entries: system },
+  ].filter((group) => group.entries.length > 0);
+}
 
 export function visibleGroups(
   permissions: ReadonlySet<string>,

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { BookOpen, Plus } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 import type { AccrualPeriodSummary, AccrualStanding } from '@finora/shared-types';
 
-import { cn } from '@/lib/utils';
+import { formatDate } from '@/lib/dates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { DataTable, type Column } from '@/components/ui/data-table';
+import { ViewTabs } from '@/components/ui/view-tabs';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Field, Input } from '@/components/ui/field';
 import { SkeletonText } from '@/components/ui/skeleton';
@@ -59,38 +60,80 @@ function standingTone(standing: string): 'neutral' | 'warning' {
   return standing === 'locked' ? 'neutral' : 'warning';
 }
 
-function PeriodRow({ row }: { row: AccrualPeriodSummary }) {
-  return (
-    <li className="border-b border-[var(--color-divider)] last:border-b-0">
-      <Link
-        to={`/accruals/${row.id}`}
-        className={cn(
-          'motion-interactive flex flex-col gap-[var(--space-2)] px-[var(--space-5)] py-[var(--space-4)]',
-          'no-underline hover:bg-[var(--color-surface-subtle)]',
-          'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]',
-          'sm:flex-row sm:items-center sm:gap-[var(--space-5)]',
-        )}
-      >
-        <div className="min-w-0 flex-1">
-          <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-            <span className="tabular text-[var(--text-caption)] text-[var(--color-text-subtle)]">
-              {row.reference}
+const periodColumns: Column<AccrualPeriodSummary>[] = [
+  {
+    key: 'reference',
+    header: 'Reference',
+    width: 'w-44',
+    cell: (row) => (
+      <span className="tabular font-medium text-[var(--color-text-strong)]">
+        {row.reference}
+      </span>
+    ),
+  },
+  {
+    key: 'period',
+    header: 'Period',
+    cell: (row) => (
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate">{row.label}</span>
+        <span className="tabular truncate text-[11px] text-[var(--color-text-subtle)]">
+          {formatDate(row.period_start)} – {formatDate(row.period_end)}
+        </span>
+      </span>
+    ),
+  },
+  {
+    key: 'candidates',
+    header: 'Candidates',
+    width: 'w-32',
+    cell: (row) => (
+      <span className="flex flex-col">
+        <span className="tabular">{row.candidate_count}</span>
+        {row.open_candidate_count > 0 ? (
+          <span className="text-[11px] text-[var(--color-text-subtle)]">
+            {row.open_candidate_count} open
+          </span>
+        ) : null}
+      </span>
+    ),
+  },
+  {
+    key: 'waiting',
+    header: 'Waiting on',
+    hideBelow: 'md',
+    cell: (row) => (
+      <span>
+        {periodWaitingOn(row.open_candidate_count, row.candidate_count, row.standing)}
+      </span>
+    ),
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    width: 'w-36',
+    cell: (row) => <ToneBadge tone={standingTone(row.standing)} label={row.standing_label} />,
+  },
+  {
+    key: 'locked',
+    header: 'Locked',
+    width: 'w-40',
+    hideBelow: 'lg',
+    cell: (row) =>
+      row.locked_at ? (
+        <span className="flex min-w-0 flex-col">
+          <span className="tabular">{formatDate(row.locked_at)}</span>
+          {row.lock_reason ? (
+            <span className="truncate text-[11px] text-[var(--color-text-subtle)]">
+              {row.lock_reason}
             </span>
-            <span className="truncate font-semibold text-[var(--color-text-strong)]">
-              {row.label}
-            </span>
-          </p>
-          <p className="m-0 truncate text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-            {row.period_start} – {row.period_end} · {row.candidate_count}{' '}
-            {row.candidate_count === 1 ? 'candidate' : 'candidates'} ·{' '}
-            {periodWaitingOn(row.open_candidate_count, row.candidate_count, row.standing)}
-          </p>
-        </div>
-        <ToneBadge tone={standingTone(row.standing)} label={row.standing_label} />
-      </Link>
-    </li>
-  );
-}
+          ) : null}
+        </span>
+      ) : (
+        <span>—</span>
+      ),
+  },
+];
 
 export function AccrualRegisterPage() {
   const { user } = useAuth();
@@ -110,13 +153,20 @@ export function AccrualRegisterPage() {
   const rows = periods.data ?? [];
 
   return (
-    <div className="flex flex-col gap-[var(--space-6)]">
+    <>
       <PageHeader
         title="Accruals"
-        purpose={PERIOD_PURPOSE}
+        purpose="Month-end obligations and period close."
+        toolbar={<ViewTabs tabs={VIEWS} value={view.id} onChange={setViewId} />}
         actions={
           canEdit ? (
-            <Button type="button" onClick={() => setShowOpen((open) => !open)}>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              aria-expanded={showOpen}
+              onClick={() => setShowOpen((open) => !open)}
+            >
               <Plus className="size-4" aria-hidden />
               Open period
             </Button>
@@ -125,12 +175,12 @@ export function AccrualRegisterPage() {
       />
 
       {showOpen && canEdit ? (
-        <Card className="surface-card">
+        <Card className="surface-card mb-[var(--space-5)]">
           <CardContent className="flex flex-col gap-[var(--space-4)] p-[var(--space-5)]">
-            <h2 className="m-0 text-[var(--text-title-sm)] text-[var(--color-text-strong)]">
+            <h2 className="m-0 text-[length:var(--text-title-sm)] text-[var(--color-text-strong)]">
               Open a period
             </h2>
-            <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               The period dates determine which unpaid invoices are candidates. The
               label appears in the pack and in the export filename.
             </p>
@@ -218,57 +268,44 @@ export function AccrualRegisterPage() {
         </Card>
       ) : null}
 
-      <div
-        role="group"
-        aria-label="Choose a view"
-        className="flex flex-wrap gap-[var(--space-2)]"
-      >
-        {VIEWS.map((item) => (
-          <Button
-            key={item.id}
-            type="button"
-            size="sm"
-            variant={item.id === view.id ? 'primary' : 'secondary'}
-            aria-pressed={item.id === view.id}
-            onClick={() => setViewId(item.id)}
-          >
-            {item.label}
-          </Button>
-        ))}
-      </div>
-
-      <Card className="surface-card overflow-hidden">
-        {periods.isLoading ? (
-          <CardContent className="p-[var(--space-5)]">
+      {periods.isLoading ? (
+        <Card>
+          <CardContent>
             <SkeletonText lines={4} />
           </CardContent>
-        ) : rows.length === 0 ? (
-          <EmptyState
-            icon={BookOpen}
-            title={view.empty}
-            explanation={view.emptyExplanation}
-            nextStep={
-              canEdit
-                ? 'Open a period to begin raising accruals.'
-                : 'Periods are opened by the people who raise accruals. Nothing is needed from you here.'
-            }
-            {...(viewId === 'all'
-              ? {}
-              : {
-                  secondaryAction: {
-                    label: 'Show everything',
-                    onClick: () => setViewId('all'),
-                  },
-                })}
-          />
-        ) : (
-          <ul className="m-0 list-none p-0">
-            {rows.map((row) => (
-              <PeriodRow key={row.id} row={row} />
-            ))}
-          </ul>
-        )}
-      </Card>
-    </div>
+        </Card>
+      ) : rows.length === 0 ? (
+        <Card>
+          <CardContent className="p-0">
+            <EmptyState
+              icon={BookOpen}
+              title={view.empty}
+              explanation={view.emptyExplanation}
+              nextStep={
+                canEdit
+                  ? 'Open a period to begin raising accruals.'
+                  : 'Periods are opened by the people who raise accruals. Nothing is needed from you here.'
+              }
+              {...(viewId === 'all'
+                ? {}
+                : {
+                    secondaryAction: {
+                      label: 'Show everything',
+                      onClick: () => setViewId('all'),
+                    },
+                  })}
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <DataTable
+          ariaLabel="Accrual periods"
+          columns={periodColumns}
+          rows={rows}
+          getRowKey={(row) => row.id}
+          getRowHref={(row) => `/accruals/${row.id}`}
+        />
+      )}
+    </>
   );
 }

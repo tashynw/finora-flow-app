@@ -101,7 +101,7 @@ export function AccrualPeriodPage() {
         meta={
           <Link
             to="/accruals"
-            className="text-[var(--text-body-sm)] text-[var(--color-text-muted)] no-underline hover:underline"
+            className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)] no-underline hover:underline"
           >
             Accruals
           </Link>
@@ -134,7 +134,7 @@ export function AccrualPeriodPage() {
       {generate.isError ? (
         <p
           role="alert"
-          className="m-0 rounded-md bg-[var(--color-surface-danger-subtle)] px-[var(--space-4)] py-[var(--space-3)] text-[var(--text-body-sm)] text-[var(--color-text-danger)]"
+          className="m-0 rounded-md bg-[var(--color-surface-danger-subtle)] px-[var(--space-4)] py-[var(--space-3)] text-[length:var(--text-body-sm)] text-[var(--color-text-danger)]"
         >
           {errorMessage(generate.error) ?? 'Generate failed — please try again.'}
         </p>
@@ -143,13 +143,13 @@ export function AccrualPeriodPage() {
       <Card className="surface-card">
         <CardContent className="grid gap-[var(--space-3)] p-[var(--space-5)] sm:grid-cols-4">
           <div>
-            <p className="m-0 text-[var(--text-caption)] text-[var(--color-text-subtle)]">
+            <p className="m-0 text-[length:var(--text-caption)] text-[var(--color-text-subtle)]">
               Reference
             </p>
             <p className="m-0 font-semibold tabular">{detail.reference}</p>
           </div>
           <div>
-            <p className="m-0 text-[var(--text-caption)] text-[var(--color-text-subtle)]">
+            <p className="m-0 text-[length:var(--text-caption)] text-[var(--color-text-subtle)]">
               Period
             </p>
             <p className="m-0 font-semibold">
@@ -157,7 +157,7 @@ export function AccrualPeriodPage() {
             </p>
           </div>
           <div>
-            <p className="m-0 text-[var(--text-caption)] text-[var(--color-text-subtle)]">
+            <p className="m-0 text-[length:var(--text-caption)] text-[var(--color-text-subtle)]">
               Candidates
             </p>
             <p className="m-0 font-semibold">
@@ -166,7 +166,7 @@ export function AccrualPeriodPage() {
             </p>
           </div>
           <div>
-            <p className="m-0 text-[var(--text-caption)] text-[var(--color-text-subtle)]">
+            <p className="m-0 text-[length:var(--text-caption)] text-[var(--color-text-subtle)]">
               Waiting on
             </p>
             <p className="m-0 font-semibold">
@@ -194,7 +194,7 @@ export function AccrualPeriodPage() {
           />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left text-[var(--text-body-sm)]">
+            <table className="w-full border-collapse text-left text-[length:var(--text-body-sm)]">
               <thead className="bg-[var(--color-surface-subtle)] text-[var(--color-text-subtle)]">
                 <tr>
                   <th className="px-[var(--space-4)] py-[var(--space-3)] font-medium">
@@ -278,10 +278,10 @@ export function AccrualPeriodPage() {
         <Card className="surface-card">
           <CardContent className="flex flex-col gap-[var(--space-4)] p-[var(--space-5)]">
             <div>
-              <h2 className="m-0 text-[var(--text-title-sm)] text-[var(--color-text-strong)]">
+              <h2 className="m-0 text-[length:var(--text-title-sm)] text-[var(--color-text-strong)]">
                 Export
               </h2>
-              <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+              <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                 Draft exports are for review. Official exports are the signed-off
                 version and are recorded on the period.
               </p>
@@ -289,7 +289,7 @@ export function AccrualPeriodPage() {
             {exportPeriod.isError ? (
               <p
                 role="alert"
-                className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-danger)]"
+                className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-danger)]"
               >
                 {errorMessage(exportPeriod.error) ?? 'Export failed — please try again.'}
               </p>
@@ -380,7 +380,7 @@ export function AccrualPeriodPage() {
                         onChange={(event) => setExclude(event.target.checked)}
                         className="size-4 accent-[var(--color-primary)]"
                       />
-                      <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                      <span className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                         Remove this candidate from the pack
                       </span>
                     </label>
@@ -449,7 +449,7 @@ export function AccrualPeriodPage() {
 
             {canFinalize && isOpen(selected.standing) ? (
               <div className="flex flex-col gap-[var(--space-3)]">
-                <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                   Finalising commits this candidate to the period pack. The amount
                   and coding can no longer be changed after this.
                 </p>

@@ -88,7 +88,7 @@ export function VendorConfirmationDetailPage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               {missing ? 'That check-in could not be found' : 'Could not load this check-in'}
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {missing
                 ? 'The link may be to a check-in that never existed, or to one raised against a package that has since been abandoned.'
                 : (errorMessage(error) ?? 'The request did not complete.')}
@@ -114,7 +114,7 @@ export function VendorConfirmationDetailPage() {
         meta={
           <div className="flex flex-wrap items-center gap-[var(--space-3)]">
             <ToneBadge label={status.label} tone={status.tone} />
-            <span className="tabular text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <span className="tabular text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {checkIn.reference} · {checkIn.package_reference}
             </span>
           </div>
@@ -164,7 +164,7 @@ export function VendorConfirmationDetailPage() {
               <p className="m-0 font-semibold text-[var(--color-danger-700)]">
                 The supplier was not asked
               </p>
-              <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+              <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                 {errorMessage(send.error) ?? 'The request did not complete.'}
               </p>
             </CardContent>
@@ -270,14 +270,14 @@ export function VendorConfirmationDetailPage() {
                   >
                     <div className="min-w-0">
                       <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-                        <span className="tabular text-[var(--text-caption)] text-[var(--color-text-subtle)]">
+                        <span className="tabular text-[length:var(--text-caption)] text-[var(--color-text-subtle)]">
                           {line.invoice_reference}
                         </span>
                         <span className="truncate font-semibold text-[var(--color-text-strong)]">
                           {line.invoice_number ?? 'No invoice number'}
                         </span>
                       </p>
-                      <p className="mt-1 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                      <p className="mt-1 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                         {line.invoice_state_label}
                         {line.due_date ? ` · due ${formatDate(line.due_date)}` : ''}
                       </p>
@@ -330,7 +330,7 @@ export function VendorConfirmationDetailPage() {
             // see it knows the button is missing on purpose rather than broken.
             <Card>
               <CardContent>
-                <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                   {checkIn.standing === 'not_sent'
                     ? 'Nothing can be concluded until the supplier has been asked.'
                     : 'Concluding needs the right to mark a payment paid, which is held separately from the right to submit one. Somebody else has to do this part.'}

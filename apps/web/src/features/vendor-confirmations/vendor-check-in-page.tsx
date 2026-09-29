@@ -72,7 +72,7 @@ export function VendorCheckInPage() {
       </main>
 
       <footer className="mx-auto max-w-3xl px-[var(--space-5)] pb-[var(--space-10)]">
-        <p className="m-0 text-[var(--text-caption)] text-[var(--color-text-subtle)]">
+        <p className="m-0 text-[length:var(--text-caption)] text-[var(--color-text-subtle)]">
           This page was opened from a link we emailed you. It cannot be used to
           sign in, and it shows only the payment it was sent about.
         </p>
@@ -102,11 +102,11 @@ function LinkRefused({ message }: { message: string | undefined }) {
           <h1 className="m-0 text-[length:var(--text-heading-2)] leading-[var(--text-heading-2--line-height)] font-semibold">
             This link cannot be opened
           </h1>
-          <p className="mt-[var(--space-3)] m-0 text-[var(--text-body)] text-[var(--color-text-muted)]">
+          <p className="mt-[var(--space-3)] m-0 text-[length:var(--text-body)] text-[var(--color-text-muted)]">
             {message ??
               'The link has expired, has already been used, or was not quite copied in full.'}
           </p>
-          <p className="mt-[var(--space-3)] m-0 text-[var(--text-body)] text-[var(--color-text-muted)]">
+          <p className="mt-[var(--space-3)] m-0 text-[length:var(--text-body)] text-[var(--color-text-muted)]">
             If you have already answered, there is nothing further you need to
             do. If you have not, reply to the email this link came from and
             somebody will pick it up.
@@ -187,7 +187,7 @@ function Question({ question, token }: { question: VendorQuestionOut; token: str
       <h1 className="m-0 text-[length:var(--text-display-sm)] leading-[var(--text-display-sm--line-height)] font-bold">
         Did this payment reach you?
       </h1>
-      <p className="mt-[var(--space-3)] m-0 text-[var(--text-body-lg)] text-[var(--color-text-muted)]">
+      <p className="mt-[var(--space-3)] m-0 text-[length:var(--text-body-lg)] text-[var(--color-text-muted)]">
         We sent the payment below to {question.vendor_name} on{' '}
         {formatDate(question.paid_on?.slice(0, 10))} and would like to know
         whether it arrived. Please quote {question.reference} if you telephone us
@@ -209,7 +209,7 @@ function Question({ question, token }: { question: VendorQuestionOut; token: str
                   <p className="m-0 font-semibold text-[var(--color-text-strong)]">
                     {line.invoice_number ?? 'Invoice number not recorded'}
                   </p>
-                  <p className="mt-1 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                  <p className="mt-1 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                     {line.due_date ? `Due ${formatDate(line.due_date)}` : 'No due date recorded'}
                   </p>
                 </div>
@@ -287,7 +287,7 @@ function Question({ question, token }: { question: VendorQuestionOut; token: str
             {alreadyClosed ? (
               <p
                 role="alert"
-                className="m-0 rounded-[var(--radius-md)] border border-[var(--color-warning-600)] bg-[var(--color-warning-50)] p-[var(--space-4)] text-[var(--text-body-sm)] text-[var(--color-warning-700)]"
+                className="m-0 rounded-[var(--radius-md)] border border-[var(--color-warning-600)] bg-[var(--color-warning-50)] p-[var(--space-4)] text-[length:var(--text-body-sm)] text-[var(--color-warning-700)]"
               >
                 {errorMessage(answer.error) ??
                   'Your answer could not be recorded. Please reply to the email this link came from.'}
@@ -300,7 +300,7 @@ function Question({ question, token }: { question: VendorQuestionOut; token: str
                 "thank you" and nothing else concludes the matter is closed and
                 stops chasing us, which is exactly the wrong outcome when they
                 have just told us the money never arrived. */}
-            <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               Your answer is recorded as what you have told us. It does not close
               anything on its own — somebody in our accounts team checks it
               against our bank records before the invoice is marked as settled.
@@ -339,7 +339,7 @@ function Answered({ message }: { message: string }) {
           >
             Thank you
           </h1>
-          <p className="mt-[var(--space-3)] m-0 text-[var(--text-body)] text-[var(--color-text-muted)]">
+          <p className="mt-[var(--space-3)] m-0 text-[length:var(--text-body)] text-[var(--color-text-muted)]">
             {message}
           </p>
         </div>

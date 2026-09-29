@@ -241,7 +241,7 @@ function PdfPane({
           </Button>
           <p
             aria-live="polite"
-            className="m-0 min-w-[7rem] text-center text-[var(--text-body-sm)] text-[var(--color-text-muted)]"
+            className="m-0 min-w-[7rem] text-center text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]"
           >
             Page {pageNumber} of {pageCount || 1}
           </p>
@@ -265,7 +265,7 @@ function PdfPane({
           >
             <ZoomOut aria-hidden="true" className="size-4" />
           </Button>
-          <span className="tabular min-w-[3.5rem] text-center text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+          <span className="tabular min-w-[3.5rem] text-center text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
             {Math.round(zoom * 100)}%
           </span>
           <Button
@@ -283,7 +283,7 @@ function PdfPane({
       </div>
 
       {highlight && !onHighlightedPage ? (
-        <p className="m-0 border-b border-[var(--color-divider)] bg-[var(--color-warning-50)] px-[var(--space-4)] py-[var(--space-2)] text-[var(--text-body-sm)] text-[var(--color-warning-700)]">
+        <p className="m-0 border-b border-[var(--color-divider)] bg-[var(--color-warning-50)] px-[var(--space-4)] py-[var(--space-2)] text-[length:var(--text-body-sm)] text-[var(--color-warning-700)]">
           The selected value was found on page {highlight.page_number}.
         </p>
       ) : null}
@@ -337,7 +337,7 @@ function PdfPane({
           {isRendering ? (
             <div
               role="status"
-              className="absolute inset-0 flex items-center justify-center bg-[color-mix(in_srgb,white_70%,transparent)] text-[var(--text-body-sm)] text-[var(--color-text-muted)]"
+              className="absolute inset-0 flex items-center justify-center bg-[color-mix(in_srgb,white_70%,transparent)] text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]"
             >
               Drawing page {pageNumber}
             </div>
@@ -423,10 +423,10 @@ function TextPane({
 
   return (
     <div className={cn('min-h-0 overflow-auto p-[var(--space-5)]', className)}>
-      <p className="mt-0 mb-[var(--space-3)] text-[var(--text-caption)] text-[var(--color-text-subtle)]">
+      <p className="mt-0 mb-[var(--space-3)] text-[length:var(--text-caption)] text-[var(--color-text-subtle)]">
         {filename} shown as plain text.
       </p>
-      <pre className="m-0 whitespace-pre-wrap break-words font-[var(--font-mono)] text-[var(--text-body-sm)] text-[var(--color-text)]">
+      <pre className="m-0 whitespace-pre-wrap break-words font-[var(--font-mono)] text-[length:var(--text-body-sm)] text-[var(--color-text)]">
         {at < 0 ? (
           text
         ) : (
@@ -472,10 +472,10 @@ function ViewerNotice({
     >
       <Icon aria-hidden="true" className="size-6 text-[var(--color-warning-600)]" />
       <p className="m-0 font-semibold text-[var(--color-text-strong)]">{title}</p>
-      <p className="m-0 max-w-[36rem] text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+      <p className="m-0 max-w-[36rem] text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
         {detail}
       </p>
-      <p className="m-0 max-w-[36rem] text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+      <p className="m-0 max-w-[36rem] text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
         {nextStep}
       </p>
       {action}

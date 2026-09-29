@@ -37,10 +37,10 @@ function DefinitionRow({
   // column leaves too little room and an address ends up split mid-word.
   return (
     <div className="flex flex-col gap-0.5">
-      <dt className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-subtle)]">
+      <dt className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-subtle)]">
         {term}
       </dt>
-      <dd className="m-0 min-w-0 break-words text-[var(--text-body-sm)] text-[var(--color-text-strong)]">
+      <dd className="m-0 min-w-0 break-words text-[length:var(--text-body-sm)] text-[var(--color-text-strong)]">
         {children}
       </dd>
     </div>
@@ -91,25 +91,25 @@ function AttachmentRow({ attachment }: { attachment: AttachmentSummary }) {
           <p className="m-0 truncate font-semibold text-[var(--color-text-strong)]">
             {attachment.filename}
           </p>
-          <p className="m-0 text-[var(--text-caption)] text-[var(--color-text-muted)]">
+          <p className="m-0 text-[length:var(--text-caption)] text-[var(--color-text-muted)]">
             {attachment.content_type} · {formatBytes(attachment.size_bytes)}
           </p>
 
           {attachment.rejection_reason ? (
-            <p className="mt-[var(--space-2)] m-0 text-[var(--text-body-sm)] text-[var(--color-warning-700)]">
+            <p className="mt-[var(--space-2)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-warning-700)]">
               {describeRejection(
                 attachment.rejection_reason,
                 attachment.rejection_detail,
               )}
             </p>
           ) : verdict ? (
-            <p className="mt-[var(--space-2)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-[var(--space-2)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {attachment.scan_detail
                 ? `${verdict.description} (${attachment.scan_detail})`
                 : verdict.description}
             </p>
           ) : (
-            <p className="mt-[var(--space-2)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-[var(--space-2)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               Not yet scanned. It cannot be opened until a scan has completed.
             </p>
           )}
@@ -117,7 +117,7 @@ function AttachmentRow({ attachment }: { attachment: AttachmentSummary }) {
           {link.error ? (
             <p
               role="alert"
-              className="mt-[var(--space-2)] m-0 text-[var(--text-body-sm)] text-[var(--color-danger-700)]"
+              className="mt-[var(--space-2)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]"
             >
               {link.error instanceof Error
                 ? link.error.message
@@ -127,7 +127,7 @@ function AttachmentRow({ attachment }: { attachment: AttachmentSummary }) {
 
           {/* The content hash is what ties this row to the stored bytes, and is
               what an auditor uses to prove the file has not changed. */}
-          <p className="mt-[var(--space-2)] m-0 font-mono text-[var(--text-caption)] text-[var(--color-text-subtle)]">
+          <p className="mt-[var(--space-2)] m-0 font-mono text-[length:var(--text-caption)] text-[var(--color-text-subtle)]">
             sha256 {attachment.sha256.slice(0, 16)}…
           </p>
         </div>
@@ -173,7 +173,7 @@ function Warnings({ message }: { message: MessageDetail }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="mt-0 mb-[var(--space-3)] text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+        <p className="mt-0 mb-[var(--space-3)] text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
           The original was stored exactly as it arrived. These notes describe what
           could not be read from it, so nothing here is a silent gap.
         </p>
@@ -181,7 +181,7 @@ function Warnings({ message }: { message: MessageDetail }) {
           {notes.map((note) => (
             <li
               key={note}
-              className="text-[var(--text-body-sm)] text-[var(--color-text)]"
+              className="text-[length:var(--text-body-sm)] text-[var(--color-text)]"
             >
               {note}
             </li>
@@ -226,7 +226,7 @@ export function MessageDetailPage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               Could not load this message
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {error instanceof Error
                 ? error.message
                 : 'The message could not be found.'}
@@ -279,7 +279,7 @@ export function MessageDetailPage() {
               <p className="m-0 font-semibold text-[var(--color-text-strong)]">
                 Replies to this message would go to a different address
               </p>
-              <p className="mt-1 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+              <p className="mt-1 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                 It was sent from{' '}
                 <span className="font-mono">{message.from_address}</span> but asks
                 for replies at{' '}
@@ -305,7 +305,7 @@ export function MessageDetailPage() {
             </CardHeader>
             <CardContent className="p-0">
               {message.attachments.length === 0 ? (
-                <p className="m-0 px-[var(--space-5)] py-[var(--space-6)] text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                <p className="m-0 px-[var(--space-5)] py-[var(--space-6)] text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                   This message had no attachments. If an invoice was expected, ask
                   the sender to resend it with the document attached.
                 </p>
@@ -327,11 +327,11 @@ export function MessageDetailPage() {
               {message.body_text ? (
                 // Rendered as plain text, never as markup. Message content is
                 // attacker-controlled and is displayed, never interpreted.
-                <pre className="m-0 max-h-[28rem] overflow-auto whitespace-pre-wrap break-words font-[var(--font-mono)] text-[var(--text-body-sm)] text-[var(--color-text)]">
+                <pre className="m-0 max-h-[28rem] overflow-auto whitespace-pre-wrap break-words font-[var(--font-mono)] text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                   {message.body_text}
                 </pre>
               ) : (
-                <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                   The message had no plain-text body.
                 </p>
               )}

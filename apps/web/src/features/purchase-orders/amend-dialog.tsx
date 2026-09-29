@@ -77,7 +77,7 @@ export function AmendDialog({
       }
     >
       <div className="flex flex-col gap-[var(--space-5)]">
-        <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+        <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
           Currently {currentFormatted}
           {billedFormatted ? `, of which ${billedFormatted} has been billed.` : '.'}
         </p>

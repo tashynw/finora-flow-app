@@ -1,18 +1,19 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { HandCoins, Search } from 'lucide-react';
 
 import type { CheckInSummary } from '@finora/shared-types';
 
 import { cn } from '@/lib/utils';
+import { formatMoment } from '@/lib/dates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { DataTable, type Column } from '@/components/ui/data-table';
+import { ViewTabs } from '@/components/ui/view-tabs';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/field';
 import { SkeletonText } from '@/components/ui/skeleton';
 import { ToneBadge } from '@/components/workflow/status-badge';
 import { PageHeader } from '@/features/shared/page-header';
-import { CurrencyTotals } from '@/features/payments/currency-totals';
 import {
   coverage,
   headlineStatus,
@@ -89,66 +90,109 @@ const VIEWS: RegisterView[] = [
   },
 ];
 
-function CheckInRow({ row }: { row: CheckInSummary }) {
-  const status = headlineStatus(
-    row.standing,
-    row.standing_label,
-    row.review_outcome ?? null,
-    row.review_outcome_label ?? null,
-  );
-  const waiting = waitingOn(row.standing);
-
-  return (
-    <li className="border-b border-[var(--color-divider)] last:border-b-0">
-      <Link
-        to={`/vendor-confirmations/${row.id}`}
-        className={cn(
-          'motion-interactive flex flex-col gap-[var(--space-2)] px-[var(--space-5)] py-[var(--space-4)]',
-          'no-underline hover:bg-[var(--color-surface-subtle)]',
-          'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]',
-          'sm:flex-row sm:items-center sm:gap-[var(--space-5)]',
+const checkInColumns: Column<CheckInSummary>[] = [
+  {
+    key: 'reference',
+    header: 'Reference',
+    width: 'w-40',
+    cell: (row) => (
+      <span className="flex flex-col">
+        <span className="tabular font-medium text-[var(--color-text-strong)]">
+          {row.reference}
+        </span>
+        <span className="tabular text-[11px] text-[var(--color-text-subtle)]">
+          in {row.package_reference}
+        </span>
+      </span>
+    ),
+  },
+  {
+    key: 'supplier',
+    header: 'Supplier',
+    cell: (row) => (
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate">{row.vendor_name}</span>
+        {/* What they said, always attributed, and never in place of the
+            status. A row reading "Paid" because a supplier said so is the
+            exact confusion this whole feature exists to prevent. */}
+        {row.claim_label ? (
+          <span className="truncate text-[11px] text-[var(--color-text-subtle)]">
+            they say: {row.claim_label.toLowerCase()}
+          </span>
+        ) : null}
+      </span>
+    ),
+  },
+  {
+    key: 'amount',
+    header: 'Amount',
+    width: 'w-40',
+    cell: (row) => (
+      <span className="flex flex-col">
+        {row.totals.length === 0 ? (
+          <span className="text-[var(--color-text-subtle)]">Nothing yet</span>
+        ) : (
+          row.totals.map((total) => (
+            <span key={total.currency} className="tabular">
+              {total.formatted}
+            </span>
+          ))
         )}
-      >
-        <div className="min-w-0 flex-1">
-          <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-            <span className="tabular text-[var(--text-caption)] text-[var(--color-text-subtle)]">
-              {row.reference}
-            </span>
-            <span className="truncate font-semibold text-[var(--color-text-strong)]">
-              {row.vendor_name}
-            </span>
-          </p>
-          <p className="m-0 truncate text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-            {coverage(row.invoice_count)} in {row.package_reference}
-            {/* What they said, always attributed, and never in place of the
-                status. A row reading "Paid" because a supplier said so is the
-                exact confusion this whole feature exists to prevent. */}
-            {row.claim_label ? ` · they say: ${row.claim_label.toLowerCase()}` : ''}
-          </p>
-        </div>
-
-        <div className="flex shrink-0 flex-wrap items-center gap-[var(--space-4)]">
-          {waiting ? (
-            <span
-              className={cn(
-                'text-[var(--text-body-sm)]',
-                waiting.tone === 'warning'
-                  ? 'font-semibold text-[var(--color-warning-700)]'
-                  : 'text-[var(--color-text-muted)]',
-              )}
-            >
-              {waiting.label}
-            </span>
-          ) : null}
-
-          <CurrencyTotals totals={row.totals} align="right" className="min-w-[9rem]" />
-
-          <ToneBadge label={status.label} tone={status.tone} />
-        </div>
-      </Link>
-    </li>
-  );
-}
+        <span className="text-[11px] text-[var(--color-text-subtle)]">
+          {coverage(row.invoice_count)}
+        </span>
+      </span>
+    ),
+  },
+  {
+    key: 'waiting',
+    header: 'Waiting on',
+    hideBelow: 'md',
+    cell: (row) => {
+      const waiting = waitingOn(row.standing);
+      if (!waiting) return <span>—</span>;
+      return (
+        <span
+          className={cn(
+            waiting.tone === 'warning' && 'font-medium text-[var(--color-warning-700)]',
+          )}
+        >
+          {waiting.label}
+        </span>
+      );
+    },
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    width: 'w-48',
+    cell: (row) => {
+      const status = headlineStatus(
+        row.standing,
+        row.standing_label,
+        row.review_outcome ?? null,
+        row.review_outcome_label ?? null,
+      );
+      return <ToneBadge label={status.label} tone={status.tone} />;
+    },
+  },
+  {
+    key: 'activity',
+    header: 'Last activity',
+    width: 'w-40',
+    hideBelow: 'lg',
+    cell: (row) =>
+      row.reviewed_at ? (
+        <span>Reviewed {formatMoment(row.reviewed_at)}</span>
+      ) : row.answered_at ? (
+        <span>Answered {formatMoment(row.answered_at)}</span>
+      ) : row.sent_at ? (
+        <span>Asked {formatMoment(row.sent_at)}</span>
+      ) : (
+        <span>—</span>
+      ),
+  },
+];
 
 export function VendorConfirmationRegisterPage() {
   const [viewId, setViewId] = useState('to-review');
@@ -170,45 +214,37 @@ export function VendorConfirmationRegisterPage() {
     <>
       <PageHeader
         title="Vendor confirmations"
-        purpose="Whether the money we sent actually arrived. A supplier's answer is evidence; only a review here settles it."
-      />
-
-      <div className="mb-[var(--space-4)] flex flex-col gap-[var(--space-3)] lg:flex-row lg:items-center lg:justify-between">
-        <div role="group" aria-label="Choose a view" className="flex flex-wrap gap-[var(--space-2)]">
-          {VIEWS.map((option) => (
-            <Button
-              key={option.id}
-              variant={viewId === option.id ? 'primary' : 'ghost'}
-              size="sm"
-              aria-pressed={viewId === option.id}
-              onClick={() => {
-                setViewId(option.id);
+        purpose="Supplier payment confirmations requiring review. A supplier's answer is evidence; only a review here settles it."
+        toolbar={
+          <div className="flex flex-col gap-[var(--space-3)] md:flex-row md:items-center md:justify-between">
+            <ViewTabs
+              tabs={VIEWS}
+              value={view.id}
+              onChange={(id) => {
+                setViewId(id);
                 setPage(1);
               }}
-            >
-              {option.label}
-            </Button>
-          ))}
-        </div>
-
-        <div className="relative lg:w-80">
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-[var(--space-3)] size-4 -translate-y-1/2 text-[var(--color-text-subtle)]"
-          />
-          <Input
-            type="search"
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setPage(1);
-            }}
-            placeholder="Our reference or the supplier's name"
-            aria-label="Search supplier check-ins"
-            className="pl-9"
-          />
-        </div>
-      </div>
+            />
+            <div className="relative md:w-72">
+              <Search
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-[var(--space-3)] size-4 -translate-y-1/2 text-[var(--color-text-subtle)]"
+              />
+              <Input
+                type="search"
+                value={search}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setPage(1);
+                }}
+                placeholder="Our reference or the supplier's name"
+                aria-label="Search supplier check-ins"
+                className="h-9 pl-9 text-[12px]"
+              />
+            </div>
+          </div>
+        }
+      />
 
       {isError ? (
         <Card className="mb-[var(--space-6)] border-[var(--color-danger-600)]">
@@ -216,7 +252,7 @@ export function VendorConfirmationRegisterPage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               Could not load the queue
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {error instanceof Error ? error.message : 'The request did not complete.'} Nothing
               has been lost; every answer a supplier has given is stored and will still be here.
             </p>
@@ -224,13 +260,15 @@ export function VendorConfirmationRegisterPage() {
         </Card>
       ) : null}
 
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-[var(--space-5)]">
-              <SkeletonText lines={5} />
-            </div>
-          ) : rows.length === 0 ? (
+      {isLoading ? (
+        <Card>
+          <CardContent>
+            <SkeletonText lines={5} />
+          </CardContent>
+        </Card>
+      ) : rows.length === 0 ? (
+        <Card>
+          <CardContent className="p-0">
             <EmptyState
               icon={searching ? Search : HandCoins}
               title={searching ? `Nothing matches “${search.trim()}”` : view.empty}
@@ -254,15 +292,17 @@ export function VendorConfirmationRegisterPage() {
                     },
                   })}
             />
-          ) : (
-            <ul className="m-0 list-none p-0">
-              {rows.map((row) => (
-                <CheckInRow key={row.id} row={row} />
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : (
+        <DataTable
+          ariaLabel="Supplier check-ins"
+          columns={checkInColumns}
+          rows={rows}
+          getRowKey={(row) => row.id}
+          getRowHref={(row) => `/vendor-confirmations/${row.id}`}
+        />
+      )}
 
       {total > PAGE_SIZE ? (
         <nav
@@ -271,7 +311,7 @@ export function VendorConfirmationRegisterPage() {
         >
           <p
             aria-live="polite"
-            className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]"
+            className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]"
           >
             Showing {showingFrom} to {showingTo} of {total}
           </p>

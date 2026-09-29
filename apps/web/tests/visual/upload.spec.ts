@@ -44,7 +44,7 @@ test.describe('uploading a document', () => {
     const dialog = page.getByRole('dialog');
 
     await test.step('the upload reports what happened to the file', async () => {
-      await pageAction(page, 'Intake', /upload a document/i).click();
+      await pageAction(page, 'Inbox', /^upload$/i).click();
       await dialog
         .locator('input[type="file"]')
         .setInputFiles({ name: FILENAME, mimeType: 'application/pdf', buffer: PDF });
@@ -95,7 +95,7 @@ test.describe('uploading a document', () => {
       await page.goto('/intake');
       await settle(page);
 
-      await pageAction(page, 'Intake', /upload a document/i).click();
+      await pageAction(page, 'Inbox', /^upload$/i).click();
       await dialog
         .locator('input[type="file"]')
         .setInputFiles({ name: 'renamed.pdf', mimeType: 'application/pdf', buffer: PDF });

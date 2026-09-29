@@ -59,7 +59,7 @@ test.describe('the purchase order register, as finance', () => {
     await expect(
       page
         .getByRole('group', { name: 'Purchase orders actions' })
-        .getByRole('button', { name: /raise an order/i }),
+        .getByRole('button', { name: /create po/i }),
     ).toBeEnabled();
   });
 });
@@ -82,7 +82,7 @@ test.describe('the purchase order register, as an approver', () => {
     // Committing the organisation to spend and agreeing to that commitment are
     // separated duties. Offering the button and refusing the request afterwards
     // would be the interface disagreeing with the server.
-    await expect(page.getByRole('button', { name: /raise an order/i })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /create po/i })).toHaveCount(0);
     await expect(views.getByRole('button', { name: 'Drafts' })).toHaveCount(0);
 
     await expect(page).toHaveScreenshot('purchase-orders-register-approver.png', {

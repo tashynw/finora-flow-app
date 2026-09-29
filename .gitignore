@@ -51,6 +51,15 @@ apps/web/tests/visual/**/*-diff.png
 # Throwaway screenshots produced during development review.
 apps/web/scratch-shots/
 apps/web/tmp-shots/
+apps/web/verify-shots/
+apps/web/verify-shots.mjs
+
+# Local review captures and dev-server logs.
+/[0-9].png
+.cursor-api.log
+
+# Office lock files, present while a document is open.
+~$*
 
 # Editor and OS
 .DS_Store

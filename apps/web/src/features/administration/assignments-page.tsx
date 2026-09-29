@@ -6,7 +6,7 @@ import type { ApprovalAssignmentOut, ApprovalLevel } from '@finora/shared-types'
 import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Field, Input, Select } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
@@ -35,12 +35,29 @@ const LEVELS: { id: ApprovalLevel; label: string }[] = [
   { id: 'coo', label: 'COO' },
 ];
 
+function scopeOf(holders: ApprovalAssignmentOut[]): string {
+  const scoped = holders.filter((row) => row.department).length;
+  if (scoped === 0) return 'business-wide';
+  if (scoped === holders.length) return 'scoped by department';
+  return `${scoped} scoped by department`;
+}
+
 export function AssignmentsPage() {
   const [adding, setAdding] = useState<ApprovalLevel | null>(null);
   const [removing, setRemoving] = useState<ApprovalAssignmentOut | null>(null);
 
+  const [expanded, setExpanded] = useState<Set<ApprovalLevel>>(() => new Set());
+
   const { data: assignments, isLoading, isError, error } = useAssignments();
   const unassign = useUnassignLevel();
+
+  const toggle = (level: ApprovalLevel) =>
+    setExpanded((current) => {
+      const next = new Set(current);
+      if (next.has(level)) next.delete(level);
+      else next.add(level);
+      return next;
+    });
 
   const byLevel = useMemo(() => {
     const groups = new Map<ApprovalLevel, ApprovalAssignmentOut[]>(
@@ -56,7 +73,7 @@ export function AssignmentsPage() {
     <>
       <PageHeader
         title="Who approves what"
-        purpose="The people behind each level in the approval matrix. A level with nobody in it stops every route that reaches it."
+        purpose="People assigned to each approval level and scope. A level with nobody in it stops every route that reaches it."
       />
 
       {isError ? (
@@ -65,7 +82,7 @@ export function AssignmentsPage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               Could not load the assignments
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {errorMessage(error) ?? 'The request did not complete.'}
             </p>
           </CardContent>
@@ -79,28 +96,57 @@ export function AssignmentsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="flex flex-col gap-[var(--space-5)]">
+        <div className="flex flex-col gap-[var(--space-6)]">
           {LEVELS.map((level) => {
             const holders = byLevel.get(level.id) ?? [];
+            const open = holders.length === 0 || expanded.has(level.id);
+            const panelId = `level-${level.id}-holders`;
             return (
-              <Card key={level.id} className={cn(holders.length === 0 && 'border-[var(--color-warning-600)]')}>
-                <CardHeader className="flex-row items-start justify-between gap-[var(--space-4)]">
-                  <div>
+              <Card
+                key={level.id}
+                className={cn(holders.length === 0 && 'border-[var(--color-warning-600)]')}
+              >
+                <div className="flex flex-col gap-[var(--space-3)] px-[var(--space-5)] py-[var(--space-5)] sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
                     <CardTitle>{level.label}</CardTitle>
-                    <CardDescription>
+                    <p
+                      className={cn(
+                        'm-0 mt-2.5 text-[11px]',
+                        holders.length === 0
+                          ? 'text-[var(--color-warning-700)]'
+                          : 'text-[var(--color-text-muted)]',
+                      )}
+                    >
                       {holders.length === 0
                         ? 'Nobody holds this level. Anything routed to it cannot be approved by anyone, and will sit until somebody is put here.'
-                        : `${holders.length} ${holders.length === 1 ? 'person' : 'people'}.`}
-                    </CardDescription>
+                        : `${holders.length} assigned · ${scopeOf(holders)}`}
+                    </p>
                   </div>
-                  <Button variant="secondary" size="sm" onClick={() => setAdding(level.id)}>
-                    <UserPlus aria-hidden="true" className="size-4" />
-                    Add somebody
-                  </Button>
-                </CardHeader>
-                <CardContent className="p-0">
+                  <div className="flex shrink-0 flex-wrap items-center gap-[var(--space-2)]">
+                    {open ? (
+                      <Button variant="secondary" size="sm" onClick={() => setAdding(level.id)}>
+                        <UserPlus aria-hidden="true" className="size-4" />
+                        Add somebody
+                      </Button>
+                    ) : null}
+                    {holders.length > 0 ? (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        aria-expanded={open}
+                        aria-controls={panelId}
+                        onClick={() => toggle(level.id)}
+                      >
+                        {open ? 'Done' : 'Manage assignments'}
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+                {open ? (
+                <div id={panelId} className="border-t border-[var(--color-divider)]">
                   {holders.length === 0 ? (
                     <EmptyState
+                      titleAs="h3"
                       icon={UsersRound}
                       title="Nobody at this level"
                       explanation="The matrix can route work here, and when it does the work will wait indefinitely."
@@ -112,13 +158,13 @@ export function AssignmentsPage() {
                       {holders.map((row) => (
                         <li
                           key={row.id}
-                          className="flex flex-col gap-[var(--space-2)] border-b border-[var(--color-divider)] px-[var(--space-5)] py-[var(--space-4)] last:border-b-0 sm:flex-row sm:items-center"
+                          className="flex flex-col gap-[var(--space-2)] border-b border-[var(--color-divider)] px-[var(--space-5)] py-[var(--space-3)] last:border-b-0 sm:flex-row sm:items-center"
                         >
                           <div className="min-w-0 flex-1">
-                            <p className="m-0 font-semibold text-[var(--color-text-strong)]">
+                            <p className="m-0 text-[12px] font-semibold text-[var(--color-text-strong)]">
                               {row.user_name}
                             </p>
-                            <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                            <p className="m-0 text-[11px] text-[var(--color-text-muted)]">
                               {row.user_email}
                               {row.department ? ` · ${row.department} only` : ' · everywhere'}
                             </p>
@@ -145,7 +191,8 @@ export function AssignmentsPage() {
                       ))}
                     </ul>
                   )}
-                </CardContent>
+                </div>
+                ) : null}
               </Card>
             );
           })}
@@ -193,7 +240,7 @@ export function AssignmentsPage() {
         }
       >
         {unassign.isError ? (
-          <p role="alert" className="m-0 text-[var(--text-body-sm)] text-[var(--color-danger-700)]">
+          <p role="alert" className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]">
             {errorMessage(unassign.error)}
           </p>
         ) : null}
@@ -261,7 +308,7 @@ function AssignDialog({
     >
       <div className="flex flex-col gap-[var(--space-5)]">
         {assign.isError ? (
-          <p role="alert" className="m-0 text-[var(--text-body-sm)] text-[var(--color-danger-700)]">
+          <p role="alert" className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]">
             {errorMessage(assign.error)}
           </p>
         ) : null}

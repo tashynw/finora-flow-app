@@ -191,7 +191,7 @@ export function RuleDialog({
         {error ? (
           <p
             role="alert"
-            className="m-0 rounded-[var(--radius-sm)] border border-[var(--color-danger-600)] bg-[var(--color-danger-50)] px-[var(--space-4)] py-[var(--space-3)] text-[var(--text-body-sm)] text-[var(--color-danger-700)]"
+            className="m-0 rounded-[var(--radius-sm)] border border-[var(--color-danger-600)] bg-[var(--color-danger-50)] px-[var(--space-4)] py-[var(--space-3)] text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]"
           >
             {error}
           </p>
@@ -333,13 +333,13 @@ export function RuleDialog({
           <div>
             <label
               htmlFor={parallelId}
-              className="block text-[var(--text-body-sm)] font-semibold text-[var(--color-text-strong)]"
+              className="block text-[length:var(--text-body-sm)] font-semibold text-[var(--color-text-strong)]"
             >
               Decides alongside others on this step
             </label>
             <p
               id={`${parallelId}-help`}
-              className="m-0 text-[var(--text-caption)] text-[var(--color-text-muted)]"
+              className="m-0 text-[length:var(--text-caption)] text-[var(--color-text-muted)]"
             >
               {alongside.length > 0
                 ? `${alongside.map((rule) => rule.level_label).join(' and ')} ${

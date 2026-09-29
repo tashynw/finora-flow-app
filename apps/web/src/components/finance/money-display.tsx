@@ -27,7 +27,7 @@ export interface MoneyDisplayProps {
 }
 
 const SIZE_CLASSES = {
-  sm: 'text-[var(--text-body-sm)] font-semibold',
+  sm: 'text-[length:var(--text-body-sm)] font-semibold',
   md: 'text-[length:var(--text-money)] font-[weight:var(--text-money--font-weight)]',
   lg: 'text-[length:var(--text-money-lg)] font-[weight:var(--text-money-lg--font-weight)] leading-[var(--text-money-lg--line-height)]',
 } as const;
@@ -64,7 +64,7 @@ export function MoneyDisplay({
       {compact ? <span className="sr-only"> (exactly {exact})</span> : null}
       {unknownCurrency ? (
         <span
-          className="ml-1 text-[var(--text-caption)] font-normal text-[var(--color-warning-700)]"
+          className="ml-1 text-[length:var(--text-caption)] font-normal text-[var(--color-warning-700)]"
           title={`${value.currency} is not a configured currency. The number of decimal places shown may be wrong.`}
         >
           unverified currency

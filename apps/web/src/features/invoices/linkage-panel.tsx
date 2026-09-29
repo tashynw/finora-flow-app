@@ -35,7 +35,7 @@ function Remaining({
   return (
     <p
       className={cn(
-        'tabular m-0 text-[var(--text-body)] font-semibold',
+        'tabular m-0 text-[length:var(--text-body)] font-semibold',
         over ? 'text-[var(--color-danger-700)]' : 'text-[var(--color-text-strong)]',
       )}
     >
@@ -65,7 +65,7 @@ export function LinkagePanel({ invoice }: { invoice: InvoiceDetail }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+          <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
             Nothing linked. An invoice with no estimate behind it is spend nobody approved in
             advance, which is allowed but is checked more closely at approval.
           </p>
@@ -97,7 +97,7 @@ export function LinkagePanel({ invoice }: { invoice: InvoiceDetail }) {
                 tone={estimate.state === 'approved' ? 'success' : 'warning'}
               />
             </p>
-            <p className="mt-[var(--space-1)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-[var(--space-1)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {estimate.vendor_name}
               {estimate.approved_total_formatted
                 ? ` · ${estimate.approved_total_formatted} approved`
@@ -124,7 +124,7 @@ export function LinkagePanel({ invoice }: { invoice: InvoiceDetail }) {
                 tone={orderStanding(order.state_label, order.is_open).tone}
               />
             </p>
-            <p className="mt-[var(--space-1)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-[var(--space-1)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {order.vendor_name} · {order.total_formatted} ordered
               {/* Shown because an order that looks to have room may already be
                   spoken for by an invoice somebody else is putting through, and

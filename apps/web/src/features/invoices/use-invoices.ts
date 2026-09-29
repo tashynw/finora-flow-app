@@ -7,6 +7,7 @@ import type {
   InvoiceDraftRequest,
   InvoicePage,
   InvoiceReferenceData,
+  RegisterSummaryOut,
   ResolvedOut,
 } from '@finora/shared-types';
 
@@ -17,6 +18,7 @@ export const invoiceKeys = {
   all: ['invoices'] as const,
   list: (filters: InvoiceFilters, offset: number) =>
     ['invoices', 'list', filters, offset] as const,
+  summary: ['invoices', 'summary'] as const,
   detail: (id: string) => ['invoices', 'detail', id] as const,
   /** Estimates and orders this invoice could be billed against. */
   linkable: ['invoices', 'linkable'] as const,
@@ -72,6 +74,21 @@ export function useInvoices(filters: InvoiceFilters, offset = 0) {
         })}`,
       ),
     staleTime: 10_000,
+  });
+}
+
+/**
+ * Whole-register headline figures for the stat band.
+ *
+ * Scoped by the API to exactly the invoices this caller may list, so the totals
+ * shown can always be reached by opening the register. Kept slightly staler than
+ * the list because a headline that lags a row by a few seconds misleads nobody.
+ */
+export function useInvoiceSummary() {
+  return useQuery({
+    queryKey: invoiceKeys.summary,
+    queryFn: () => api.get<RegisterSummaryOut>('/invoices/summary'),
+    staleTime: 30_000,
   });
 }
 

@@ -1,17 +1,20 @@
 /** Reference data administration — vendors, GL accounts and cost centres. */
 
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { BookMarked, Plus } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { DataTable, type Column } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Field, Input, Textarea } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
+import { ViewTabs } from '@/components/ui/view-tabs';
 import { ToneBadge } from '@/components/workflow/status-badge';
+import { EmailText } from '@/features/shared/email-text';
 import { PageHeader } from '@/features/shared/page-header';
 import {
   useAdminCostCentres,
@@ -675,43 +678,146 @@ function EditCostCentreModal({
   );
 }
 
-function CatalogueList({
+interface CatalogueRow {
+  id: string;
+  code: string;
+  name: string;
+  is_active: boolean;
+}
+
+/** Code, name and status are shared; each catalogue adds its own middle columns. */
+function catalogueColumns<T extends CatalogueRow>({
+  noun,
+  extra,
+  onEdit,
+  onToggle,
+  toggling,
+}: {
+  noun: string;
+  extra: Column<T>[];
+  onEdit: (row: T) => void;
+  onToggle: (row: T, reason: string) => void;
+  toggling: boolean;
+}): Column<T>[] {
+  return [
+    {
+      key: 'code',
+      header: 'Code',
+      width: 'w-32',
+      cell: (row) => (
+        <span className="tabular whitespace-nowrap font-semibold text-[var(--color-text-strong)]">
+          {row.code}
+        </span>
+      ),
+    },
+    {
+      key: 'name',
+      header: 'Name',
+      cell: (row) => (
+        <span className={row.is_active ? undefined : 'text-[var(--color-text-muted)]'}>
+          {row.name}
+        </span>
+      ),
+    },
+    ...extra,
+    {
+      key: 'status',
+      header: 'Status',
+      width: 'w-32',
+      cell: (row) =>
+        row.is_active ? (
+          <ToneBadge label="Active" tone="success" />
+        ) : (
+          <ToneBadge label="Deactivated" tone="neutral" />
+        ),
+    },
+    {
+      key: 'actions',
+      header: <span className="sr-only">Actions</span>,
+      width: 'w-48',
+      align: 'right',
+      cell: (row) => (
+        <span className="inline-flex flex-wrap justify-end gap-1">
+          <Button type="button" size="sm" variant="ghost" onClick={() => onEdit(row)}>
+            Edit
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            disabled={toggling}
+            className={cn(!row.is_active && 'text-[var(--color-success-700)]')}
+            onClick={() => {
+              const reason = window.prompt(
+                row.is_active
+                  ? `Why is this ${noun} being deactivated?`
+                  : `Why is this ${noun} being reactivated?`,
+              );
+              if (!reason || reason.trim().length < 3) return;
+              onToggle(row, reason.trim());
+            }}
+          >
+            {row.is_active ? 'Deactivate' : 'Reactivate'}
+          </Button>
+        </span>
+      ),
+    },
+  ];
+}
+
+function CatalogueTable<T extends CatalogueRow>({
+  label,
   loading,
   error,
   emptyTitle,
   emptyExplanation,
   rows,
+  columns,
 }: {
+  label: string;
   loading: boolean;
   error: unknown;
   emptyTitle: string;
   emptyExplanation: string;
-  rows: ReactNode;
+  rows: T[];
+  columns: Column<T>[];
 }) {
-  if (loading) return <SkeletonText lines={8} />;
-  if (error) {
+  if (loading) {
     return (
-      <p role="alert" className="m-0 text-[var(--color-danger-700)]">
-        {errorMessage(error) ?? 'The catalogue could not be loaded.'}
-      </p>
+      <Card>
+        <CardContent>
+          <SkeletonText lines={8} />
+        </CardContent>
+      </Card>
     );
   }
-  if (!rows) {
+  if (error) {
     return (
-      <EmptyState
-        icon={BookMarked}
-        title={emptyTitle}
-        explanation={emptyExplanation}
-        nextStep="Use Add to create the first entry."
-      />
+      <Card className="border-[var(--color-danger-600)]">
+        <CardContent>
+          <p role="alert" className="m-0 text-[var(--color-danger-700)]">
+            {errorMessage(error) ?? 'The catalogue could not be loaded.'}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+  if (rows.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-0">
+          <EmptyState
+            icon={BookMarked}
+            title={emptyTitle}
+            explanation={emptyExplanation}
+            nextStep="Use Add to create the first entry."
+          />
+        </CardContent>
+      </Card>
     );
   }
   return (
-    <Card className="surface-card overflow-hidden">
-      <CardContent className="p-0">
-        <ul className="m-0 list-none p-0">{rows}</ul>
-      </CardContent>
-    </Card>
+    <DataTable ariaLabel={label} columns={columns} rows={rows} getRowKey={(row) => row.id} />
   );
 }
 
@@ -742,259 +848,128 @@ export function ReferenceDataPage() {
         ? 'Add GL account'
         : 'Add cost centre';
 
+  const vendorColumns = catalogueColumns<AdminVendorOut>({
+    noun: 'vendor',
+    extra: [
+      {
+        key: 'email',
+        header: 'Email',
+        hideBelow: 'md',
+        cell: (row) => (
+          <span className={row.email ? undefined : 'text-[var(--color-text-subtle)]'}>
+            {row.email ? <EmailText email={row.email} /> : 'No email'}
+          </span>
+        ),
+      },
+      {
+        key: 'currency',
+        header: 'Currency',
+        width: 'w-24',
+        cell: (row) => <span>{row.default_currency}</span>,
+      },
+    ],
+    onEdit: setEditingVendor,
+    onToggle: (row, reason) =>
+      setVendorActive.mutate({ id: row.id, body: { is_active: !row.is_active, reason } }),
+    toggling: setVendorActive.isPending,
+  });
+
+  const accountColumns = catalogueColumns<AdminGlAccountOut>({
+    noun: 'GL account',
+    extra: [],
+    onEdit: setEditingAccount,
+    onToggle: (row, reason) =>
+      setAccountActive.mutate({ id: row.id, body: { is_active: !row.is_active, reason } }),
+    toggling: setAccountActive.isPending,
+  });
+
+  const centreColumns = catalogueColumns<AdminCostCentreOut>({
+    noun: 'cost centre',
+    extra: [
+      {
+        key: 'department',
+        header: 'Department',
+        width: 'w-48',
+        hideBelow: 'md',
+        cell: (row) => (
+          <span className={row.department ? undefined : 'text-[var(--color-text-subtle)]'}>
+            {row.department ?? 'No department'}
+          </span>
+        ),
+      },
+    ],
+    onEdit: setEditingCentre,
+    onToggle: (row, reason) =>
+      setCentreActive.mutate({ id: row.id, body: { is_active: !row.is_active, reason } }),
+    toggling: setCentreActive.isPending,
+  });
+
   return (
-    <div className="flex flex-col gap-[var(--space-6)]">
+    <>
       <PageHeader
         title="Reference data"
-        purpose="Vendors, GL accounts and cost centres used on every coding form. Soft-deactivate rather than delete so historical documents still resolve."
+        purpose="Vendors, GL accounts and cost centres. Deactivate rather than delete so historical documents still resolve."
+        toolbar={
+          <div className="flex flex-wrap items-center gap-[var(--space-3)]">
+            <ViewTabs
+              label="Reference catalogues"
+              tabs={TABS}
+              value={tab}
+              onChange={(id) => selectTab(id as Catalogue)}
+            />
+            <span aria-hidden="true" className="h-5 w-px bg-[var(--color-border)]" />
+            <Button
+              variant="secondary"
+              size="sm"
+              aria-pressed={!includeInactive}
+              onClick={() => setIncludeInactive(!includeInactive)}
+              className="h-9 text-[12px]"
+            >
+              {includeInactive ? 'Hide deactivated' : 'Show deactivated'}
+            </Button>
+          </div>
+        }
         actions={
-          <Button type="button" onClick={() => setCreating(true)}>
+          <Button type="button" variant="primary" size="sm" onClick={() => setCreating(true)}>
             <Plus aria-hidden="true" className="size-4" />
             {addLabel}
           </Button>
         }
       />
 
-      <div
-        role="tablist"
-        aria-label="Reference catalogues"
-        className="flex flex-wrap gap-[var(--space-2)]"
-      >
-        {TABS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === item.id}
-            className={cn(
-              'rounded-[var(--radius-md)] px-[var(--space-3)] py-[var(--space-2)] text-[var(--text-body-sm)] font-semibold',
-              tab === item.id
-                ? 'bg-[var(--color-primary-700)] text-[var(--color-text-inverse)]'
-                : 'bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] hover:text-[var(--color-text-strong)]',
-            )}
-            onClick={() => selectTab(item.id)}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-
-      <label className="flex cursor-pointer items-center gap-[var(--space-2)] text-[var(--text-body-sm)]">
-        <input
-          type="checkbox"
-          className="size-4 accent-[var(--color-primary)]"
-          checked={includeInactive}
-          onChange={(event) => setIncludeInactive(event.target.checked)}
-        />
-        Show deactivated entries
-      </label>
-
       {tab === 'vendors' ? (
-        <CatalogueList
+        <CatalogueTable
+          label="Vendors"
           loading={vendors.isLoading}
           error={vendors.isError ? vendors.error : null}
           emptyTitle="No vendors yet"
           emptyExplanation="Nobody has been added to the supplier catalogue."
-          rows={
-            (vendors.data ?? []).length === 0
-              ? null
-              : (vendors.data ?? []).map((row) => (
-                  <li
-                    key={row.id}
-                    className="flex flex-col gap-[var(--space-3)] border-b border-[var(--color-divider)] px-[var(--space-5)] py-[var(--space-4)] last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="min-w-0">
-                      <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-                        <span className="font-semibold text-[var(--color-text-strong)]">
-                          {row.code}
-                        </span>
-                        <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-                          {row.name}
-                        </span>
-                        {!row.is_active ? (
-                          <ToneBadge label="Deactivated" tone="neutral" />
-                        ) : null}
-                      </p>
-                      <p className="m-0 truncate text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-                        {row.email ?? 'No email'}
-                        {' · '}
-                        {row.default_currency}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 flex-wrap gap-[var(--space-2)]">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => setEditingVendor(row)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        disabled={setVendorActive.isPending}
-                        className={cn(!row.is_active && 'text-[var(--color-success-700)]')}
-                        onClick={() => {
-                          const reason = window.prompt(
-                            row.is_active
-                              ? 'Why is this vendor being deactivated?'
-                              : 'Why is this vendor being reactivated?',
-                          );
-                          if (!reason || reason.trim().length < 3) return;
-                          setVendorActive.mutate({
-                            id: row.id,
-                            body: {
-                              is_active: !row.is_active,
-                              reason: reason.trim(),
-                            },
-                          });
-                        }}
-                      >
-                        {row.is_active ? 'Deactivate' : 'Reactivate'}
-                      </Button>
-                    </div>
-                  </li>
-                ))
-          }
+          rows={vendors.data ?? []}
+          columns={vendorColumns}
         />
       ) : null}
 
       {tab === 'gl-accounts' ? (
-        <CatalogueList
+        <CatalogueTable
+          label="GL accounts"
           loading={accounts.isLoading}
           error={accounts.isError ? accounts.error : null}
           emptyTitle="No GL accounts yet"
           emptyExplanation="The chart of accounts has not been started."
-          rows={
-            (accounts.data ?? []).length === 0
-              ? null
-              : (accounts.data ?? []).map((row) => (
-                  <li
-                    key={row.id}
-                    className="flex flex-col gap-[var(--space-3)] border-b border-[var(--color-divider)] px-[var(--space-5)] py-[var(--space-4)] last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="min-w-0">
-                      <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-                        <span className="font-semibold text-[var(--color-text-strong)]">
-                          {row.code}
-                        </span>
-                        <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-                          {row.name}
-                        </span>
-                        {!row.is_active ? (
-                          <ToneBadge label="Deactivated" tone="neutral" />
-                        ) : null}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 flex-wrap gap-[var(--space-2)]">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => setEditingAccount(row)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        disabled={setAccountActive.isPending}
-                        className={cn(!row.is_active && 'text-[var(--color-success-700)]')}
-                        onClick={() => {
-                          const reason = window.prompt(
-                            row.is_active
-                              ? 'Why is this GL account being deactivated?'
-                              : 'Why is this GL account being reactivated?',
-                          );
-                          if (!reason || reason.trim().length < 3) return;
-                          setAccountActive.mutate({
-                            id: row.id,
-                            body: {
-                              is_active: !row.is_active,
-                              reason: reason.trim(),
-                            },
-                          });
-                        }}
-                      >
-                        {row.is_active ? 'Deactivate' : 'Reactivate'}
-                      </Button>
-                    </div>
-                  </li>
-                ))
-          }
+          rows={accounts.data ?? []}
+          columns={accountColumns}
         />
       ) : null}
 
       {tab === 'cost-centres' ? (
-        <CatalogueList
+        <CatalogueTable
+          label="Cost centres"
           loading={centres.isLoading}
           error={centres.isError ? centres.error : null}
           emptyTitle="No cost centres yet"
           emptyExplanation="No cost centres have been defined."
-          rows={
-            (centres.data ?? []).length === 0
-              ? null
-              : (centres.data ?? []).map((row) => (
-                  <li
-                    key={row.id}
-                    className="flex flex-col gap-[var(--space-3)] border-b border-[var(--color-divider)] px-[var(--space-5)] py-[var(--space-4)] last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="min-w-0">
-                      <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-                        <span className="font-semibold text-[var(--color-text-strong)]">
-                          {row.code}
-                        </span>
-                        <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-                          {row.name}
-                        </span>
-                        {!row.is_active ? (
-                          <ToneBadge label="Deactivated" tone="neutral" />
-                        ) : null}
-                      </p>
-                      <p className="m-0 truncate text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-                        {row.department ?? 'No department'}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 flex-wrap gap-[var(--space-2)]">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => setEditingCentre(row)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        disabled={setCentreActive.isPending}
-                        className={cn(!row.is_active && 'text-[var(--color-success-700)]')}
-                        onClick={() => {
-                          const reason = window.prompt(
-                            row.is_active
-                              ? 'Why is this cost centre being deactivated?'
-                              : 'Why is this cost centre being reactivated?',
-                          );
-                          if (!reason || reason.trim().length < 3) return;
-                          setCentreActive.mutate({
-                            id: row.id,
-                            body: {
-                              is_active: !row.is_active,
-                              reason: reason.trim(),
-                            },
-                          });
-                        }}
-                      >
-                        {row.is_active ? 'Deactivate' : 'Reactivate'}
-                      </Button>
-                    </div>
-                  </li>
-                ))
-          }
+          rows={centres.data ?? []}
+          columns={centreColumns}
         />
       ) : null}
 
@@ -1017,6 +992,6 @@ export function ReferenceDataPage() {
         centre={editingCentre}
         onClose={() => setEditingCentre(null)}
       />
-    </div>
+    </>
   );
 }

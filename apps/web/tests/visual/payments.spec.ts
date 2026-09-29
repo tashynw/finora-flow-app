@@ -48,7 +48,7 @@ test.describe('the payment package register, as the payments team', () => {
 
     await expect(page.getByText(/no package is being assembled/i)).toBeVisible();
     await expect(page.getByText(/as one instruction/i)).toBeVisible();
-    await expect(pageAction(page, 'Payment packages', /start a package/i)).toBeEnabled();
+    await expect(pageAction(page, 'Payment packages', /new package/i)).toBeEnabled();
   });
 });
 
@@ -64,7 +64,7 @@ test.describe('the payment package register, as finance', () => {
     await settle(page);
 
     await expect(page.getByRole('heading', { name: 'Payment packages', level: 1 })).toBeVisible();
-    await expect(page.getByRole('button', { name: /start a package/i })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /new package/i })).toHaveCount(0);
 
     await expect(page).toHaveScreenshot('payments-register-finance.png', { fullPage: true });
   });

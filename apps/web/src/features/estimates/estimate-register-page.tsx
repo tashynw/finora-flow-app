@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { FileSpreadsheet, Plus, Search } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import type { EstimateSummary } from '@finora/shared-types';
 
-import { cn } from '@/lib/utils';
 import { formatDate } from '@/lib/dates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { DataTable, type Column } from '@/components/ui/data-table';
+import { ViewTabs } from '@/components/ui/view-tabs';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/field';
 import { SkeletonText } from '@/components/ui/skeleton';
@@ -82,65 +83,82 @@ const VIEWS: RegisterView[] = [
   },
 ];
 
-function EstimateRow({ estimate }: { estimate: EstimateSummary }) {
-  return (
-    <li className="border-b border-[var(--color-divider)] last:border-b-0">
-      <Link
-        to={`/estimates/${estimate.id}`}
-        className={cn(
-          'motion-interactive flex flex-col gap-[var(--space-2)] px-[var(--space-5)] py-[var(--space-4)]',
-          'no-underline hover:bg-[var(--color-surface-subtle)]',
-          'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]',
-          'sm:flex-row sm:items-center sm:gap-[var(--space-5)]',
-        )}
-      >
-        <div className="min-w-0 flex-1">
-          <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-            <span className="tabular text-[var(--text-caption)] text-[var(--color-text-subtle)]">
-              {estimate.reference}
-            </span>
-            <span className="truncate font-semibold text-[var(--color-text-strong)]">
-              {estimate.vendor_name || 'No supplier yet'}
-            </span>
-          </p>
-          <p className="m-0 truncate text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-            {estimate.description || 'No description yet'}
-          </p>
-        </div>
-
-        <div className="flex shrink-0 flex-wrap items-center gap-[var(--space-4)]">
-          {estimate.needed_by ? (
-            <span className="text-[var(--text-caption)] text-[var(--color-text-subtle)]">
-              needed by {formatDate(estimate.needed_by)}
-            </span>
-          ) : null}
-
-          {/* Whose turn it is, on the row. It is the one thing an approver
-              scanning this list is looking for, and opening five estimates to
-              find out is how a queue stops being read. */}
-          {estimate.awaiting_labels.length > 0 ? (
-            <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-              with {estimate.awaiting_labels.join(' and ')}
-            </span>
-          ) : null}
-
-          {estimate.problem_count > 0 ? (
-            <span className="text-[var(--text-body-sm)] font-semibold text-[var(--color-warning-700)]">
-              {estimate.problem_count} to finish
-            </span>
-          ) : null}
-
-          <span className="tabular min-w-[8rem] text-right font-semibold text-[var(--color-text-strong)]">
-            {estimate.total_formatted ?? '—'}
+const estimateColumns: Column<EstimateSummary>[] = [
+  {
+    key: 'reference',
+    header: 'Reference',
+    width: 'w-40',
+    cell: (estimate) => (
+      <span className="flex flex-col">
+        <span className="tabular font-medium text-[var(--color-text-strong)]">
+          {estimate.reference}
+        </span>
+        {estimate.needed_by ? (
+          <span className="text-[11px] text-[var(--color-text-subtle)]">
+            needed by {formatDate(estimate.needed_by)}
           </span>
-
-          {estimate.awaiting_me ? <ToneBadge label="Yours to decide" tone="progress" /> : null}
+        ) : null}
+      </span>
+    ),
+  },
+  {
+    key: 'counterparty',
+    header: 'Counterparty',
+    cell: (estimate) => (
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate">{estimate.vendor_name || 'No supplier yet'}</span>
+        <span className="truncate text-[11px] text-[var(--color-text-subtle)]">
+          {estimate.description || 'No description yet'}
+        </span>
+      </span>
+    ),
+  },
+  {
+    key: 'amount',
+    header: 'Amount',
+    width: 'w-36',
+    cell: (estimate) => <span className="tabular">{estimate.total_formatted ?? '—'}</span>,
+  },
+  {
+    key: 'waiting',
+    header: 'Waiting on',
+    hideBelow: 'md',
+    // Whose turn it is, on the row. It is the one thing an approver scanning
+    // this list is looking for, and opening five estimates to find out is how a
+    // queue stops being read.
+    cell: (estimate) => (
+      <span className="flex flex-col">
+        <span>{estimate.awaiting_labels.join(', ') || '—'}</span>
+        {estimate.problem_count > 0 ? (
+          <span className="text-[11px] font-medium text-[var(--color-warning-700)]">
+            {estimate.problem_count} to finish
+          </span>
+        ) : null}
+      </span>
+    ),
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    width: 'w-44',
+    cell: (estimate) => (
+      <span className="relative z-10 flex flex-wrap items-center gap-[var(--space-2)]">
+        {estimate.awaiting_me ? (
+          <ToneBadge label="Yours to decide" tone="progress" />
+        ) : (
           <StatusBadge state={estimate.state} />
-        </div>
-      </Link>
-    </li>
-  );
-}
+        )}
+      </span>
+    ),
+  },
+  {
+    key: 'owner',
+    header: 'Owner',
+    width: 'w-40',
+    hideBelow: 'lg',
+    cell: (estimate) => <span>{estimate.requester_label || '—'}</span>,
+  },
+];
 
 /**
  * The estimate register.
@@ -176,11 +194,41 @@ export function EstimateRegisterPage() {
     <>
       <PageHeader
         title="Estimates"
-        purpose="Supplier quotations raised for approval, what each one commits, and who has to decide it."
+        purpose="Requests for permission to spend."
+        toolbar={
+          <div className="flex flex-col gap-[var(--space-3)] md:flex-row md:items-center md:justify-between">
+            <ViewTabs
+              tabs={views}
+              value={view.id}
+              onChange={(id) => {
+                setViewId(id);
+                setOffset(0);
+              }}
+            />
+            <div className="relative md:mr-[var(--space-3)] md:w-64">
+              <Search
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-[var(--space-3)] size-4 -translate-y-1/2 text-[var(--color-text-subtle)]"
+              />
+              <Input
+                type="search"
+                value={search}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setOffset(0);
+                }}
+                placeholder="Reference, supplier or description"
+                aria-label="Search estimates"
+                className="h-9 pl-9 text-[12px]"
+              />
+            </div>
+          </div>
+        }
         actions={
           mayCreate ? (
             <Button
               variant="primary"
+              size="sm"
               onClick={() => {
                 create.mutate(
                   {},
@@ -191,7 +239,7 @@ export function EstimateRegisterPage() {
               loadingLabel="Creating"
             >
               <Plus aria-hidden="true" className="size-4" />
-              New estimate
+              Create estimate
             </Button>
           ) : null
         }
@@ -203,7 +251,7 @@ export function EstimateRegisterPage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               The estimate could not be created
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {create.error instanceof Error
                 ? create.error.message
                 : 'The request did not complete.'}
@@ -212,50 +260,13 @@ export function EstimateRegisterPage() {
         </Card>
       ) : null}
 
-      <div className="mb-[var(--space-4)] flex flex-col gap-[var(--space-3)] lg:flex-row lg:items-center lg:justify-between">
-        <div role="group" aria-label="Choose a view" className="flex flex-wrap gap-[var(--space-2)]">
-          {views.map((option) => (
-            <Button
-              key={option.id}
-              variant={viewId === option.id ? 'primary' : 'ghost'}
-              size="sm"
-              aria-pressed={viewId === option.id}
-              onClick={() => {
-                setViewId(option.id);
-                setOffset(0);
-              }}
-            >
-              {option.label}
-            </Button>
-          ))}
-        </div>
-
-        <div className="relative lg:w-80">
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-[var(--space-3)] size-4 -translate-y-1/2 text-[var(--color-text-subtle)]"
-          />
-          <Input
-            type="search"
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setOffset(0);
-            }}
-            placeholder="Reference, supplier or description"
-            aria-label="Search estimates"
-            className="pl-9"
-          />
-        </div>
-      </div>
-
       {isError ? (
         <Card className="mb-[var(--space-6)] border-[var(--color-danger-600)]">
           <CardContent>
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               Could not load the register
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {error instanceof Error ? error.message : 'The request did not complete.'} Nothing
               has been lost; every estimate is stored and will still be here.
             </p>
@@ -263,17 +274,18 @@ export function EstimateRegisterPage() {
         </Card>
       ) : null}
 
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-[var(--space-5)]">
-              <SkeletonText lines={6} />
-            </div>
-          ) : items.length === 0 ? (
-            // A search that found nothing is a different situation from a view
-            // that is empty, and saying "you have no drafts" to someone who just
-            // searched for a reference would be answering a question they did
-            // not ask.
+      {isLoading ? (
+        <Card>
+          <CardContent>
+            <SkeletonText lines={6} />
+          </CardContent>
+        </Card>
+      ) : items.length === 0 ? (
+        // A search that found nothing is a different situation from a view that
+        // is empty, and saying "you have no drafts" to someone who just searched
+        // for a reference would be answering a question they did not ask.
+        <Card>
+          <CardContent className="p-0">
             <EmptyState
               icon={searching ? Search : FileSpreadsheet}
               title={searching ? `Nothing matches “${search.trim()}”` : view.empty}
@@ -296,15 +308,17 @@ export function EstimateRegisterPage() {
                 ? {}
                 : { secondaryAction: { label: 'Show everything', onClick: () => setViewId('all') } })}
             />
-          ) : (
-            <ul className="m-0 list-none p-0">
-              {items.map((estimate) => (
-                <EstimateRow key={estimate.id} estimate={estimate} />
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : (
+        <DataTable
+          ariaLabel="Estimates"
+          columns={estimateColumns}
+          rows={items}
+          getRowKey={(estimate) => estimate.id}
+          getRowHref={(estimate) => `/estimates/${estimate.id}`}
+        />
+      )}
 
       {total > PAGE_SIZE ? (
         <nav
@@ -313,7 +327,7 @@ export function EstimateRegisterPage() {
         >
           <p
             aria-live="polite"
-            className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]"
+            className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]"
           >
             Showing {offset + 1} to {showingTo} of {total}
           </p>

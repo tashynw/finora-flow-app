@@ -35,7 +35,7 @@ test.describe('reviewing what was read', () => {
       await settle(page);
 
       const dialog = page.getByRole('dialog');
-      await pageAction(page, 'Intake', /upload a document/i).click();
+      await pageAction(page, 'Inbox', /^upload$/i).click();
       await dialog
         .locator('input[type="file"]')
         .setInputFiles({ name: FILENAME, mimeType: 'application/pdf', buffer: INVOICE_PDF });

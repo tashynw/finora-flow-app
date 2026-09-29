@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { ClipboardList, Plus, Search } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import type { PurchaseOrderSummary } from '@finora/shared-types';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { DataTable, type Column } from '@/components/ui/data-table';
+import { ViewTabs } from '@/components/ui/view-tabs';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/field';
 import { SkeletonText } from '@/components/ui/skeleton';
@@ -79,45 +81,45 @@ const VIEWS: RegisterView[] = [
   },
 ];
 
-function OrderRow({ order }: { order: PurchaseOrderSummary }) {
-  const capacity = capacityDescriptor(order.remaining_minor_units, order.remaining_formatted);
-  const waiting = waitingOn(order.state, order.blocker_count);
-
-  return (
-    <li className="border-b border-[var(--color-divider)] last:border-b-0">
-      <Link
-        to={`/purchase-orders/${order.id}`}
-        className={cn(
-          'motion-interactive flex flex-col gap-[var(--space-2)] px-[var(--space-5)] py-[var(--space-4)]',
-          'no-underline hover:bg-[var(--color-surface-subtle)]',
-          'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]',
-          'sm:flex-row sm:items-center sm:gap-[var(--space-5)]',
-        )}
-      >
-        <div className="min-w-0 flex-1">
-          <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-            <span className="tabular text-[var(--text-caption)] text-[var(--color-text-subtle)]">
-              {order.number}
-            </span>
-            <span className="truncate font-semibold text-[var(--color-text-strong)]">
-              {order.vendor_name || 'No supplier yet'}
-            </span>
-          </p>
-          <p className="m-0 truncate text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-            {order.description || 'No description yet'}
-          </p>
-        </div>
-
-        <div className="flex shrink-0 flex-wrap items-center gap-[var(--space-4)]">
+const orderColumns: Column<PurchaseOrderSummary>[] = [
+  {
+    key: 'reference',
+    header: 'Reference',
+    width: 'w-40',
+    cell: (order) => (
+      <span className="tabular font-medium text-[var(--color-text-strong)]">{order.number}</span>
+    ),
+  },
+  {
+    key: 'counterparty',
+    header: 'Counterparty',
+    cell: (order) => (
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate">{order.vendor_name || 'No supplier yet'}</span>
+        <span className="truncate text-[11px] text-[var(--color-text-subtle)]">
+          {order.description || 'No description yet'}
+        </span>
+      </span>
+    ),
+  },
+  {
+    key: 'amount',
+    header: 'Amount',
+    width: 'w-40',
+    cell: (order) => {
+      const capacity = capacityDescriptor(order.remaining_minor_units, order.remaining_formatted);
+      return (
+        <span className="flex flex-col">
+          <span className="tabular">{order.total_formatted ?? '—'}</span>
           {/* What is left, not what has been billed. A reviewer deciding whether
               an invoice fits is asking how much room there is, and making them
               subtract two figures for every row is how an order gets overrun. */}
           {capacity ? (
             <span
               className={cn(
-                'text-[var(--text-caption)]',
+                'tabular text-[11px]',
                 capacity.tone === 'danger'
-                  ? 'font-semibold text-[var(--color-danger-700)]'
+                  ? 'font-medium text-[var(--color-danger-700)]'
                   : 'text-[var(--color-text-subtle)]',
               )}
               title={
@@ -127,46 +129,58 @@ function OrderRow({ order }: { order: PurchaseOrderSummary }) {
               {capacity.label}
             </span>
           ) : null}
-
-          {order.awaiting.length > 0 ? (
-            <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-              with {order.awaiting.join(' and ')}
+        </span>
+      );
+    },
+  },
+  {
+    key: 'waiting',
+    header: 'Waiting on',
+    hideBelow: 'md',
+    cell: (order) => {
+      const waiting = waitingOn(order.state, order.blocker_count);
+      const names = order.awaiting.join(', ');
+      const unfinished = waiting?.tone === 'warning' ? waiting.label : null;
+      return (
+        <span className="flex flex-col">
+          <span>{names || (waiting && !unfinished ? waiting.label : '—')}</span>
+          {unfinished ? (
+            <span className="text-[11px] font-medium text-[var(--color-warning-700)]">
+              {unfinished}
             </span>
           ) : null}
-
-          {waiting ? (
-            <span
-              className={cn(
-                'text-[var(--text-body-sm)]',
-                waiting.tone === 'warning'
-                  ? 'font-semibold text-[var(--color-warning-700)]'
-                  : 'text-[var(--color-text-muted)]',
-              )}
-            >
-              {waiting.label}
-            </span>
-          ) : null}
-
-          <span className="tabular min-w-[8rem] text-right font-semibold text-[var(--color-text-strong)]">
-            {order.total_formatted ?? '—'}
-          </span>
-
-          {order.is_awaiting_me ? <ToneBadge label="Yours to decide" tone="progress" /> : null}
-          {/* One badge. Open and closed are what an approved order can be, so
-              the pair reads as two facts where there is one, and on the orders
-              that opened without anybody approving them the word "approved" is
-              not even true. Draft, with approvers, open, closed, turned down
-              and cancelled cover every order between them. */}
-          {order.state === 'approved' ? (
-            <ToneBadge label={order.state_label} tone={order.is_open ? 'success' : 'neutral'} />
-          ) : (
-            <StatusBadge state={order.state} />
-          )}
-        </div>
-      </Link>
-    </li>
-  );
-}
+        </span>
+      );
+    },
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    width: 'w-44',
+    cell: (order) => (
+      <span className="relative z-10 flex flex-wrap items-center gap-[var(--space-2)]">
+        {/* One badge. Open and closed are what an approved order can be, so the
+            pair reads as two facts where there is one, and on the orders that
+            opened without anybody approving them the word "approved" is not
+            even true. */}
+        {order.is_awaiting_me ? (
+          <ToneBadge label="Yours to decide" tone="progress" />
+        ) : order.state === 'approved' ? (
+          <ToneBadge label={order.state_label} tone={order.is_open ? 'success' : 'neutral'} />
+        ) : (
+          <StatusBadge state={order.state} />
+        )}
+      </span>
+    ),
+  },
+  {
+    key: 'owner',
+    header: 'Owner',
+    width: 'w-40',
+    hideBelow: 'lg',
+    cell: (order) => <span>{order.raised_by_label || '—'}</span>,
+  },
+];
 
 export function PurchaseOrderRegisterPage() {
   const { can } = useAuth();
@@ -199,11 +213,41 @@ export function PurchaseOrderRegisterPage() {
     <>
       <PageHeader
         title="Purchase orders"
-        purpose="What the organisation has committed to spend, how much of each commitment is left, and what is waiting to be agreed."
+        purpose="Commitments suppliers can bill against."
+        toolbar={
+          <div className="flex flex-col gap-[var(--space-3)] md:flex-row md:items-center md:justify-between">
+            <ViewTabs
+              tabs={views}
+              value={view.id}
+              onChange={(id) => {
+                setViewId(id);
+                setPage(1);
+              }}
+            />
+            <div className="relative md:mr-[var(--space-3)] md:w-64">
+              <Search
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-[var(--space-3)] size-4 -translate-y-1/2 text-[var(--color-text-subtle)]"
+              />
+              <Input
+                type="search"
+                value={search}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setPage(1);
+                }}
+                placeholder="Order number or description"
+                aria-label="Search purchase orders"
+                className="h-9 pl-9 text-[12px]"
+              />
+            </div>
+          </div>
+        }
         actions={
           manages ? (
             <Button
               variant="primary"
+              size="sm"
               onClick={() => {
                 create.mutate(
                   {},
@@ -214,7 +258,7 @@ export function PurchaseOrderRegisterPage() {
               loadingLabel="Creating"
             >
               <Plus aria-hidden="true" className="size-4" />
-              Raise an order
+              Create PO
             </Button>
           ) : null
         }
@@ -226,7 +270,7 @@ export function PurchaseOrderRegisterPage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               The order could not be created
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {create.error instanceof Error
                 ? create.error.message
                 : 'The request did not complete.'}
@@ -235,50 +279,13 @@ export function PurchaseOrderRegisterPage() {
         </Card>
       ) : null}
 
-      <div className="mb-[var(--space-4)] flex flex-col gap-[var(--space-3)] lg:flex-row lg:items-center lg:justify-between">
-        <div role="group" aria-label="Choose a view" className="flex flex-wrap gap-[var(--space-2)]">
-          {views.map((option) => (
-            <Button
-              key={option.id}
-              variant={viewId === option.id ? 'primary' : 'ghost'}
-              size="sm"
-              aria-pressed={viewId === option.id}
-              onClick={() => {
-                setViewId(option.id);
-                setPage(1);
-              }}
-            >
-              {option.label}
-            </Button>
-          ))}
-        </div>
-
-        <div className="relative lg:w-80">
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-[var(--space-3)] size-4 -translate-y-1/2 text-[var(--color-text-subtle)]"
-          />
-          <Input
-            type="search"
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setPage(1);
-            }}
-            placeholder="Order number or description"
-            aria-label="Search purchase orders"
-            className="pl-9"
-          />
-        </div>
-      </div>
-
       {isError ? (
         <Card className="mb-[var(--space-6)] border-[var(--color-danger-600)]">
           <CardContent>
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               Could not load the register
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {error instanceof Error ? error.message : 'The request did not complete.'} Nothing
               has been lost; every order is stored and will still be here.
             </p>
@@ -286,13 +293,15 @@ export function PurchaseOrderRegisterPage() {
         </Card>
       ) : null}
 
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-[var(--space-5)]">
-              <SkeletonText lines={6} />
-            </div>
-          ) : rows.length === 0 ? (
+      {isLoading ? (
+        <Card>
+          <CardContent>
+            <SkeletonText lines={6} />
+          </CardContent>
+        </Card>
+      ) : rows.length === 0 ? (
+        <Card>
+          <CardContent className="p-0">
             <EmptyState
               icon={searching ? Search : ClipboardList}
               title={searching ? `Nothing matches “${search.trim()}”` : view.empty}
@@ -315,15 +324,17 @@ export function PurchaseOrderRegisterPage() {
                 ? {}
                 : { secondaryAction: { label: 'Show everything', onClick: () => setViewId('all') } })}
             />
-          ) : (
-            <ul className="m-0 list-none p-0">
-              {rows.map((order) => (
-                <OrderRow key={order.id} order={order} />
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : (
+        <DataTable
+          ariaLabel="Purchase orders"
+          columns={orderColumns}
+          rows={rows}
+          getRowKey={(order) => order.id}
+          getRowHref={(order) => `/purchase-orders/${order.id}`}
+        />
+      )}
 
       {total > PAGE_SIZE ? (
         <nav
@@ -332,7 +343,7 @@ export function PurchaseOrderRegisterPage() {
         >
           <p
             aria-live="polite"
-            className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]"
+            className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]"
           >
             Showing {showingFrom} to {showingTo} of {total}
           </p>

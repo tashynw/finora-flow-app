@@ -7,10 +7,12 @@ import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { DataTable, type Column } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Field, Input, Textarea } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
+import { ViewTabs } from '@/components/ui/view-tabs';
 import { ToneBadge } from '@/components/workflow/status-badge';
 import { PageHeader } from '@/features/shared/page-header';
 import {
@@ -70,7 +72,7 @@ function EditRetentionModal({
     >
       <div className="flex flex-col gap-[var(--space-4)]">
         {editing ? (
-          <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+          <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
             {editing.description}
           </p>
         ) : null}
@@ -135,104 +137,139 @@ export function RetentionPage() {
 
   const rows = policies.data ?? [];
 
+  const columns: Column<RetentionPolicyOut>[] = [
+    {
+      key: 'class',
+      header: 'Record class',
+      width: 'w-56',
+      cell: (row) => (
+        <span className="font-semibold capitalize text-[var(--color-text-strong)]">
+          {formatRecordClass(row.record_class)}
+        </span>
+      ),
+    },
+    {
+      key: 'retention',
+      header: 'Retention',
+      width: 'w-44',
+      cell: (row) => {
+        const years = approximateYears(row.retention_days);
+        return (
+          <span className="flex flex-col">
+            <span className="tabular">{row.retention_days.toLocaleString()} days</span>
+            {years ? (
+              <span className="text-[11px] text-[var(--color-text-subtle)]">{years}</span>
+            ) : null}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'basis',
+      header: 'Basis',
+      hideBelow: 'md',
+      cell: (row) => <span className="text-[var(--color-text-muted)]">{row.description}</span>,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: 'w-32',
+      cell: (row) =>
+        row.is_active ? (
+          <ToneBadge label="Active" tone="success" />
+        ) : (
+          <ToneBadge label="Deactivated" tone="neutral" />
+        ),
+    },
+    {
+      key: 'actions',
+      header: <span className="sr-only">Actions</span>,
+      width: 'w-48',
+      align: 'right',
+      cell: (row) => (
+        <span className="inline-flex gap-1">
+          <Button type="button" size="sm" variant="ghost" onClick={() => setEditing(row)}>
+            Edit
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            disabled={setActive.isPending}
+            className={cn(!row.is_active && 'text-[var(--color-success-700)]')}
+            onClick={() => {
+              const reason = window.prompt(
+                row.is_active
+                  ? 'Why is this retention policy being deactivated?'
+                  : 'Why is this retention policy being reactivated?',
+              );
+              if (!reason || reason.trim().length < 3) return;
+              setActive.mutate({
+                id: row.id,
+                body: {
+                  is_active: !row.is_active,
+                  reason: reason.trim(),
+                },
+              });
+            }}
+          >
+            {row.is_active ? 'Deactivate' : 'Reactivate'}
+          </Button>
+        </span>
+      ),
+    },
+  ];
+
   return (
-    <div className="flex flex-col gap-[var(--space-6)]">
+    <>
       <PageHeader
         title="Retention"
-        purpose="How long each class of records is kept. Defaults are provisional; soft-deactivate rather than delete so the configured period remains for audit."
+        purpose="How long each class of finance record is kept. Defaults are provisional until confirmed."
+        toolbar={
+          <ViewTabs
+            label="Which policies"
+            tabs={[
+              { id: 'all', label: 'All policies' },
+              { id: 'active', label: 'Active only' },
+            ]}
+            value={includeInactive ? 'all' : 'active'}
+            onChange={(id) => setIncludeInactive(id === 'all')}
+          />
+        }
       />
 
-      <label className="flex cursor-pointer items-center gap-[var(--space-2)] text-[var(--text-body-sm)]">
-        <input
-          type="checkbox"
-          className="size-4 accent-[var(--color-primary)]"
-          checked={includeInactive}
-          onChange={(event) => setIncludeInactive(event.target.checked)}
-        />
-        Show deactivated policies
-      </label>
-
       {policies.isLoading ? (
-        <SkeletonText lines={6} />
-      ) : policies.isError ? (
-        <p role="alert" className="m-0 text-[var(--color-danger-700)]">
-          {errorMessage(policies.error) ?? 'The retention list could not be loaded.'}
-        </p>
-      ) : rows.length === 0 ? (
-        <EmptyState
-          icon={Hourglass}
-          title="No retention policies"
-          explanation="Policies are seeded by migration. If this list is empty, the database may need migrating."
-          nextStep="Ask an operator to run alembic upgrade head, then reload."
-        />
-      ) : (
-        <Card className="surface-card overflow-hidden">
-          <CardContent className="p-0">
-            <ul className="m-0 list-none p-0">
-              {rows.map((row) => {
-                const years = approximateYears(row.retention_days);
-                return (
-                  <li
-                    key={row.id}
-                    className="flex flex-col gap-[var(--space-3)] border-b border-[var(--color-divider)] px-[var(--space-5)] py-[var(--space-4)] last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="min-w-0">
-                      <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-                        <span className="font-semibold capitalize text-[var(--color-text-strong)]">
-                          {formatRecordClass(row.record_class)}
-                        </span>
-                        <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-                          {row.retention_days.toLocaleString()} days
-                          {years ? ` (${years})` : ''}
-                        </span>
-                        {!row.is_active ? (
-                          <ToneBadge label="Deactivated" tone="neutral" />
-                        ) : null}
-                      </p>
-                      <p className="m-0 text-[var(--text-caption)] text-[var(--color-text-subtle)]">
-                        {row.description}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 flex-wrap gap-[var(--space-2)]">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => setEditing(row)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        disabled={setActive.isPending}
-                        className={cn(!row.is_active && 'text-[var(--color-success-700)]')}
-                        onClick={() => {
-                          const reason = window.prompt(
-                            row.is_active
-                              ? 'Why is this retention policy being deactivated?'
-                              : 'Why is this retention policy being reactivated?',
-                          );
-                          if (!reason || reason.trim().length < 3) return;
-                          setActive.mutate({
-                            id: row.id,
-                            body: {
-                              is_active: !row.is_active,
-                              reason: reason.trim(),
-                            },
-                          });
-                        }}
-                      >
-                        {row.is_active ? 'Deactivate' : 'Reactivate'}
-                      </Button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+        <Card>
+          <CardContent>
+            <SkeletonText lines={6} />
           </CardContent>
         </Card>
+      ) : policies.isError ? (
+        <Card className="border-[var(--color-danger-600)]">
+          <CardContent>
+            <p role="alert" className="m-0 text-[var(--color-danger-700)]">
+              {errorMessage(policies.error) ?? 'The retention list could not be loaded.'}
+            </p>
+          </CardContent>
+        </Card>
+      ) : rows.length === 0 ? (
+        <Card>
+          <CardContent className="p-0">
+            <EmptyState
+              icon={Hourglass}
+              title="No retention policies"
+              explanation="Policies are seeded by migration. If this list is empty, the database may need migrating."
+              nextStep="Ask an operator to run alembic upgrade head, then reload."
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <DataTable
+          ariaLabel="Retention policies"
+          columns={columns}
+          rows={rows}
+          getRowKey={(row) => row.id}
+        />
       )}
 
       <EditRetentionModal
@@ -240,6 +277,6 @@ export function RetentionPage() {
         editing={editing}
         onClose={() => setEditing(null)}
       />
-    </div>
+    </>
   );
 }

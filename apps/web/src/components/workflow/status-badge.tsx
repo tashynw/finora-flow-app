@@ -34,17 +34,12 @@ const STATE_TONES: Record<WorkflowState, StatusTone> = {
 };
 
 const TONE_CLASSES: Record<StatusTone, string> = {
-  neutral:
-    'bg-[var(--color-surface-subtle)] text-[var(--color-text-muted)] border-[var(--color-border-strong)]',
-  info: 'bg-[var(--color-info-50)] text-[var(--color-info-600)] border-[var(--color-primary-200)]',
-  progress:
-    'bg-[var(--color-primary-50)] text-[var(--color-primary-700)] border-[var(--color-primary-200)]',
-  success:
-    'bg-[var(--color-success-50)] text-[var(--color-success-700)] border-[color-mix(in_srgb,var(--color-success-600)_28%,white)]',
-  warning:
-    'bg-[var(--color-warning-50)] text-[var(--color-warning-700)] border-[color-mix(in_srgb,var(--color-warning-600)_28%,white)]',
-  danger:
-    'bg-[var(--color-danger-50)] text-[var(--color-danger-700)] border-[color-mix(in_srgb,var(--color-danger-600)_28%,white)]',
+  neutral: 'bg-[var(--color-neutral-50)] text-[var(--color-neutral-700)]',
+  info: 'bg-[var(--color-info-50)] text-[var(--color-primary-700)]',
+  progress: 'bg-[var(--color-warning-50)] text-[var(--color-warning-700)]',
+  success: 'bg-[var(--color-success-50)] text-[var(--color-success-600)]',
+  warning: 'bg-[var(--color-warning-50)] text-[var(--color-warning-700)]',
+  danger: 'bg-[var(--color-danger-50)] text-[var(--color-danger-700)]',
 };
 
 export interface ToneBadgeProps {
@@ -65,17 +60,12 @@ export function ToneBadge({ label, tone, detail, className }: ToneBadgeProps) {
   return (
     <span
       className={cn(
-        'motion-status inline-flex items-center gap-1.5 rounded-[var(--radius-pill)]',
-        'border px-2.5 py-1 text-[var(--text-caption)] font-semibold',
+        'motion-status inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-[var(--radius-pill)]',
+        'px-3 text-[11px] font-medium',
         TONE_CLASSES[tone],
         className,
       )}
     >
-      {/* Decorative: the label beside it carries the meaning. */}
-      <span
-        aria-hidden="true"
-        className="size-1.5 rounded-full bg-current opacity-70"
-      />
       {label}
       {detail ? (
         <span className="font-normal opacity-80">· {detail}</span>

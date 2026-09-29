@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { ScrollText, ShieldCheck } from 'lucide-react';
+import { ScrollText, Search, ShieldCheck } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { DataTable, type Column } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Field, Input, Select } from '@/components/ui/field';
+import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
 import { ToneBadge } from '@/components/workflow/status-badge';
 import { PageHeader } from '@/features/shared/page-header';
@@ -15,6 +16,7 @@ import {
   useAuditEntries,
   useVerifyAuditChain,
   type AuditEntryOut,
+  type AuditVerifyResult,
 } from '@/features/audit/use-audit';
 
 /**
@@ -49,95 +51,155 @@ function shortHash(value: string): string {
   return `${value.slice(0, 8)}…${value.slice(-6)}`;
 }
 
-function EntryRow({ entry, open, onToggle }: {
-  entry: AuditEntryOut;
-  open: boolean;
-  onToggle: () => void;
-}) {
+function VerifyOutcome({ result }: { result: AuditVerifyResult }) {
+  return (
+    <div className="flex flex-wrap items-center gap-[var(--space-3)]">
+      <ToneBadge tone={result.ok ? 'success' : 'danger'} label={result.ok ? 'Intact' : 'Broken'} />
+      <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
+        {result.message}
+        {result.first_bad_sequence != null
+          ? ` First problem at #${result.first_bad_sequence}.`
+          : ''}
+        {result.reason ? ` ${result.reason}` : ''}
+      </p>
+    </div>
+  );
+}
+
+function EntryDetail({ entry }: { entry: AuditEntryOut }) {
   const detailKeys = Object.keys(entry.detail ?? {});
 
   return (
-    <li className="border-b border-[var(--color-divider)] last:border-b-0">
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        className={cn(
-          'flex w-full flex-col gap-[var(--space-1)] px-[var(--space-5)] py-[var(--space-4)] text-left',
-          'hover:bg-[var(--color-surface-subtle)]',
-          'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]',
-        )}
-      >
-        <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-          <span className="tabular text-[var(--text-caption)] text-[var(--color-text-subtle)]">
-            #{entry.sequence}
-          </span>
-          <span className="font-semibold text-[var(--color-text-strong)]">
-            {entry.action.replaceAll('_', ' ')}
-          </span>
-          <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-            {entry.subject_type}
-            {entry.subject_id ? ` · ${entry.subject_id.slice(0, 8)}` : ''}
-          </span>
-        </p>
-        <p className="m-0 flex flex-wrap gap-x-[var(--space-3)] text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-          <span>{entry.actor_label}</span>
-          <span data-visual-volatile>{formatWhen(entry.occurred_at)}</span>
-          <span className="font-mono text-[var(--text-caption)]" title={entry.entry_hash}>
-            {shortHash(entry.entry_hash)}
-          </span>
-        </p>
-      </button>
-      {open ? (
-        <div className="border-t border-[var(--color-divider)] bg-[var(--color-surface-subtle)] px-[var(--space-5)] py-[var(--space-4)]">
-          <dl className="m-0 grid gap-[var(--space-3)] text-[var(--text-body-sm)] sm:grid-cols-2">
-            <div>
-              <dt className="m-0 text-[var(--color-text-subtle)]">Actor</dt>
-              <dd className="m-0 font-medium">
-                {entry.actor_label} ({entry.actor_type})
-              </dd>
-            </div>
-            <div>
-              <dt className="m-0 text-[var(--color-text-subtle)]">Subject</dt>
-              <dd className="m-0 font-medium break-all">
-                {entry.subject_type}
-                {entry.subject_id ? ` / ${entry.subject_id}` : ''}
-              </dd>
-            </div>
-            <div className="sm:col-span-2">
-              <dt className="m-0 text-[var(--color-text-subtle)]">Entry hash</dt>
-              <dd className="m-0 break-all font-mono text-[var(--text-caption)]">
-                {entry.entry_hash}
-              </dd>
-            </div>
-            <div className="sm:col-span-2">
-              <dt className="m-0 text-[var(--color-text-subtle)]">Previous hash</dt>
-              <dd className="m-0 break-all font-mono text-[var(--text-caption)]">
-                {entry.previous_hash}
-              </dd>
-            </div>
-            {detailKeys.length > 0 ? (
-              <div className="sm:col-span-2">
-                <dt className="m-0 text-[var(--color-text-subtle)]">Detail</dt>
-                <dd className="m-0">
-                  <pre className="m-0 overflow-x-auto rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[var(--space-3)] font-mono text-[var(--text-caption)]">
-                    {JSON.stringify(entry.detail, null, 2)}
-                  </pre>
-                </dd>
-              </div>
-            ) : null}
-          </dl>
+    <dl className="m-0 grid gap-[var(--space-3)] text-[length:var(--text-body-sm)] sm:grid-cols-2">
+      <div>
+        <dt className="m-0 text-[var(--color-text-subtle)]">Actor</dt>
+        <dd className="m-0 font-medium">
+          {entry.actor_label} ({entry.actor_type})
+        </dd>
+      </div>
+      <div>
+        <dt className="m-0 text-[var(--color-text-subtle)]">Subject</dt>
+        <dd className="m-0 font-medium break-all">
+          {entry.subject_type}
+          {entry.subject_id ? ` / ${entry.subject_id}` : ''}
+        </dd>
+      </div>
+      <div className="sm:col-span-2">
+        <dt className="m-0 text-[var(--color-text-subtle)]">Occurred</dt>
+        <dd className="m-0 font-medium tabular">{formatWhen(entry.occurred_at)}</dd>
+      </div>
+      <div className="sm:col-span-2">
+        <dt className="m-0 text-[var(--color-text-subtle)]">Entry hash</dt>
+        <dd className="m-0 break-all font-mono text-[length:var(--text-caption)]">
+          {entry.entry_hash}
+        </dd>
+      </div>
+      <div className="sm:col-span-2">
+        <dt className="m-0 text-[var(--color-text-subtle)]">Previous hash</dt>
+        <dd className="m-0 break-all font-mono text-[length:var(--text-caption)]">
+          {entry.previous_hash}
+        </dd>
+      </div>
+      {detailKeys.length > 0 ? (
+        <div className="sm:col-span-2">
+          <dt className="m-0 text-[var(--color-text-subtle)]">Detail</dt>
+          <dd className="m-0">
+            <pre className="m-0 overflow-x-auto rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] p-[var(--space-3)] font-mono text-[length:var(--text-caption)]">
+              {JSON.stringify(entry.detail, null, 2)}
+            </pre>
+          </dd>
         </div>
       ) : null}
-    </li>
+    </dl>
   );
+}
+
+function entryColumns(onOpen: (entry: AuditEntryOut) => void): Column<AuditEntryOut>[] {
+  return [
+    {
+      key: 'time',
+      header: 'Time',
+      width: 'w-52',
+      cell: (entry) => (
+        <span className="flex flex-col">
+          <span data-visual-volatile className="tabular whitespace-nowrap font-semibold text-[var(--color-text-strong)]">
+            {formatWhen(entry.occurred_at)}
+          </span>
+          <span className="tabular text-[11px] text-[var(--color-text-subtle)]">
+            #{entry.sequence}
+          </span>
+        </span>
+      ),
+    },
+    {
+      key: 'actor',
+      header: 'Actor',
+      width: 'w-48',
+      cell: (entry) => (
+        <span className="flex flex-col">
+          <span>{entry.actor_label}</span>
+          <span className="text-[11px] text-[var(--color-text-subtle)]">{entry.actor_type}</span>
+        </span>
+      ),
+    },
+    {
+      key: 'action',
+      header: 'Action',
+      cell: (entry) => <span className="font-mono text-[12px]">{entry.action}</span>,
+    },
+    {
+      key: 'record',
+      header: 'Record',
+      width: 'w-52',
+      hideBelow: 'md',
+      cell: (entry) => (
+        <span>
+          {entry.subject_type.replaceAll('_', ' ')}
+          {entry.subject_id ? (
+            <span className="tabular text-[var(--color-text-subtle)]">
+              {' '}
+              · {entry.subject_id.slice(0, 8)}
+            </span>
+          ) : null}
+        </span>
+      ),
+    },
+    {
+      key: 'hash',
+      header: 'Hash',
+      width: 'w-40',
+      hideBelow: 'xl',
+      cell: (entry) => (
+        <span className="whitespace-nowrap font-mono text-[11px] text-[var(--color-text-subtle)]" title={entry.entry_hash}>
+          {shortHash(entry.entry_hash)}
+        </span>
+      ),
+    },
+    {
+      key: 'open',
+      header: <span className="sr-only">Details</span>,
+      width: 'w-24',
+      align: 'right',
+      cell: (entry) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onOpen(entry)}
+          aria-label={`Details of entry ${entry.sequence}`}
+        >
+          Details
+        </Button>
+      ),
+    },
+  ];
 }
 
 export function AuditTrailPage() {
   const [action, setAction] = useState('');
   const [subjectType, setSubjectType] = useState('');
   const [page, setPage] = useState(1);
-  const [openId, setOpenId] = useState<number | null>(null);
+  const [openEntry, setOpenEntry] = useState<AuditEntryOut | null>(null);
+  const [verifyOpen, setVerifyOpen] = useState(false);
   const [startSequence, setStartSequence] = useState('1');
   const [verifyLimit, setVerifyLimit] = useState('1000');
 
@@ -154,28 +216,167 @@ export function AuditTrailPage() {
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <div className="flex flex-col gap-[var(--space-6)]">
+    <>
       <PageHeader
         title="Audit trail"
-        purpose="Every significant action, in the order it happened, with a hash chain so rewriting history is detectable. Looking is allowed; changing is not."
+        purpose="Append-only record of decisions and configuration changes, hash-chained so rewriting history is detectable."
+        toolbar={
+          <div className="flex flex-col gap-[var(--space-3)] md:flex-row md:items-center">
+            <div className="relative md:w-64">
+              <Search
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-[var(--space-3)] size-4 -translate-y-1/2 text-[var(--color-text-subtle)]"
+              />
+              <Input
+                type="search"
+                aria-label="Action"
+                placeholder="Action, e.g. export_generated"
+                value={action}
+                onChange={(event) => {
+                  setAction(event.target.value);
+                  setPage(1);
+                }}
+                className="h-9 pl-9 text-[12px]"
+              />
+            </div>
+            <Select
+              aria-label="Subject type"
+              value={subjectType}
+              onChange={(event) => {
+                setSubjectType(event.target.value);
+                setPage(1);
+              }}
+              className="h-9 text-[12px] md:w-52"
+            >
+              {SUBJECT_TYPES.map((option) => (
+                <option key={option.value || 'any'} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Select>
+          </div>
+        }
+        actions={
+          <Button variant="secondary" size="sm" onClick={() => setVerifyOpen(true)}>
+            <ShieldCheck aria-hidden="true" className="size-4" />
+            Verify chain
+          </Button>
+        }
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle as="h2" className="flex items-center gap-2">
-            <ShieldCheck
-              aria-hidden="true"
-              className="size-[18px] text-[var(--color-primary-600)]"
+      {verify.data && !verifyOpen ? (
+        <Card className="mb-[var(--space-5)]">
+          <CardContent className="py-[var(--space-4)]">
+            <VerifyOutcome result={verify.data} />
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {isLoading ? (
+        <Card>
+          <CardContent>
+            <SkeletonText lines={8} />
+          </CardContent>
+        </Card>
+      ) : isError ? (
+        <Card className="border-[var(--color-danger-600)]">
+          <CardContent>
+            <p role="alert" className="m-0 text-[var(--color-danger-700)]">
+              {errorMessage(error) ?? 'The audit trail could not be loaded.'}
+            </p>
+          </CardContent>
+        </Card>
+      ) : items.length === 0 ? (
+        <Card>
+          <CardContent className="p-0">
+            <EmptyState
+              icon={ScrollText}
+              title="No entries match"
+              explanation="Nothing in the trail matches these filters, or the trail is empty."
+              nextStep="Clear the action filter or choose Any subject to see the full chain."
             />
-            Verify a segment
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-[var(--space-4)]">
-          <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-            Check that each entry still commits to its predecessor. A mature trail
-            is verified in ranges; neighbouring ranges join because each carries
-            the previous hash.
+          </CardContent>
+        </Card>
+      ) : (
+        <DataTable
+          ariaLabel="Audit entries"
+          columns={entryColumns(setOpenEntry)}
+          rows={items}
+          getRowKey={(entry) => String(entry.sequence)}
+        />
+      )}
+
+      {total > PAGE_SIZE ? (
+        <nav
+          aria-label="Pagination"
+          className="mt-[var(--space-4)] flex items-center justify-between gap-[var(--space-3)]"
+        >
+          <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
+            {total} entries · page {page} of {pages}
           </p>
+          <div className="flex gap-[var(--space-2)]">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={page <= 1}
+              onClick={() => setPage((current) => current - 1)}
+            >
+              Previous
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={page >= pages}
+              onClick={() => setPage((current) => current + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </nav>
+      ) : null}
+
+      <Modal
+        open={openEntry !== null}
+        onClose={() => setOpenEntry(null)}
+        title={openEntry ? `Entry #${openEntry.sequence} · ${openEntry.action.replaceAll('_', ' ')}` : ''}
+        className="w-[min(40rem,calc(100vw-2rem))]"
+      >
+        {openEntry ? <EntryDetail entry={openEntry} /> : null}
+      </Modal>
+
+      <Modal
+        open={verifyOpen}
+        onClose={() => setVerifyOpen(false)}
+        busy={verify.isPending}
+        title="Verify a segment"
+        description="Check that each entry still commits to its predecessor. A mature trail is verified in ranges; neighbouring ranges join because each carries the previous hash."
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setVerifyOpen(false)} disabled={verify.isPending}>
+              Close
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              disabled={verify.isPending}
+              onClick={() =>
+                verify.mutate({
+                  start_sequence: Math.max(1, Number.parseInt(startSequence, 10) || 1),
+                  limit: Math.min(
+                    10_000,
+                    Math.max(1, Number.parseInt(verifyLimit, 10) || 1000),
+                  ),
+                })
+              }
+            >
+              {verify.isPending ? 'Checking…' : 'Verify chain'}
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-[var(--space-4)]">
           <div className="flex flex-wrap items-end gap-[var(--space-3)]">
             <Field label="From sequence">
               {({ inputId, describedBy, invalid }) => (
@@ -206,145 +407,15 @@ export function AuditTrailPage() {
                 />
               )}
             </Field>
-            <Button
-              type="button"
-              disabled={verify.isPending}
-              onClick={() =>
-                verify.mutate({
-                  start_sequence: Math.max(1, Number.parseInt(startSequence, 10) || 1),
-                  limit: Math.min(
-                    10_000,
-                    Math.max(1, Number.parseInt(verifyLimit, 10) || 1000),
-                  ),
-                })
-              }
-            >
-              {verify.isPending ? 'Checking…' : 'Verify chain'}
-            </Button>
           </div>
           {verify.isError ? (
             <p role="alert" className="m-0 text-[var(--color-danger-700)]">
               {errorMessage(verify.error) ?? 'Verification did not complete.'}
             </p>
           ) : null}
-          {verify.data ? (
-            <div className="flex flex-wrap items-center gap-[var(--space-3)]">
-              <ToneBadge
-                tone={verify.data.ok ? 'success' : 'danger'}
-                label={verify.data.ok ? 'Intact' : 'Broken'}
-              />
-              <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-                {verify.data.message}
-                {verify.data.first_bad_sequence != null
-                  ? ` First problem at #${verify.data.first_bad_sequence}.`
-                  : ''}
-                {verify.data.reason ? ` ${verify.data.reason}` : ''}
-              </p>
-            </div>
-          ) : null}
-        </CardContent>
-      </Card>
-
-      <div className="flex flex-wrap items-end gap-[var(--space-3)]">
-        <Field label="Action">
-          {({ inputId, describedBy, invalid }) => (
-            <Input
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              placeholder="e.g. export_generated"
-              value={action}
-              onChange={(event) => {
-                setAction(event.target.value);
-                setPage(1);
-              }}
-              className="min-w-[14rem]"
-            />
-          )}
-        </Field>
-        <Field label="Subject type">
-          {({ inputId, describedBy, invalid }) => (
-            <Select
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              value={subjectType}
-              onChange={(event) => {
-                setSubjectType(event.target.value);
-                setPage(1);
-              }}
-            >
-              {SUBJECT_TYPES.map((option) => (
-                <option key={option.value || 'any'} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-          )}
-        </Field>
-      </div>
-
-      {isLoading ? (
-        <SkeletonText lines={8} />
-      ) : isError ? (
-        <p role="alert" className="m-0 text-[var(--color-danger-700)]">
-          {errorMessage(error) ?? 'The audit trail could not be loaded.'}
-        </p>
-      ) : items.length === 0 ? (
-        <EmptyState
-          icon={ScrollText}
-          title="No entries match"
-          explanation="Nothing in the trail matches these filters, or the trail is empty."
-          nextStep="Clear the action filter or choose Any subject to see the full chain."
-        />
-      ) : (
-        <Card className="surface-card overflow-hidden">
-          <CardContent className="p-0">
-            <ul className="m-0 list-none p-0">
-              {items.map((entry) => (
-                <EntryRow
-                  key={entry.sequence}
-                  entry={entry}
-                  open={openId === entry.sequence}
-                  onToggle={() =>
-                    setOpenId((current) =>
-                      current === entry.sequence ? null : entry.sequence,
-                    )
-                  }
-                />
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
-
-      {total > PAGE_SIZE ? (
-        <div className="flex items-center justify-between gap-[var(--space-3)]">
-          <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-            {total} entries · page {page} of {pages}
-          </p>
-          <div className="flex gap-[var(--space-2)]">
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              disabled={page <= 1}
-              onClick={() => setPage((current) => current - 1)}
-            >
-              Previous
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              disabled={page >= pages}
-              onClick={() => setPage((current) => current + 1)}
-            >
-              Next
-            </Button>
-          </div>
+          {verify.data ? <VerifyOutcome result={verify.data} /> : null}
         </div>
-      ) : null}
-    </div>
+      </Modal>
+    </>
   );
 }

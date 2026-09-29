@@ -23,7 +23,7 @@ export function InvoiceDetails({ invoice }: { invoice: InvoiceDetail }) {
       <p className="tabular m-0 text-[length:var(--text-heading-2)] leading-[var(--text-heading-2--line-height)] font-bold text-[var(--color-text-strong)]">
         {invoice.total_formatted ?? 'No amount'}
       </p>
-      <p className="mt-[var(--space-1)] mb-[var(--space-5)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+      <p className="mt-[var(--space-1)] mb-[var(--space-5)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
         {invoice.description || 'No description'}
       </p>
 
@@ -33,7 +33,7 @@ export function InvoiceDetails({ invoice }: { invoice: InvoiceDetail }) {
           {invoice.vendor_id ? null : (
             // Worth saying plainly. A name with no supplier record behind it is a
             // name somebody typed, and nothing is ever paid to one of those.
-            <span className="block text-[var(--text-caption)] text-[var(--color-text-muted)]">
+            <span className="block text-[length:var(--text-caption)] text-[var(--color-text-muted)]">
               Not matched to a supplier record. This has to be resolved before payment.
             </span>
           )}
@@ -50,8 +50,8 @@ export function InvoiceDetails({ invoice }: { invoice: InvoiceDetail }) {
               data-visual-volatile
               className={
                 due.tone === 'danger'
-                  ? 'block text-[var(--text-caption)] font-semibold text-[var(--color-danger-700)]'
-                  : 'block text-[var(--text-caption)] text-[var(--color-text-muted)]'
+                  ? 'block text-[length:var(--text-caption)] font-semibold text-[var(--color-danger-700)]'
+                  : 'block text-[length:var(--text-caption)] text-[var(--color-text-muted)]'
               }
             >
               {due.label}
@@ -79,7 +79,7 @@ export function InvoiceDetails({ invoice }: { invoice: InvoiceDetail }) {
               <FileText aria-hidden="true" className="size-4" />
               The supplier’s own invoice
             </Link>
-            <span className="block text-[var(--text-caption)] text-[var(--color-text-muted)]">
+            <span className="block text-[length:var(--text-caption)] text-[var(--color-text-muted)]">
               These figures were copied from that reading when this invoice was recorded, and do
               not change if it is read again.
             </span>

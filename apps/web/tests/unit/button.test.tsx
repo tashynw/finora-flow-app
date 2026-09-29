@@ -53,16 +53,18 @@ describe('Button', () => {
     }
   });
 
-  it('reserves the signature gradient for the primary variant alone', () => {
+  it('reserves the brand fill for the primary variant alone', () => {
     const { unmount } = render(<Button variant="primary">Approve</Button>);
-    expect(screen.getByRole('button').className).toContain('gradient-signature');
+    expect(screen.getByRole('button').className).toContain(
+      'bg-[var(--color-primary-600)]',
+    );
     unmount();
 
     for (const variant of ['secondary', 'ghost', 'danger', 'link'] as const) {
       const rendered = render(<Button variant={variant}>Act</Button>);
-      expect(screen.getByRole('button').className).not.toContain(
-        'gradient-signature',
-      );
+      const className = screen.getByRole('button').className;
+      expect(className).not.toContain('bg-[var(--color-primary-600)]');
+      expect(className).not.toContain('gradient-signature');
       rendered.unmount();
     }
   });

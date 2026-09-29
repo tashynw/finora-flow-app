@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import { Plus, Search, Wallet } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import type { PaymentPackageSummary } from '@finora/shared-types';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { DataTable, type Column } from '@/components/ui/data-table';
+import { ViewTabs } from '@/components/ui/view-tabs';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/field';
 import { SkeletonText } from '@/components/ui/skeleton';
 import { ToneBadge } from '@/components/workflow/status-badge';
 import { useAuth } from '@/features/auth/auth-context';
 import { PageHeader } from '@/features/shared/page-header';
-import { CurrencyTotals } from '@/features/payments/currency-totals';
 import {
   contentsSummary,
   packageStanding,
@@ -70,62 +71,88 @@ const VIEWS: RegisterView[] = [
   },
 ];
 
-function PackageRow({ row }: { row: PaymentPackageSummary }) {
-  const standing = packageStanding(row.standing, row.standing_label);
-  const waiting = waitingOn(row.standing, row.invoice_count, row.blocker_count);
-
-  return (
-    <li className="border-b border-[var(--color-divider)] last:border-b-0">
-      <Link
-        to={`/payments/${row.id}`}
-        className={cn(
-          'motion-interactive flex flex-col gap-[var(--space-2)] px-[var(--space-5)] py-[var(--space-4)]',
-          'no-underline hover:bg-[var(--color-surface-subtle)]',
-          'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-focus-ring)]',
-          'sm:flex-row sm:items-center sm:gap-[var(--space-5)]',
-        )}
-      >
-        <div className="min-w-0 flex-1">
-          <p className="m-0 flex flex-wrap items-baseline gap-x-[var(--space-2)]">
-            <span className="tabular text-[var(--text-caption)] text-[var(--color-text-subtle)]">
-              {row.reference}
+const packageColumns: Column<PaymentPackageSummary>[] = [
+  {
+    key: 'reference',
+    header: 'Reference',
+    width: 'w-44',
+    cell: (row) => (
+      <span className="flex flex-col">
+        <span className="tabular font-medium text-[var(--color-text-strong)]">
+          {row.reference}
+        </span>
+        {row.submission_reference ? (
+          <span className="tabular text-[11px] text-[var(--color-text-subtle)]">
+            bank ref. {row.submission_reference}
+          </span>
+        ) : null}
+      </span>
+    ),
+  },
+  {
+    key: 'counterparty',
+    header: 'Counterparty',
+    cell: (row) => (
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate">{contentsSummary(row.invoice_count, row.vendor_count)}</span>
+        <span className="truncate text-[11px] text-[var(--color-text-subtle)]">
+          {row.description || 'No description yet'}
+          {row.payment_method_label ? ` · ${row.payment_method_label}` : ''}
+        </span>
+      </span>
+    ),
+  },
+  {
+    key: 'amount',
+    header: 'Amount',
+    width: 'w-40',
+    // Stacked, one per currency, and never added up. A package holding JMD and
+    // USD comes to two figures, and a single number beside them would be
+    // denominated in nothing.
+    cell: (row) =>
+      row.totals.length === 0 ? (
+        <span className="text-[var(--color-text-subtle)]">Nothing yet</span>
+      ) : (
+        <span className="flex flex-col">
+          {row.totals.map((amount) => (
+            <span key={amount.currency} className="tabular">
+              {amount.formatted}
             </span>
-            <span className="truncate font-semibold text-[var(--color-text-strong)]">
-              {row.description || 'No description yet'}
-            </span>
-          </p>
-          <p className="m-0 truncate text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
-            {contentsSummary(row.invoice_count, row.vendor_count)}
-            {row.payment_method_label ? ` · ${row.payment_method_label}` : ''}
-            {row.submission_reference ? ` · bank reference ${row.submission_reference}` : ''}
-          </p>
-        </div>
-
-        <div className="flex shrink-0 flex-wrap items-center gap-[var(--space-4)]">
-          {waiting ? (
-            <span
-              className={cn(
-                'text-[var(--text-body-sm)]',
-                waiting.tone === 'warning'
-                  ? 'font-semibold text-[var(--color-warning-700)]'
-                  : 'text-[var(--color-text-muted)]',
-              )}
-            >
-              {waiting.label}
-            </span>
-          ) : null}
-
-          {/* Stacked, one per currency, and never added up. A package holding
-              JMD and USD comes to two figures, and a single number beside them
-              would be denominated in nothing. */}
-          <CurrencyTotals totals={row.totals} align="right" className="min-w-[9rem]" />
-
+          ))}
+        </span>
+      ),
+  },
+  {
+    key: 'waiting',
+    header: 'Waiting on',
+    hideBelow: 'md',
+    cell: (row) => {
+      const waiting = waitingOn(row.standing, row.invoice_count, row.blocker_count);
+      return (
+        <span
+          className={cn(
+            waiting?.tone === 'warning' && 'font-medium text-[var(--color-warning-700)]',
+          )}
+        >
+          {waiting?.label ?? '—'}
+        </span>
+      );
+    },
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    width: 'w-44',
+    cell: (row) => {
+      const standing = packageStanding(row.standing, row.standing_label);
+      return (
+        <span className="relative z-10 flex flex-wrap items-center gap-[var(--space-2)]">
           <ToneBadge label={standing.label} tone={standing.tone} />
-        </div>
-      </Link>
-    </li>
-  );
-}
+        </span>
+      );
+    },
+  },
+];
 
 export function PaymentPackageRegisterPage() {
   const { can } = useAuth();
@@ -153,11 +180,41 @@ export function PaymentPackageRegisterPage() {
     <>
       <PageHeader
         title="Payment packages"
-        purpose="Approved invoices gathered into one instruction to the bank, with what each package comes to in every currency it holds."
+        purpose="Approved invoices prepared for submission to the bank."
+        toolbar={
+          <div className="flex flex-col gap-[var(--space-3)] md:flex-row md:items-center md:justify-between">
+            <ViewTabs
+              tabs={VIEWS}
+              value={view.id}
+              onChange={(id) => {
+                setViewId(id);
+                setPage(1);
+              }}
+            />
+            <div className="relative md:mr-[var(--space-3)] md:w-96">
+              <Search
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-[var(--space-3)] size-4 -translate-y-1/2 text-[var(--color-text-subtle)]"
+              />
+              <Input
+                type="search"
+                value={search}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setPage(1);
+                }}
+                placeholder="Our reference, description or the bank's reference"
+                aria-label="Search payment packages"
+                className="h-9 pl-9 text-[12px]"
+              />
+            </div>
+          </div>
+        }
         actions={
           manages ? (
             <Button
               variant="primary"
+              size="sm"
               onClick={() => {
                 create.mutate(
                   { description: '', payment_method: null, intended_payment_date: null },
@@ -168,7 +225,7 @@ export function PaymentPackageRegisterPage() {
               loadingLabel="Opening"
             >
               <Plus aria-hidden="true" className="size-4" />
-              Start a package
+              New package
             </Button>
           ) : null
         }
@@ -180,7 +237,7 @@ export function PaymentPackageRegisterPage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               The package could not be opened
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {create.error instanceof Error
                 ? create.error.message
                 : 'The request did not complete.'}
@@ -189,50 +246,13 @@ export function PaymentPackageRegisterPage() {
         </Card>
       ) : null}
 
-      <div className="mb-[var(--space-4)] flex flex-col gap-[var(--space-3)] lg:flex-row lg:items-center lg:justify-between">
-        <div role="group" aria-label="Choose a view" className="flex flex-wrap gap-[var(--space-2)]">
-          {VIEWS.map((option) => (
-            <Button
-              key={option.id}
-              variant={viewId === option.id ? 'primary' : 'ghost'}
-              size="sm"
-              aria-pressed={viewId === option.id}
-              onClick={() => {
-                setViewId(option.id);
-                setPage(1);
-              }}
-            >
-              {option.label}
-            </Button>
-          ))}
-        </div>
-
-        <div className="relative lg:w-80">
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-[var(--space-3)] size-4 -translate-y-1/2 text-[var(--color-text-subtle)]"
-          />
-          <Input
-            type="search"
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setPage(1);
-            }}
-            placeholder="Our reference, description or the bank's reference"
-            aria-label="Search payment packages"
-            className="pl-9"
-          />
-        </div>
-      </div>
-
       {isError ? (
         <Card className="mb-[var(--space-6)] border-[var(--color-danger-600)]">
           <CardContent>
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               Could not load the register
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {error instanceof Error ? error.message : 'The request did not complete.'} Nothing
               has been lost; every package is stored and will still be here.
             </p>
@@ -240,13 +260,15 @@ export function PaymentPackageRegisterPage() {
         </Card>
       ) : null}
 
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-[var(--space-5)]">
-              <SkeletonText lines={5} />
-            </div>
-          ) : rows.length === 0 ? (
+      {isLoading ? (
+        <Card>
+          <CardContent>
+            <SkeletonText lines={5} />
+          </CardContent>
+        </Card>
+      ) : rows.length === 0 ? (
+        <Card>
+          <CardContent className="p-0">
             <EmptyState
               icon={searching ? Search : Wallet}
               title={searching ? `Nothing matches “${search.trim()}”` : view.empty}
@@ -274,15 +296,17 @@ export function PaymentPackageRegisterPage() {
                     },
                   })}
             />
-          ) : (
-            <ul className="m-0 list-none p-0">
-              {rows.map((row) => (
-                <PackageRow key={row.id} row={row} />
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : (
+        <DataTable
+          ariaLabel="Payment packages"
+          columns={packageColumns}
+          rows={rows}
+          getRowKey={(row) => row.id}
+          getRowHref={(row) => `/payments/${row.id}`}
+        />
+      )}
 
       {total > PAGE_SIZE ? (
         <nav
@@ -291,7 +315,7 @@ export function PaymentPackageRegisterPage() {
         >
           <p
             aria-live="polite"
-            className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]"
+            className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]"
           >
             Showing {showingFrom} to {showingTo} of {total}
           </p>

@@ -67,10 +67,10 @@ export function SignedLinkPage() {
         <Card>
           <CardContent className="flex flex-col items-start gap-[var(--space-3)]">
             <Link2Off aria-hidden="true" className="size-6 text-[var(--color-text-subtle)]" />
-            <p className="m-0 text-[var(--text-body)] text-[var(--color-text)]">
+            <p className="m-0 text-[length:var(--text-body)] text-[var(--color-text)]">
               {errorMessage(resolve.error) ?? 'The link could not be opened.'}
             </p>
-            <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               Nothing has been lost. If something is still waiting on you, it is in your invoice
               list, and you can act on it there exactly as you would have here. If a newer
               reminder has arrived since this one, its link is the one that works.

@@ -13,11 +13,10 @@ describe('StatusBadge', () => {
     }
   });
 
-  it('hides the tone dot from assistive technology as decoration', () => {
+  it('reads as its label alone, with no decoration for assistive technology to skip', () => {
     const { container } = render(<StatusBadge state="paid" />);
-    const dot = container.querySelector('[aria-hidden="true"]');
-    expect(dot).toBeInTheDocument();
-    expect(dot).toBeEmptyDOMElement();
+    expect(container.querySelector('[aria-hidden="true"]')).toBeNull();
+    expect(container.firstElementChild).toHaveTextContent(/^Paid$/);
   });
 
   it('appends a qualifier without losing the state label', () => {

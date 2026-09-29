@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="520" height="125" viewBox="0 0 520 125" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path id="Hero ribbon 2" d="M260 5.5C331.495 5.5 396.044 12.4709 442.562 23.6533C465.865 29.2549 484.337 35.8425 496.851 42.9541C509.796 50.3113 514.5 57.1221 514.5 62.5C514.5 67.8779 509.796 74.6887 496.851 82.0459C484.337 89.1575 465.865 95.7451 442.562 101.347C396.044 112.529 331.495 119.5 260 119.5C188.505 119.5 123.956 112.529 77.4375 101.347C54.1349 95.7451 35.6626 89.1575 23.1494 82.0459C10.2043 74.6887 5.5 67.8779 5.5 62.5C5.5 57.1221 10.2043 50.3113 23.1494 42.9541C35.6626 35.8425 54.1349 29.2549 77.4375 23.6533C123.956 12.4709 188.505 5.5 260 5.5Z" stroke="url(#paint0_linear_0_4)" stroke-width="11"/>
+<defs>
+<linearGradient id="paint0_linear_0_4" x1="0" y1="62.5" x2="520" y2="62.5" gradientUnits="userSpaceOnUse">
+<stop stop-color="#70D7FF" stop-opacity="0.12"/>
+<stop offset="0.6" stop-color="#7C65FF" stop-opacity="0.15"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</linearGradient>
+</defs>
+</svg>

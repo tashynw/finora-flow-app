@@ -230,6 +230,57 @@
  * become instant. Progress and status must still be conveyed, just without
  * animation, so the product stays complete rather than degraded.
  */
+/* Sign-in workflow flow: light running down the ribbon, cards bobbing on it,
+ * and the pulse crossing the compact strip. The float uses the standalone
+ * `translate` property so it composes with each card's inline tilt. */
+@keyframes finora-flow-dash {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes finora-flow-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -7px;
+  }
+}
+
+@keyframes finora-flow-strip {
+  from {
+    left: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  to {
+    left: calc(100% - 4rem);
+    opacity: 0;
+  }
+}
+
+.flow-dash {
+  animation: finora-flow-dash linear infinite;
+}
+
+.flow-float {
+  animation: finora-flow-float 6s ease-in-out infinite;
+}
+
+.flow-strip-pulse {
+  animation: finora-flow-strip linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

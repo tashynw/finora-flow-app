@@ -165,7 +165,7 @@ export function PurchaseOrderDetailPage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               {missing ? 'That order could not be found' : 'Could not load this order'}
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {missing
                 ? 'It may belong to a department whose orders are not yours to see.'
                 : (errorMessage(error) ?? 'The request did not complete.')}
@@ -229,7 +229,7 @@ export function PurchaseOrderDetailPage() {
             ) : (
               <StatusBadge state={order.state} />
             )}
-            <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <span className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               Raised by {order.raised_by_label}
               {order.opened_at ? (
                 <>
@@ -317,10 +317,10 @@ export function PurchaseOrderDetailPage() {
               <p className="m-0 font-semibold text-[var(--color-danger-700)]">
                 {submit.error ? 'Nothing has been committed' : 'Your changes were not saved'}
               </p>
-              <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+              <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                 {errorMessage(submit.error ?? save.error)}
               </p>
-              <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+              <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                 {submit.error
                   ? 'The order is still a draft and no supplier has been told anything.'
                   : 'What you have typed is still on the screen. Nothing was lost.'}
@@ -328,7 +328,7 @@ export function PurchaseOrderDetailPage() {
             </CardContent>
           </Card>
         ) : savedAt && !dirty ? (
-          <p className="mb-[var(--space-5)] m-0 text-[var(--text-body-sm)] text-[var(--color-success-700)]">
+          <p className="mb-[var(--space-5)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-success-700)]">
             Draft saved at{' '}
             {/* Fixed width so a longer clock reading cannot shift the rest of
                 the sentence when the visual suite hides the time. */}
@@ -373,7 +373,7 @@ export function PurchaseOrderDetailPage() {
                   {blockers.map((problem) => (
                     <li
                       key={problem.problem}
-                      className="text-[var(--text-body-sm)] text-[var(--color-text)]"
+                      className="text-[length:var(--text-body-sm)] text-[var(--color-text)]"
                     >
                       {problem.explanation}
                     </li>
@@ -405,7 +405,7 @@ export function PurchaseOrderDetailPage() {
                   {unfinished.map((problem) => (
                     <li
                       key={problem.problem}
-                      className="text-[var(--text-body-sm)] text-[var(--color-text)]"
+                      className="text-[length:var(--text-body-sm)] text-[var(--color-text)]"
                     >
                       {problem.explanation}
                     </li>
@@ -473,7 +473,7 @@ export function PurchaseOrderDetailPage() {
                         <span className="font-semibold text-[var(--color-text-strong)]">
                           {entry.to_state_label}
                         </span>
-                        <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                        <span className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                           {entry.actor_label ?? 'The system'} ·{' '}
                           <time dateTime={entry.occurred_at} data-visual-volatile>
                             {formatMoment(entry.occurred_at)}
@@ -481,7 +481,7 @@ export function PurchaseOrderDetailPage() {
                         </span>
                       </p>
                       {entry.reason ? (
-                        <p className="mt-[var(--space-2)] m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+                        <p className="mt-[var(--space-2)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                           {entry.reason}
                         </p>
                       ) : null}
@@ -524,13 +524,13 @@ export function PurchaseOrderDetailPage() {
                   </DetailRow>
                 </dl>
               ) : (
-                <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                   Enter the order total and its currency, and what is left appears here.
                 </p>
               )}
 
               {order.closed_at ? (
-                <p className="mt-[var(--space-4)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                <p className="mt-[var(--space-4)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                   Closed by {order.closed_by_label ?? 'somebody'} on{' '}
                   <time dateTime={order.closed_at} data-visual-volatile>
                     {formatMoment(order.closed_at)}
@@ -581,7 +581,7 @@ export function PurchaseOrderDetailPage() {
                 // A route of length zero on purpose, said in words. An empty
                 // approval panel reads as a route nobody has configured, which
                 // is the opposite of what has happened here.
-                <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+                <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                   No further approval is needed. {order.estimate_reference} is already approved for
                   this supplier at this amount or more, and sending it round again would be a
                   second signature on one decision.
@@ -589,7 +589,7 @@ export function PurchaseOrderDetailPage() {
               ) : order.state === 'draft' && order.planned_route.length > 0 ? (
                 <>
                   <PlannedRoute steps={order.planned_route} />
-                  <p className="mt-[var(--space-4)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                  <p className="mt-[var(--space-4)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                     The route this amount would take when the order is committed. Changing the
                     amount can change it.
                   </p>
@@ -598,7 +598,7 @@ export function PurchaseOrderDetailPage() {
                 // Committed, and no round on the record. A forecast belongs to a
                 // draft; offered here it would read as approval still to come on
                 // an order suppliers are already billing against.
-                <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+                <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                   This order was committed without going round for approval, so nothing is waiting
                   on anybody. How it reached that point is on the record with it.
                 </p>
@@ -607,12 +607,12 @@ export function PurchaseOrderDetailPage() {
                   <p className="m-0 font-semibold text-[var(--color-warning-700)]">
                     No route can be worked out yet
                   </p>
-                  <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+                  <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                     {order.route_unavailable}
                   </p>
                 </>
               ) : (
-                <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                   Enter the total and its currency, and the approvals it will need appear here.
                 </p>
               )}
@@ -637,7 +637,7 @@ export function PurchaseOrderDetailPage() {
           </>
         }
       >
-        <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+        <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
           Nothing has been committed either way. Staying here lets you press Save draft first, and
           a saved draft commits nothing.
         </p>

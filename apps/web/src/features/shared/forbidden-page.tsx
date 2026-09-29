@@ -16,6 +16,7 @@ export function ForbiddenPage() {
   return (
     <Card>
       <EmptyState
+        titleAs="h1"
         icon={Lock}
         title="You do not have access to this section"
         explanation="Your current roles do not include this part of the platform."

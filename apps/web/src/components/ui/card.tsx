@@ -37,8 +37,8 @@ export function CardHeader({
   return (
     <div
       className={cn(
-        'flex flex-col gap-1 border-b border-[var(--color-divider)]',
-        'px-[var(--space-5)] py-[var(--space-4)]',
+        'flex flex-col gap-1',
+        'px-[var(--space-5)] pt-[var(--space-5)] pb-0',
         className,
       )}
       {...props}
@@ -56,8 +56,8 @@ export function CardTitle({
   return (
     <Component
       className={cn(
-        'text-[length:var(--text-heading-3)] leading-[var(--text-heading-3--line-height)]',
-        'font-semibold text-[var(--color-text-strong)]',
+        'text-[14px] leading-tight',
+        'font-semibold text-[var(--color-text-heading)]',
         className,
       )}
       {...props}
@@ -72,7 +72,7 @@ export function CardDescription({
   return (
     <p
       className={cn(
-        'm-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]',
+        'm-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]',
         className,
       )}
       {...props}

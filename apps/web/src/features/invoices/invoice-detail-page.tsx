@@ -178,7 +178,7 @@ export function InvoiceDetailPage() {
             <p className="m-0 font-semibold text-[var(--color-danger-700)]">
               {missing ? 'That invoice could not be found' : 'Could not load this invoice'}
             </p>
-            <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               {missing
                 ? 'It may belong to a department whose invoices are not yours to see.'
                 : (errorMessage(error) ?? 'The request did not complete.')}
@@ -233,7 +233,7 @@ export function InvoiceDetailPage() {
         meta={
           <div className="flex flex-wrap items-center gap-[var(--space-3)]">
             <StatusBadge state={invoice.state} />
-            <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+            <span className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
               Recorded by {invoice.created_by_label} ·{' '}
               <time dateTime={invoice.created_at} data-visual-volatile>
                 {formatMoment(invoice.created_at)}
@@ -304,10 +304,10 @@ export function InvoiceDetailPage() {
               <p className="m-0 font-semibold text-[var(--color-danger-700)]">
                 {request.error ? 'Nobody has been asked to confirm this' : 'Your changes were not saved'}
               </p>
-              <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+              <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                 {errorMessage(request.error ?? save.error)}
               </p>
-              <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+              <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                 {request.error
                   ? 'No email has gone out, and what you have typed is still here.'
                   : 'What you have typed is still on the screen. Nothing was lost.'}
@@ -315,7 +315,7 @@ export function InvoiceDetailPage() {
             </CardContent>
           </Card>
         ) : savedAt && !dirty ? (
-          <p className="mb-[var(--space-5)] m-0 text-[var(--text-body-sm)] text-[var(--color-success-700)]">
+          <p className="mb-[var(--space-5)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-success-700)]">
             Draft saved at{' '}
             {/* Fixed width so a longer clock reading cannot shift the rest of
                 the sentence when the visual suite hides the time. */}
@@ -361,7 +361,7 @@ export function InvoiceDetailPage() {
                   {blockers.map((problem) => (
                     <li
                       key={problem.problem}
-                      className="text-[var(--text-body-sm)] text-[var(--color-text)]"
+                      className="text-[length:var(--text-body-sm)] text-[var(--color-text)]"
                     >
                       {problem.explanation}
                     </li>
@@ -393,7 +393,7 @@ export function InvoiceDetailPage() {
                   {unfinished.map((problem) => (
                     <li
                       key={problem.problem}
-                      className="text-[var(--text-body-sm)] text-[var(--color-text)]"
+                      className="text-[length:var(--text-body-sm)] text-[var(--color-text)]"
                     >
                       {problem.explanation}
                     </li>
@@ -448,7 +448,7 @@ export function InvoiceDetailPage() {
                         <span className="font-semibold text-[var(--color-text-strong)]">
                           {entry.to_state_label}
                         </span>
-                        <span className="text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                        <span className="text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                           {entry.actor_label ?? 'The system'} ·{' '}
                           <time dateTime={entry.occurred_at} data-visual-volatile>
                             {formatMoment(entry.occurred_at)}
@@ -456,7 +456,7 @@ export function InvoiceDetailPage() {
                         </span>
                       </p>
                       {entry.reason ? (
-                        <p className="mt-[var(--space-2)] m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+                        <p className="mt-[var(--space-2)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                           {entry.reason}
                         </p>
                       ) : null}
@@ -514,7 +514,7 @@ export function InvoiceDetailPage() {
               ) : invoice.planned_route && invoice.planned_route.length > 0 ? (
                 <>
                   <PlannedRoute steps={invoice.planned_route} />
-                  <p className="mt-[var(--space-4)] m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                  <p className="mt-[var(--space-4)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                     The route this amount would take once receipt has been confirmed. Changing the
                     amount can change it.
                   </p>
@@ -524,12 +524,12 @@ export function InvoiceDetailPage() {
                   <p className="m-0 font-semibold text-[var(--color-warning-700)]">
                     No route can be worked out yet
                   </p>
-                  <p className="mt-2 m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+                  <p className="mt-2 m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
                     {invoice.planned_route_problem}
                   </p>
                 </>
               ) : (
-                <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text-muted)]">
+                <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                   Enter the total and its currency, and the approvals it will need appear here.
                 </p>
               )}
@@ -548,7 +548,7 @@ export function InvoiceDetailPage() {
               <CardContent className="flex flex-col gap-[var(--space-6)]">
                 {invoice.route_history.map((route) => (
                   <div key={route.id}>
-                    <p className="mb-[var(--space-3)] m-0 text-[var(--text-body-sm)] font-semibold text-[var(--color-text-strong)]">
+                    <p className="mb-[var(--space-3)] m-0 text-[length:var(--text-body-sm)] font-semibold text-[var(--color-text-strong)]">
                       Round {route.attempt} · {route.amount_formatted}
                     </p>
                     <ApprovalRoute route={route} />
@@ -576,7 +576,7 @@ export function InvoiceDetailPage() {
           </>
         }
       >
-        <p className="m-0 text-[var(--text-body-sm)] text-[var(--color-text)]">
+        <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text)]">
           Nobody has been asked to confirm anything either way. Staying here lets you press Save
           draft first, and a saved draft sends no email.
         </p>
