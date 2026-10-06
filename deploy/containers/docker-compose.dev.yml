@@ -2,7 +2,7 @@
 #
 # Every dependency the platform needs runs here as a Linux container, so the
 # host operating system is never part of the contract. Bring the stack up with
-# `pnpm stack:up` from the repository root.
+# `yarn stack:up` from the repository root.
 #
 # This file is for development and pilot only. It uses well-known local
 # credentials supplied through env/dev.env and must never be used to run a

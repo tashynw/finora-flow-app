@@ -25,36 +25,36 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
-
       - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+
+      - name: Enable Yarn
+        run: corepack enable
 
       - name: Install
-        run: pnpm install --frozen-lockfile
+        run: yarn install --frozen-lockfile --ignore-engines
 
       - name: Verify generated API types are current
         # The committed types are generated from the API schema. If they are
         # stale, the browser is compiled against a contract the API no longer
         # honours, and the mismatch would only appear at runtime.
         run: |
-          pnpm --filter @finora/shared-types generate
+          yarn workspace @finora/shared-types generate
           git diff --exit-code -- packages/shared-types/src/generated \
-            || { echo "::error::Run 'pnpm schema:generate' and commit the result."; exit 1; }
+            || { echo "::error::Run 'yarn schema:generate' and commit the result."; exit 1; }
 
       - name: Lint
-        run: pnpm --filter @finora/web lint
+        run: yarn workspace @finora/web lint
 
       - name: Typecheck
-        run: pnpm --filter @finora/web typecheck
+        run: yarn workspace @finora/web typecheck
 
       - name: Unit and component tests
-        run: pnpm --filter @finora/web test
+        run: yarn workspace @finora/web test
 
       - name: Build
-        run: pnpm --filter @finora/web build
+        run: yarn workspace @finora/web build
 
   api:
     name: API (lint, types, tests)
@@ -238,24 +238,24 @@ jobs:
               --bucket "$bucket" --versioning-configuration Status=Enabled
           done
 
-      - uses: pnpm/action-setup@v4
-
       - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+
+      - name: Enable Yarn
+        run: corepack enable
 
       - name: Install web dependencies
-        run: pnpm install --frozen-lockfile
+        run: yarn install --frozen-lockfile --ignore-engines
 
       - name: Install browsers
-        run: pnpm --filter @finora/web exec playwright install --with-deps chromium
+        run: yarn workspace @finora/web playwright install --with-deps chromium
 
       - name: Visual regression and accessibility
         # The API is on the system interpreter here, not in a virtual environment.
         env:
           FINORA_API_PYTHON: python
-        run: pnpm --filter @finora/web test:visual
+        run: yarn workspace @finora/web test:visual
 
       - name: Upload report
         if: always()
@@ -293,20 +293,20 @@ jobs:
         # editable package, which is not on PyPI. Real advisories still fail.
         run: pip-audit --skip-editable
 
-      - uses: pnpm/action-setup@v4
-
       - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+
+      - name: Enable Yarn
+        run: corepack enable
 
       - name: Install web dependencies
-        run: pnpm install --frozen-lockfile
+        run: yarn install --frozen-lockfile --ignore-engines
 
       - name: JavaScript dependency advisories
         # Moderate and above fails. A known-vulnerable transitive package is
         # not acceptable in a system that handles payment instructions.
-        run: pnpm audit --audit-level moderate
+        run: yarn audit --level moderate
 
       - name: Detect committed secrets
         uses: gitleaks/gitleaks-action@v2

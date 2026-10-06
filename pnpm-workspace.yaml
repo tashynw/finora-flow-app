@@ -1,9 +1,0 @@
-packages:
-  - "apps/web"
-  - "packages/*"
-
-# Dependency install scripts are blocked by default. Each entry below is an
-# explicit, reviewed exception rather than a blanket opt-in.
-allowBuilds:
-  # Resolves the platform-specific binary that Vite needs in order to run.
-  esbuild: true

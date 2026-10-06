@@ -61,7 +61,7 @@ docs                  Requirements, architecture, ADRs, guides, design standard
 
 ## Prerequisites
 
-Node 22 or newer, pnpm 11, Docker with Compose v2, and Python 3.12 which `uv`
+Node 22 or newer, Yarn 1.22, Docker with Compose v2, and Python 3.12 which `uv`
 installs for you. Git is required.
 
 ### Machines behind a TLS-inspecting proxy
@@ -81,7 +81,7 @@ This was required on the original development machine and is the reason
 ```bash
 # 1. Dependency containers: PostgreSQL, Redis, MinIO, ClamAV, Greenmail
 cp deploy/containers/env/dev.env.example deploy/containers/env/dev.env
-pnpm stack:up
+yarn stack:up
 
 # 2. Backend
 cd apps/api
@@ -90,8 +90,8 @@ uv pip install -e ".[dev]"
 .venv/bin/python -m pytest            # .venv\Scripts\python.exe on Windows
 
 # 3. Frontend
-pnpm install
-pnpm dev
+yarn install --ignore-engines
+yarn dev
 ```
 
 ClamAV downloads its signature database on first start and reports unhealthy
@@ -107,14 +107,14 @@ a real deployment uses KES or a cloud KMS instead.
 ## Testing
 
 ```bash
-pnpm test              # frontend unit and component tests
-pnpm test:visual       # visual regression and accessibility; needs the stack up
-pnpm storybook         # component catalogue
+yarn test              # frontend unit and component tests
+yarn test:visual       # visual regression and accessibility; needs the stack up
+yarn storybook         # component catalogue
 cd apps/api && .venv/bin/python -m pytest             # unit tests
 cd apps/api && .venv/bin/python -m pytest -m integration   # needs the stack up
 ```
 
-`pnpm test:visual` drives the real application: the real API, database, object
+`yarn test:visual` drives the real application: the real API, database, object
 store and malware scanner, with nothing on the path under test substituted. It
 signs in as the role that owns each screen, uploads a document through the actual
 upload path, and compares the result against the committed baselines indexed in

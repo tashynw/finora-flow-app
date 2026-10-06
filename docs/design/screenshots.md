@@ -309,14 +309,14 @@ Baselines are written under `phase11.spec.ts-snapshots/` when the `phase11`
 Playwright project runs (after accruals). Regenerate with:
 
 ```bash
-pnpm --filter @finora/web exec playwright test --project=phase11 --update-snapshots
+yarn workspace @finora/web playwright test --project=phase11 --update-snapshots
 ```
 
 ## Regenerating
 
 ```bash
 docker compose -f deploy/containers/docker-compose.dev.yml --env-file deploy/containers/env/dev.env up -d
-pnpm --filter @finora/web test:visual
+yarn workspace @finora/web test:visual
 ```
 
 A missing baseline is written and reported as a failure, so a new screen fails
