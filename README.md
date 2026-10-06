@@ -89,8 +89,9 @@ uv venv --python 3.12
 uv pip install -e ".[dev]"
 .venv/bin/python -m pytest            # .venv\Scripts\python.exe on Windows
 
-# 3. Frontend
+# 3. Web app and Nest server, from the repository root
 yarn install --ignore-engines
+yarn --cwd apps/server install --ignore-engines
 yarn dev
 ```
 

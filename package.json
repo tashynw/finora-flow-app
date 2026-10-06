@@ -12,7 +12,9 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "yarn workspace @finora/web dev",
+    "dev": "concurrently --names web,server --prefix-colors cyan,magenta \"yarn dev:web\" \"yarn dev:server\"",
+    "dev:web": "yarn workspace @finora/web dev",
+    "dev:server": "yarn --cwd apps/server start:dev",
     "build": "yarn workspace @finora/web build",
     "lint": "yarn workspace @finora/web lint",
     "typecheck": "yarn workspace @finora/web typecheck && yarn workspace @finora/shared-types typecheck",
@@ -26,5 +28,8 @@
     "stack:down": "docker compose --env-file deploy/containers/env/dev.env -f deploy/containers/docker-compose.dev.yml down",
     "stack:logs": "docker compose --env-file deploy/containers/env/dev.env -f deploy/containers/docker-compose.dev.yml logs -f",
     "stack:reset": "docker compose --env-file deploy/containers/env/dev.env -f deploy/containers/docker-compose.dev.yml down -v"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
   }
 }
