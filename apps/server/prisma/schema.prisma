@@ -1,8 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Finora Flow. Table list follows the next data-model diagram.
+// Field names, cuid ids, and Better Auth tables follow the ARC Prisma schema.
+// user.role is a string because Better Auth stores one role or several, comma-separated.
 
 generator client {
   provider = "prisma-client-js"
@@ -15,7 +13,1011 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  id               String    @id
+  name             String
+  email            String
+  emailVerified    Boolean   @default(false)
+  image            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  /// One Role name, or several separated by commas.
+  role             String?
+  banned           Boolean?  @default(false)
+  banReason        String?
+  banExpires       DateTime?
+  jobTitle         String?
+  outOfOfficeUntil DateTime?
+  archivedAt       DateTime?
+  archivedReason   String?
+
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
+
+  delegateTo   User?   @relation("UserDelegate", fields: [delegateToId], references: [id])
+  delegateToId String?
+  delegates    User[]  @relation("UserDelegate")
+
+  sessions Session[]
+  accounts Account[]
+
+  approvalAssignments  ApprovalAssignment[] @relation("ApprovalAssignmentUser")
+  approvalRulesCreated ApprovalRule[]       @relation("ApprovalRuleCreatedBy")
+
+  estimatesRequested Estimate[] @relation("EstimateRequester")
+  estimatesSubmitted Estimate[] @relation("EstimateSubmittedBy")
+
+  purchaseOrdersRaised    PurchaseOrder[] @relation("PurchaseOrderRaisedBy")
+  purchaseOrdersSubmitted PurchaseOrder[] @relation("PurchaseOrderSubmittedBy")
+  purchaseOrdersClosed    PurchaseOrder[] @relation("PurchaseOrderClosedBy")
+
+  invoicesRequested Invoice[] @relation("InvoiceRequester")
+  invoicesCreated   Invoice[] @relation("InvoiceCreatedBy")
+  invoicesSignedOff Invoice[] @relation("InvoiceSignedOffBy")
+  invoicesSubmitted Invoice[] @relation("InvoiceSubmittedBy")
+
+  approvalRequests      ApprovalRequest[] @relation("ApprovalRequester")
+  approvalStepsDecided  ApprovalStep[]    @relation("ApprovalStepDecidedBy")
+  approvalStepsOnBehalf ApprovalStep[]    @relation("ApprovalStepOnBehalfOf")
+
+  paymentPackagesCreated   PaymentPackage[]     @relation("PaymentPackageCreatedBy")
+  paymentPackagesSubmitted PaymentPackage[]     @relation("PaymentPackageSubmittedBy")
+  paymentPackagesCancelled PaymentPackage[]     @relation("PaymentPackageCancelledBy")
+  paymentPackageLinesAdded PaymentPackageLine[] @relation("PaymentPackageLineAddedBy")
+
+  vendorCheckInsCreated  VendorCheckIn[] @relation("VendorCheckInCreatedBy")
+  vendorCheckInsReviewed VendorCheckIn[] @relation("VendorCheckInReviewedBy")
+
+  inboundMessagesUploaded    InboundMessage[]     @relation("InboundMessageUploadedBy")
+  extractionsAccepted        DocumentExtraction[] @relation("ExtractionAcceptedBy")
+  extractionReviewsCreated   ExtractionReview[]   @relation("ExtractionReviewCreatedBy")
+  extractionReviewsCorrected ExtractionReview[]   @relation("ExtractionReviewCorrectedBy")
+
+  creditCardPeriodsImported     CreditCardPeriod[]      @relation("CreditCardPeriodImportedBy")
+  creditCardPeriodsClosed       CreditCardPeriod[]      @relation("CreditCardPeriodClosedBy")
+  creditCardTransactionsCoded   CreditCardTransaction[] @relation("CreditCardTransactionCodedBy")
+  creditCardTransactionsMatched CreditCardTransaction[] @relation("CreditCardTransactionMatchedBy")
+
+  accrualPeriodsOpened       AccrualPeriod[]    @relation("AccrualPeriodOpenedBy")
+  accrualPeriodsLocked       AccrualPeriod[]    @relation("AccrualPeriodLockedBy")
+  accrualCandidatesFinalized AccrualCandidate[] @relation("AccrualCandidateFinalizedBy")
+  accrualExportsGenerated    AccrualExport[]    @relation("AccrualExportGeneratedBy")
+
+  stateTransitions StateTransition[] @relation("StateTransitionActor")
+  recordActions    RecordAction[]    @relation("RecordActionUser")
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  impersonatedBy String?
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model Department {
+  id               String   @id @default(cuid())
+  name             String
+  costCentreNumber String   @unique
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  users               User[]
+  costCentres         CostCentre[]
+  approvalAssignments ApprovalAssignment[]
+  approvalRules       ApprovalRule[]
+  estimates           Estimate[]
+  purchaseOrders      PurchaseOrder[]
+  invoices            Invoice[]
+  approvalRequests    ApprovalRequest[]
+  accrualCandidates   AccrualCandidate[]
+
+  @@map("departments")
+}
+
+model ApprovalAssignment {
+  id        String        @id @default(cuid())
+  level     ApprovalLevel
+  isActive  Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  user         User        @relation("ApprovalAssignmentUser", fields: [userId], references: [id])
+  userId       String
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
+
+  @@unique([level, userId, departmentId])
+  @@map("approval_assignments")
+}
+
+model ApprovalRule {
+  id                  String             @id @default(cuid())
+  name                String
+  recordType          ApprovalRecordType
+  level               ApprovalLevel
+  minAmountMinorUnits BigInt
+  maxAmountMinorUnits BigInt?
+  currency            Currency
+  stepOrder           Int
+  isParallel          Boolean            @default(false)
+  isActive            Boolean            @default(true)
+  retiredAt           DateTime?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  version             Int                @default(1)
+
+  createdBy    User?       @relation("ApprovalRuleCreatedBy", fields: [createdById], references: [id])
+  createdById  String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
+
+  @@map("approval_rules")
+}
+
+model SystemSetting {
+  id           String   @id @default(cuid())
+  key          String   @unique
+  value        Json
+  description  String?
+  changeReason String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  version      Int      @default(1)
+
+  @@map("system_settings")
+}
+
+model PurchaseOrderThreshold {
+  id                     String   @id @default(cuid())
+  currency               Currency @unique
+  appliesAboveMinorUnits BigInt
+  isActive               Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  version                Int      @default(1)
+
+  @@map("purchase_order_thresholds")
+}
+
+model MailboxCheckpoint {
+  id              String    @id @default(cuid())
+  folder          String    @unique
+  uidValidity     BigInt
+  lastSeenUid     BigInt
+  lastPolledAt    DateTime?
+  lastResetAt     DateTime?
+  lastResetReason String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("mailbox_checkpoints")
+}
+
+model Vendor {
+  id                    String    @id @default(cuid())
+  code                  String    @unique
+  name                  String
+  email                 String?
+  phone                 String?
+  taxRegistrationNumber String?
+  defaultCurrency       Currency  @default(JMD)
+  paymentTermsDays      Int?
+  isActive              Boolean   @default(true)
+  bankName              String?
+  bankAccountMasked     String?
+  bankDetailsUpdatedAt  DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  version               Int       @default(1)
+  archivedAt            DateTime?
+  archivedReason        String?
+
+  estimates           Estimate[]
+  purchaseOrders      PurchaseOrder[]
+  invoices            Invoice[]
+  paymentPackageLines PaymentPackageLine[]
+  vendorCheckIns      VendorCheckIn[]
+
+  @@map("vendors")
+}
+
+model GlAccount {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  name           String
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  archivedAt     DateTime?
+  archivedReason String?
+
+  estimates                       Estimate[]
+  purchaseOrders                  PurchaseOrder[]
+  invoices                        Invoice[]
+  creditCardTransactions          CreditCardTransaction[] @relation("CreditCardGlAccount")
+  suggestedCreditCardTransactions CreditCardTransaction[] @relation("CreditCardSuggestedGlAccount")
+  accrualCandidates               AccrualCandidate[]
+
+  @@map("gl_accounts")
+}
+
+model CostCentre {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  name           String
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  archivedAt     DateTime?
+  archivedReason String?
+
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
+
+  estimates                       Estimate[]
+  purchaseOrders                  PurchaseOrder[]
+  invoices                        Invoice[]
+  creditCardTransactions          CreditCardTransaction[] @relation("CreditCardCostCentre")
+  suggestedCreditCardTransactions CreditCardTransaction[] @relation("CreditCardSuggestedCostCentre")
+  accrualCandidates               AccrualCandidate[]
+
+  @@map("cost_centres")
+}
+
+model InboundMessage {
+  id                   String    @id @default(cuid())
+  source               String
+  status               String
+  idempotencyKey       String    @unique
+  rawSha256            String
+  rawObjectKey         String
+  rawSizeBytes         BigInt
+  imapFolder           String?
+  imapUid              BigInt?
+  imapUidValidity      BigInt?
+  messageId            String?
+  subject              String
+  fromAddress          String?
+  fromDisplayName      String?
+  replyToAddress       String?
+  toAddresses          Json
+  ccAddresses          Json
+  deliveredToAddresses Json
+  forwardedFromAddress String?
+  forwardedShape       String?
+  inReplyTo            String?
+  references           Json
+  correlationBasis     String?
+  automaticKind        String?
+  sentAt               DateTime?
+  receivedAt           DateTime
+  bodyText             String
+  parseWarnings        Json
+  failureReason        String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  version              Int       @default(1)
+
+  uploadedBy   User?   @relation("InboundMessageUploadedBy", fields: [uploadedById], references: [id])
+  uploadedById String?
+
+  documents S3Document[]
+
+  @@map("inbound_messages")
+}
+
+model S3Document {
+  id                  String    @id @default(cuid())
+  filename            String
+  contentType         String
+  sizeBytes           BigInt
+  sha256              String
+  key                 String
+  bucket              String
+  documentProcessed   Boolean   @default(false)
+  documentProcessedAt DateTime?
+  kind                String
+  status              String
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  version             Int       @default(1)
+
+  message   InboundMessage @relation(fields: [messageId], references: [id])
+  messageId String
+
+  extractions DocumentExtraction[]
+  estimate    Estimate?
+  invoice     Invoice?
+
+  receiptTransactions          CreditCardTransaction[] @relation("CreditCardReceipt")
+  suggestedReceiptTransactions CreditCardTransaction[] @relation("CreditCardSuggestedReceipt")
+
+  @@map("s3_document")
+}
+
+model DocumentExtraction {
+  id                   String    @id @default(cuid())
+  labelText            String
+  valueText            String
+  attempt              Int
+  isCurrent            Boolean   @default(false)
+  status               String
+  kind                 String
+  kindConfidence       Float
+  kindEvidence         Json?
+  textSource           String
+  pageCount            Int
+  reviewThreshold      Float
+  lowThreshold         Float
+  signals              Json
+  notes                Json
+  injectionFindings    Json
+  acknowledgedSignals  Json
+  gatewayOutcome       String?
+  modelName            String?
+  promptId             String?
+  promptVersion        Int?
+  promptSha256         String?
+  modelLatencyMs       Int?
+  suggestionsDiscarded Int
+  completedAt          DateTime?
+  failureReason        String?
+  acceptedAt           DateTime?
+  acceptedNote         String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  document     S3Document @relation(fields: [documentId], references: [id])
+  documentId   String
+  acceptedBy   User?      @relation("ExtractionAcceptedBy", fields: [acceptedById], references: [id])
+  acceptedById String?
+
+  reviews ExtractionReview[]
+
+  @@map("document_extractions")
+}
+
+model ExtractionReview {
+  id               String    @id @default(cuid())
+  review           String
+  correctedAt      DateTime?
+  correctionReason String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  documentExtraction   DocumentExtraction @relation(fields: [documentExtractionId], references: [id])
+  documentExtractionId String
+  createdBy            User               @relation("ExtractionReviewCreatedBy", fields: [createdById], references: [id])
+  createdById          String
+  correctedBy          User?              @relation("ExtractionReviewCorrectedBy", fields: [correctedById], references: [id])
+  correctedById        String?
+
+  @@map("extraction_review")
+}
+
+model Estimate {
+  id              String         @id @default(cuid())
+  reference       String         @unique
+  status          EstimateStatus @default(DRAFT)
+  estimateNumber  String?
+  estimateDate    DateTime?      @db.Date
+  neededBy        DateTime?      @db.Date
+  currency        Currency?
+  totalMinorUnits BigInt?
+  description     String         @default("")
+  justification   String         @default("")
+  submittedAt     DateTime?
+  decidedAt       DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  version         Int            @default(1)
+  archivedAt      DateTime?
+  archivedReason  String?
+
+  requester     User        @relation("EstimateRequester", fields: [requesterId], references: [id])
+  requesterId   String
+  document      S3Document? @relation(fields: [documentId], references: [id])
+  documentId    String?     @unique
+  vendor        Vendor?     @relation(fields: [vendorId], references: [id])
+  vendorId      String?
+  costCentre    CostCentre? @relation(fields: [costCentreId], references: [id])
+  costCentreId  String?
+  glAccount     GlAccount?  @relation(fields: [glAccountId], references: [id])
+  glAccountId   String?
+  submittedBy   User?       @relation("EstimateSubmittedBy", fields: [submittedById], references: [id])
+  submittedById String?
+  department    Department? @relation(fields: [departmentId], references: [id])
+  departmentId  String?
+
+  purchaseOrders   PurchaseOrder[]
+  invoices         Invoice[]
+  approvalRequests ApprovalRequest[]
+
+  @@map("estimates")
+}
+
+model PurchaseOrder {
+  id              String              @id @default(cuid())
+  number          String              @unique
+  status          PurchaseOrderStatus @default(DRAFT)
+  currency        Currency?
+  totalMinorUnits BigInt?
+  description     String              @default("")
+  submittedAt     DateTime?
+  openedAt        DateTime?
+  closedAt        DateTime?
+  closedReason    String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  version         Int                 @default(1)
+  archivedAt      DateTime?
+  archivedReason  String?
+
+  raisedBy      User        @relation("PurchaseOrderRaisedBy", fields: [raisedById], references: [id])
+  raisedById    String
+  vendor        Vendor?     @relation(fields: [vendorId], references: [id])
+  vendorId      String?
+  costCentre    CostCentre? @relation(fields: [costCentreId], references: [id])
+  costCentreId  String?
+  glAccount     GlAccount?  @relation(fields: [glAccountId], references: [id])
+  glAccountId   String?
+  estimate      Estimate?   @relation(fields: [estimateId], references: [id])
+  estimateId    String?
+  submittedBy   User?       @relation("PurchaseOrderSubmittedBy", fields: [submittedById], references: [id])
+  submittedById String?
+  closedBy      User?       @relation("PurchaseOrderClosedBy", fields: [closedById], references: [id])
+  closedById    String?
+  department    Department? @relation(fields: [departmentId], references: [id])
+  departmentId  String?
+
+  invoices         Invoice[]
+  approvalRequests ApprovalRequest[]
+
+  @@map("purchase_orders")
+}
+
+model Invoice {
+  id              String        @id @default(cuid())
+  reference       String        @unique
+  status          InvoiceStatus @default(DRAFT)
+  invoiceNumber   String?
+  invoiceDate     DateTime?     @db.Date
+  dueDate         DateTime?     @db.Date
+  currency        Currency?
+  totalMinorUnits BigInt?
+  description     String        @default("")
+  signedOffAt     DateTime?
+  signOffNote     String?
+  submittedAt     DateTime?
+  decidedAt       DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  version         Int           @default(1)
+  archivedAt      DateTime?
+  archivedReason  String?
+
+  requester       User?          @relation("InvoiceRequester", fields: [requesterId], references: [id])
+  requesterId     String?
+  createdBy       User           @relation("InvoiceCreatedBy", fields: [createdById], references: [id])
+  createdById     String
+  document        S3Document?    @relation(fields: [documentId], references: [id])
+  documentId      String?        @unique
+  vendor          Vendor?        @relation(fields: [vendorId], references: [id])
+  vendorId        String?
+  estimate        Estimate?      @relation(fields: [estimateId], references: [id])
+  estimateId      String?
+  purchaseOrder   PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+  purchaseOrderId String?
+  costCentre      CostCentre?    @relation(fields: [costCentreId], references: [id])
+  costCentreId    String?
+  glAccount       GlAccount?     @relation(fields: [glAccountId], references: [id])
+  glAccountId     String?
+  signedOffBy     User?          @relation("InvoiceSignedOffBy", fields: [signedOffById], references: [id])
+  signedOffById   String?
+  submittedBy     User?          @relation("InvoiceSubmittedBy", fields: [submittedById], references: [id])
+  submittedById   String?
+  department      Department?    @relation(fields: [departmentId], references: [id])
+  departmentId    String?
+
+  approvalRequests   ApprovalRequest[]
+  paymentPackageLine PaymentPackageLine?
+  accrualCandidates  AccrualCandidate[]
+
+  // Live rows are also unique on (vendorId, invoiceNumber). Prisma cannot declare that partial index.
+  @@map("invoices")
+}
+
+model ApprovalRequest {
+  id               String                @id @default(cuid())
+  recordType       String
+  recordId         String
+  attempt          Int
+  status           ApprovalRequestStatus @default(OPEN)
+  currentStepOrder Int?
+  amountMinorUnits BigInt
+  currency         Currency
+  openedAt         DateTime
+  closedAt         DateTime?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  version          Int                   @default(1)
+
+  requester       User           @relation("ApprovalRequester", fields: [requesterId], references: [id])
+  requesterId     String
+  department      Department?    @relation(fields: [departmentId], references: [id])
+  departmentId    String?
+  estimate        Estimate?      @relation(fields: [estimateId], references: [id])
+  estimateId      String?
+  purchaseOrder   PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+  purchaseOrderId String?
+  invoice         Invoice?       @relation(fields: [invoiceId], references: [id])
+  invoiceId       String?
+
+  steps ApprovalStep[]
+
+  @@unique([recordType, recordId, attempt])
+  // One open request per (recordType, recordId). Prisma cannot declare that partial index.
+  @@map("approval_requests")
+}
+
+model ApprovalStep {
+  id             String             @id @default(cuid())
+  stepOrder      Int
+  level          ApprovalLevel
+  status         ApprovalStepStatus
+  decidedAt      DateTime?
+  decidedByLabel String?
+  comment        String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  request      ApprovalRequest @relation(fields: [requestId], references: [id])
+  requestId    String
+  decidedBy    User?           @relation("ApprovalStepDecidedBy", fields: [decidedById], references: [id])
+  decidedById  String?
+  onBehalfOf   User?           @relation("ApprovalStepOnBehalfOf", fields: [onBehalfOfId], references: [id])
+  onBehalfOfId String?
+
+  @@unique([requestId, stepOrder, level])
+  @@map("approval_steps")
+}
+
+model PaymentPackage {
+  id                  String               @id @default(cuid())
+  reference           String               @unique
+  status              PaymentPackageStatus @default(OPEN)
+  description         String               @default("")
+  paymentMethod       String?
+  intendedPaymentDate DateTime?            @db.Date
+  submittedAt         DateTime?
+  submissionReference String?
+  manifestSha256      String?
+  manifestLineCount   Int?
+  cancelledAt         DateTime?
+  cancelledReason     String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  version             Int                  @default(1)
+
+  createdBy     User    @relation("PaymentPackageCreatedBy", fields: [createdById], references: [id])
+  createdById   String
+  submittedBy   User?   @relation("PaymentPackageSubmittedBy", fields: [submittedById], references: [id])
+  submittedById String?
+  cancelledBy   User?   @relation("PaymentPackageCancelledBy", fields: [cancelledById], references: [id])
+  cancelledById String?
+
+  lines    PaymentPackageLine[]
+  checkIns VendorCheckIn[]
+
+  @@map("payment_packages")
+}
+
+model PaymentPackageLine {
+  id               String    @id @default(cuid())
+  invoiceReference String
+  invoiceNumber    String?
+  currency         Currency
+  amountMinorUnits BigInt
+  dueDate          DateTime? @db.Date
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  package   PaymentPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  packageId String
+  invoice   Invoice        @relation(fields: [invoiceId], references: [id])
+  invoiceId String         @unique
+  vendor    Vendor?        @relation(fields: [vendorId], references: [id])
+  vendorId  String?
+  addedBy   User           @relation("PaymentPackageLineAddedBy", fields: [addedById], references: [id])
+  addedById String
+
+  @@map("payment_package_lines")
+}
+
+model VendorCheckIn {
+  id             String    @id @default(cuid())
+  reference      String    @unique
+  correlationTag String    @unique
+  sentAt         DateTime?
+  answeredAt     DateTime?
+  claim          String?
+  claimChannel   String?
+  respondentName String?
+  respondentNote String?
+  reviewedAt     DateTime?
+  reviewOutcome  String?
+  reviewNote     String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  version        Int       @default(1)
+
+  package      PaymentPackage @relation(fields: [packageId], references: [id])
+  packageId    String
+  vendor       Vendor?        @relation(fields: [vendorId], references: [id])
+  vendorId     String?
+  createdBy    User           @relation("VendorCheckInCreatedBy", fields: [createdById], references: [id])
+  createdById  String
+  reviewedBy   User?          @relation("VendorCheckInReviewedBy", fields: [reviewedById], references: [id])
+  reviewedById String?
+
+  @@unique([packageId, vendorId])
+  @@map("vendor_check_ins")
+}
+
+model CreditCardAccount {
+  id             String    @id @default(cuid())
+  label          String
+  lastFour       String
+  cardholderName String
+  currency       Currency
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  version        Int       @default(1)
+  archivedAt     DateTime?
+  archivedReason String?
+
+  periods CreditCardPeriod[]
+
+  @@unique([lastFour, cardholderName])
+  @@map("credit_card_accounts")
+}
+
+model CreditCardPeriod {
+  id             String    @id @default(cuid())
+  reference      String    @unique
+  periodStart    DateTime  @db.Date
+  periodEnd      DateTime  @db.Date
+  statementDate  DateTime  @db.Date
+  currency       Currency
+  sourceSha256   String
+  sourceFilename String
+  importedAt     DateTime
+  closedAt       DateTime?
+  closeReason    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  version        Int       @default(1)
+
+  card         CreditCardAccount @relation(fields: [cardId], references: [id])
+  cardId       String
+  importedBy   User              @relation("CreditCardPeriodImportedBy", fields: [importedById], references: [id])
+  importedById String
+  closedBy     User?             @relation("CreditCardPeriodClosedBy", fields: [closedById], references: [id])
+  closedById   String?
+
+  transactions CreditCardTransaction[]
+
+  @@unique([cardId, sourceSha256])
+  @@map("credit_card_periods")
+}
+
+model CreditCardTransaction {
+  id                     String    @id @default(cuid())
+  sourceRow              Int
+  postedOn               DateTime  @db.Date
+  merchant               String
+  cardholder             String
+  description            String?
+  externalReference      String?
+  amountMinorUnits       BigInt
+  currency               Currency
+  category               String?
+  exceptionReason        String?
+  codedAt                DateTime?
+  receiptWaived          Boolean   @default(false)
+  receiptWaiverReason    String?
+  receiptMatchConfidence Float?
+  matchedAt              DateTime?
+  suggestionEvidence     Json?
+  suggestionDisposition  String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  version                Int       @default(1)
+
+  period                     CreditCardPeriod @relation(fields: [periodId], references: [id])
+  periodId                   String
+  glAccount                  GlAccount?       @relation("CreditCardGlAccount", fields: [glAccountId], references: [id])
+  glAccountId                String?
+  costCentre                 CostCentre?      @relation("CreditCardCostCentre", fields: [costCentreId], references: [id])
+  costCentreId               String?
+  codedBy                    User?            @relation("CreditCardTransactionCodedBy", fields: [codedById], references: [id])
+  codedById                  String?
+  receiptDocument            S3Document?      @relation("CreditCardReceipt", fields: [receiptDocumentId], references: [id])
+  receiptDocumentId          String?
+  matchedBy                  User?            @relation("CreditCardTransactionMatchedBy", fields: [matchedById], references: [id])
+  matchedById                String?
+  suggestedGlAccount         GlAccount?       @relation("CreditCardSuggestedGlAccount", fields: [suggestedGlAccountId], references: [id])
+  suggestedGlAccountId       String?
+  suggestedCostCentre        CostCentre?      @relation("CreditCardSuggestedCostCentre", fields: [suggestedCostCentreId], references: [id])
+  suggestedCostCentreId      String?
+  suggestedReceiptDocument   S3Document?      @relation("CreditCardSuggestedReceipt", fields: [suggestedReceiptDocumentId], references: [id])
+  suggestedReceiptDocumentId String?
+
+  @@unique([periodId, sourceRow])
+  @@map("credit_card_transactions")
+}
+
+model AccrualPeriod {
+  id          String    @id @default(cuid())
+  reference   String    @unique
+  periodStart DateTime  @db.Date
+  periodEnd   DateTime  @db.Date
+  label       String
+  openedAt    DateTime
+  lockedAt    DateTime?
+  lockReason  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  version     Int       @default(1)
+
+  openedBy   User    @relation("AccrualPeriodOpenedBy", fields: [openedById], references: [id])
+  openedById String
+  lockedBy   User?   @relation("AccrualPeriodLockedBy", fields: [lockedById], references: [id])
+  lockedById String?
+
+  candidates AccrualCandidate[]
+  exports    AccrualExport[]
+
+  @@map("accrual_periods")
+}
+
+model AccrualCandidate {
+  id                       String    @id @default(cuid())
+  reference                String
+  standing                 String
+  currency                 Currency
+  amountMinorUnits         BigInt
+  originalAmountMinorUnits BigInt
+  vendorName               String
+  invoiceNumber            String?
+  invoiceReference         String?
+  description              String    @default("")
+  editReason               String?
+  note                     String?
+  finalizedAt              DateTime?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  version                  Int       @default(1)
+
+  period        AccrualPeriod @relation(fields: [periodId], references: [id])
+  periodId      String
+  invoice       Invoice?      @relation(fields: [invoiceId], references: [id])
+  invoiceId     String?
+  glAccount     GlAccount?    @relation(fields: [glAccountId], references: [id])
+  glAccountId   String?
+  costCentre    CostCentre?   @relation(fields: [costCentreId], references: [id])
+  costCentreId  String?
+  finalizedBy   User?         @relation("AccrualCandidateFinalizedBy", fields: [finalizedById], references: [id])
+  finalizedById String?
+  department    Department?   @relation(fields: [departmentId], references: [id])
+  departmentId  String?
+
+  @@unique([periodId, reference])
+  @@unique([periodId, invoiceId])
+  @@map("accrual_candidates")
+}
+
+model AccrualExport {
+  id          String   @id @default(cuid())
+  format      String
+  official    Boolean  @default(false)
+  filename    String
+  sha256      String
+  byteSize    Int
+  rowCount    Int
+  generatedAt DateTime
+  version     Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  period        AccrualPeriod @relation(fields: [periodId], references: [id])
+  periodId      String
+  generatedBy   User          @relation("AccrualExportGeneratedBy", fields: [generatedById], references: [id])
+  generatedById String
+
+  @@unique([periodId, version])
+  @@map("accrual_exports")
+}
+
+model AuditEntry {
+  id            String   @id @default(cuid())
+  sequence      BigInt   @unique
+  previousHash  String
+  entryHash     String   @unique
+  occurredAt    DateTime
+  action        String
+  actorType     String
+  actorId       String?
+  actorLabel    String
+  subjectType   String
+  subjectId     String?
+  correlationId String?
+  detail        Json
+  sourceIp      String?
+  userAgent     String?
+
+  @@index([subjectType, subjectId])
+  @@map("audit_entries")
+}
+
+model StateTransition {
+  id            String   @id @default(cuid())
+  recordType    String
+  recordId      String
+  fromState     String
+  toState       String
+  source        String
+  actorLabel    String
+  reason        String?
+  correlationId String
+  occurredAt    DateTime @default(now())
+  context       Json
+
+  actor   User?   @relation("StateTransitionActor", fields: [actorId], references: [id])
+  actorId String?
+
+  @@index([recordType, recordId])
+  @@map("state_transitions")
+}
+
+model RecordAction {
+  id         String   @id @default(cuid())
+  recordType String
+  recordId   String
+  permission String
+  occurredAt DateTime @default(now())
+
+  user   User   @relation("RecordActionUser", fields: [userId], references: [id])
+  userId String
+
+  @@unique([recordType, recordId, userId, permission])
+  @@map("record_actions")
+}
+
+enum Role {
+  REQUESTER
+  APPROVER
+  PAYMENT_COORDINATOR
+  FINANCE
+  ADMINISTRATOR
+  OPERATIONS
+  AUDITOR
+}
+
+enum Currency {
+  JMD
+  USD
+}
+
+enum ApprovalLevel {
+  UNIT_HEAD
+  MANAGER
+  HOD
+  COO
+}
+
+enum ApprovalRecordType {
+  ESTIMATE
+  INVOICE
+  PURCHASE_ORDER
+}
+
+enum EstimateStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  CANCELLED
+  EXCEPTION
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  PENDING_SIGN_OFF
+  PENDING_APPROVAL
+  APPROVED
+  READY_FOR_SUBMISSION
+  SUBMITTED
+  PAID
+  OUTSTANDING
+  EXCEPTION
+  ACCRUAL_NEEDED
+  REJECTED
+  CANCELLED
+}
+
+enum ApprovalRequestStatus {
+  OPEN
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+enum ApprovalStepStatus {
+  WAITING
+  READY
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+enum PaymentPackageStatus {
+  OPEN
+  SUBMITTED
+  CANCELLED
 }
