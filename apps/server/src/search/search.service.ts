@@ -14,6 +14,7 @@ export class SearchService {
     const take = Math.min(Math.max(limit, 1), 50);
     const contains = { contains: q, mode: 'insensitive' as const };
 
+    // Cross-model search can't be one Prisma findMany — keep typed queries and merge.
     const [invoices, estimates, orders, vendors] = await Promise.all([
       this.prisma.invoice.findMany({
         where: {

@@ -41,18 +41,13 @@ export class PaymentPackagesService {
   ) {}
 
   async eligibleInvoices(limit = 200) {
-    const taken = await this.prisma.paymentPackageLine.findMany({
-      select: { invoiceId: true },
-    });
-    const takenIds = taken.map((r) => r.invoiceId);
-
     return this.prisma.invoice.findMany({
       where: {
         status: InvoiceStatus.APPROVED,
         archivedAt: null,
         totalMinorUnits: { not: null },
         currency: { not: null },
-        id: takenIds.length ? { notIn: takenIds } : undefined,
+        paymentPackageLine: { is: null },
       },
       orderBy: [{ dueDate: 'asc' }, { reference: 'asc' }],
       take: Math.min(limit, 200),

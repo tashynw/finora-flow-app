@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InvoiceStatus } from '../generated/prisma/index.js';
+import { serialize } from '../common/serialize.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
@@ -10,43 +11,44 @@ export class OverviewService {
     const since = new Date();
     since.setMonth(since.getMonth() - Math.max(1, Math.min(months, 24)));
 
-    const invoices = await this.prisma.invoice.findMany({
-      where: { archivedAt: null, createdAt: { gte: since } },
-      select: {
-        status: true,
-        currency: true,
-        totalMinorUnits: true,
-      },
-    });
+    const whereSince = { archivedAt: null, createdAt: { gte: since } };
 
-    const countsByStatus: Record<string, number> = {};
-    for (const inv of invoices) {
-      countsByStatus[inv.status] = (countsByStatus[inv.status] ?? 0) + 1;
+    const [statusGroups, spendGroups] = await Promise.all([
+      this.prisma.invoice.groupBy({
+        by: ['status'],
+        where: whereSince,
+        _count: { _all: true },
+      }),
+      this.prisma.invoice.groupBy({
+        by: ['currency'],
+        where: {
+          ...whereSince,
+          status: InvoiceStatus.APPROVED,
+          totalMinorUnits: { not: null },
+          currency: { not: null },
+        },
+        _sum: { totalMinorUnits: true },
+      }),
+    ]);
+
+    const invoiceCountsByStatus: Record<string, number> = {};
+    for (const row of statusGroups) {
+      invoiceCountsByStatus[row.status] = row._count._all;
     }
 
-    const approvedSpend: Record<string, bigint> = {};
-    for (const inv of invoices) {
-      if (
-        inv.status !== InvoiceStatus.APPROVED ||
-        inv.totalMinorUnits == null ||
-        !inv.currency
-      ) {
-        continue;
-      }
-      approvedSpend[inv.currency] =
-        (approvedSpend[inv.currency] ?? 0n) + inv.totalMinorUnits;
+    const approvedSpendByCurrency: Record<string, string> = {};
+    for (const row of spendGroups) {
+      if (!row.currency) continue;
+      approvedSpendByCurrency[row.currency] = (
+        row._sum.totalMinorUnits ?? 0n
+      ).toString();
     }
 
-    return {
+    return serialize({
       months,
       since: since.toISOString(),
-      invoiceCountsByStatus: countsByStatus,
-      approvedSpendByCurrency: Object.fromEntries(
-        Object.entries(approvedSpend).map(([currency, minor]) => [
-          currency,
-          minor.toString(),
-        ]),
-      ),
-    };
+      invoiceCountsByStatus,
+      approvedSpendByCurrency,
+    });
   }
 }

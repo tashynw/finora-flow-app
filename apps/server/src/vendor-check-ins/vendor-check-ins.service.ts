@@ -56,16 +56,7 @@ export class VendorCheckInsService {
     const row = await this.prisma.vendorCheckIn.findUnique({
       where: { id },
       include: {
-        package: {
-          include: {
-            lines: {
-              include: {
-                invoice: true,
-                vendor: true,
-              },
-            },
-          },
-        },
+        package: true,
         vendor: true,
         createdBy: { select: { id: true, name: true } },
         reviewedBy: { select: { id: true, name: true } },
@@ -73,10 +64,16 @@ export class VendorCheckInsService {
     });
     if (!row) throw notFound('Vendor check-in', id);
 
-    const vendorKey = row.vendorId ?? '__none__';
-    const lines = row.package.lines.filter(
-      (line) => (line.vendorId ?? '__none__') === vendorKey,
-    );
+    const lines = await this.prisma.paymentPackageLine.findMany({
+      where: {
+        packageId: row.packageId,
+        vendorId: row.vendorId,
+      },
+      include: {
+        invoice: true,
+        vendor: true,
+      },
+    });
 
     return {
       ...row,
@@ -89,10 +86,6 @@ export class VendorCheckInsService {
   async raiseForPackage(session: UserSession, packageId: string) {
     const pkg = await this.prisma.paymentPackage.findUnique({
       where: { id: packageId },
-      include: {
-        lines: { include: { vendor: true, invoice: { include: { vendor: true } } } },
-        checkIns: true,
-      },
     });
     if (!pkg) throw notFound('Payment package', packageId);
     if (pkg.status !== PaymentPackageStatus.SUBMITTED || !pkg.submittedAt) {
@@ -101,32 +94,50 @@ export class VendorCheckInsService {
       );
     }
 
-    const existingVendorIds = new Set(
-      pkg.checkIns.map((c) => c.vendorId ?? '__none__'),
+    const [vendorGroups, existingCheckIns] = await Promise.all([
+      this.prisma.paymentPackageLine.groupBy({
+        by: ['vendorId'],
+        where: { packageId },
+        _count: { _all: true },
+      }),
+      this.prisma.vendorCheckIn.findMany({
+        where: { packageId },
+        select: {
+          vendorId: true,
+          vendor: { select: { name: true } },
+        },
+      }),
+    ]);
+
+    const existingByVendor = new Map(
+      existingCheckIns.map((c) => [c.vendorId ?? null, c]),
     );
 
-    const grouped = new Map<string, typeof pkg.lines>();
-    for (const line of pkg.lines) {
-      const key = line.vendorId ?? '__none__';
-      const bucket = grouped.get(key) ?? [];
-      bucket.push(line);
-      grouped.set(key, bucket);
-    }
+    const vendorIds = vendorGroups
+      .map((g) => g.vendorId)
+      .filter((id): id is string => id != null);
+    const vendors = vendorIds.length
+      ? await this.prisma.vendor.findMany({
+          where: { id: { in: vendorIds } },
+          select: { id: true, name: true },
+        })
+      : [];
+    const vendorNameById = new Map(vendors.map((v) => [v.id, v.name]));
 
     const raised = [];
     const alreadyRaised: string[] = [];
 
-    for (const [vendorKey, lines] of grouped) {
-      if (existingVendorIds.has(vendorKey)) {
-        const name =
-          lines[0]?.vendor?.name ??
-          lines[0]?.invoice.vendor?.name ??
-          'Unknown supplier';
-        alreadyRaised.push(name);
+    for (const group of vendorGroups) {
+      const vendorId = group.vendorId;
+      const vendorName =
+        (vendorId ? vendorNameById.get(vendorId) : null) ?? 'Unknown supplier';
+
+      if (existingByVendor.has(vendorId ?? null)) {
+        alreadyRaised.push(
+          existingByVendor.get(vendorId ?? null)?.vendor?.name ?? vendorName,
+        );
         continue;
       }
-
-      const vendor = lines[0]?.vendor ?? lines[0]?.invoice.vendor ?? null;
 
       let tag = newCorrelationTag();
       for (let i = 0; i < 5; i += 1) {
@@ -142,7 +153,7 @@ export class VendorCheckInsService {
           reference: nextReference('VCI'),
           correlationTag: tag,
           packageId,
-          vendorId: vendor?.id ?? null,
+          vendorId,
           createdById: session.user.id,
         },
       });
@@ -156,8 +167,8 @@ export class VendorCheckInsService {
         detail: {
           reference: checkIn.reference,
           package: pkg.reference,
-          vendorName: vendor?.name ?? 'Unknown supplier',
-          invoices: lines.length,
+          vendorName,
+          invoices: group._count._all,
         },
       });
 
@@ -318,20 +329,13 @@ export class VendorCheckInsService {
   }
 
   async findByToken(token: string) {
-    const row = await this.prisma.vendorCheckIn.findUnique({
+    return this.prisma.vendorCheckIn.findUnique({
       where: { correlationTag: token },
       include: {
-        package: {
-          include: {
-            lines: {
-              include: { invoice: true, vendor: true },
-            },
-          },
-        },
+        package: true,
         vendor: true,
       },
     });
-    return row;
   }
 
   async publicView(token: string) {
@@ -340,20 +344,23 @@ export class VendorCheckInsService {
       throw notFound('Check-in link');
     }
 
-    const vendorKey = row.vendorId ?? '__none__';
-    const lines = row.package.lines.filter(
-      (line) => (line.vendorId ?? '__none__') === vendorKey,
-    );
+    const lines = await this.prisma.paymentPackageLine.findMany({
+      where: {
+        packageId: row.packageId,
+        vendorId: row.vendorId,
+      },
+      select: {
+        invoiceNumber: true,
+        amountMinorUnits: true,
+        currency: true,
+        dueDate: true,
+      },
+    });
 
     return {
       vendorName: row.vendor?.name ?? 'Unknown supplier',
       packageReference: row.package.reference,
-      lines: lines.map((line) => ({
-        invoiceNumber: line.invoiceNumber,
-        amountMinorUnits: line.amountMinorUnits,
-        currency: line.currency,
-        dueDate: line.dueDate,
-      })),
+      lines,
       answeredAt: row.answeredAt,
       canAnswer: !row.reviewedAt,
     };

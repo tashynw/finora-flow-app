@@ -277,12 +277,16 @@ export class CreditCardsService {
       throw new DomainException('Give a reason for closing this period.');
     }
 
-    const uncoded = period.transactions.filter(
-      (tx) => !tx.glAccountId && !tx.exceptionReason,
-    );
-    if (uncoded.length) {
+    const uncodedCount = await this.prisma.creditCardTransaction.count({
+      where: {
+        periodId: id,
+        glAccountId: null,
+        exceptionReason: null,
+      },
+    });
+    if (uncodedCount > 0) {
       throw new DomainException(
-        `${uncoded.length} transaction(s) still need coding or an exception.`,
+        `${uncodedCount} transaction(s) still need coding or an exception.`,
       );
     }
 

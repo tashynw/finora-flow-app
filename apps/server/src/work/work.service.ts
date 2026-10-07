@@ -99,27 +99,65 @@ export class WorkService {
   }
 
   async queue(limit = 25) {
-    const perKind = Math.ceil(limit / 3);
+    const take = Math.min(Math.max(limit, 1), 100);
+    // Cross-model queue — Prisma can't UNION these; merge typed queries in memory.
     const [invoices, estimates, orders] = await Promise.all([
-      this.pendingInvoices(perKind),
-      this.pendingEstimates(perKind),
-      this.pendingPurchaseOrders(perKind),
+      this.pendingInvoices(take),
+      this.pendingEstimates(take),
+      this.pendingPurchaseOrders(take),
     ]);
 
     const items = [...invoices, ...estimates, ...orders]
       .sort((a, b) => a.waitingSince.getTime() - b.waitingSince.getTime())
-      .slice(0, limit)
+      .slice(0, take)
       .map((item) => ({
         ...item,
         waitingHours: this.waitingHours(item.waitingSince),
       }));
 
-    const countsByKind = items.reduce<Record<string, number>>((acc, item) => {
-      acc[item.kind] = (acc[item.kind] ?? 0) + 1;
-      return acc;
-    }, {});
+    const [invoiceCount, estimateCount, poCount] = await Promise.all([
+      this.prisma.invoice.count({
+        where: {
+          archivedAt: null,
+          status: {
+            in: [
+              InvoiceStatus.DRAFT,
+              InvoiceStatus.PENDING_SIGN_OFF,
+              InvoiceStatus.PENDING_APPROVAL,
+            ],
+          },
+        },
+      }),
+      this.prisma.estimate.count({
+        where: {
+          archivedAt: null,
+          status: {
+            in: [EstimateStatus.DRAFT, EstimateStatus.PENDING_APPROVAL],
+          },
+        },
+      }),
+      this.prisma.purchaseOrder.count({
+        where: {
+          archivedAt: null,
+          status: {
+            in: [
+              PurchaseOrderStatus.DRAFT,
+              PurchaseOrderStatus.PENDING_APPROVAL,
+            ],
+          },
+        },
+      }),
+    ]);
 
-    return { items, total: items.length, countsByKind };
+    return {
+      items,
+      total: items.length,
+      countsByKind: {
+        invoice: invoiceCount,
+        estimate: estimateCount,
+        purchase_order: poCount,
+      },
+    };
   }
 
   async badges() {
@@ -181,6 +219,6 @@ export class WorkService {
 
   async dashboard(topN = 10) {
     const queue = await this.queue(topN);
-    return { items: queue.items.slice(0, topN) };
+    return { items: queue.items };
   }
 }

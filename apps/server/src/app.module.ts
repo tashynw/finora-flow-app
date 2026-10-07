@@ -3,8 +3,6 @@ import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { LoggerModule } from 'nestjs-pino';
 import { auth } from './better-auth/index.js';
 import { AdminModule } from './admin.module.js';
-import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
 import { ApprovalsModule } from './approvals/approvals.module.js';
 import { CommonModule } from './common/common.module.js';
 import { CostCentresModule } from './cost-centres/cost-centres.module.js';
@@ -69,7 +67,5 @@ const pretty = process.env.NODE_ENV !== 'production';
     OperationsModule,
     DocumentsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

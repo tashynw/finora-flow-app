@@ -104,16 +104,13 @@ export class AccrualsService {
   }
 
   async generateCandidates(session: UserSession, periodId: string) {
-    const period = await this.getPeriod(periodId);
+    const period = await this.prisma.accrualPeriod.findUnique({
+      where: { id: periodId },
+    });
+    if (!period) throw notFound('Accrual period', periodId);
     if (period.lockedAt) {
       throw new DomainException('This period is locked.');
     }
-
-    const existingInvoiceIds = new Set(
-      period.candidates
-        .map((c) => c.invoiceId)
-        .filter((id): id is string => id != null),
-    );
 
     const invoices = await this.prisma.invoice.findMany({
       where: {
@@ -122,17 +119,14 @@ export class AccrualsService {
         invoiceDate: { lte: period.periodEnd },
         totalMinorUnits: { not: null },
         currency: { not: null },
-        id: existingInvoiceIds.size
-          ? { notIn: [...existingInvoiceIds] }
-          : undefined,
+        accrualCandidates: { none: { periodId } },
       },
-      include: { vendor: true, glAccount: true, costCentre: true, department: true },
+      include: { vendor: true },
     });
 
-    const created = [];
-    for (const invoice of invoices) {
-      const candidate = await this.prisma.accrualCandidate.create({
-        data: {
+    if (invoices.length) {
+      await this.prisma.accrualCandidate.createMany({
+        data: invoices.map((invoice) => ({
           reference: nextReference('ACC'),
           standing: 'proposed',
           currency: invoice.currency!,
@@ -147,9 +141,8 @@ export class AccrualsService {
           glAccountId: invoice.glAccountId,
           costCentreId: invoice.costCentreId,
           departmentId: invoice.departmentId,
-        },
+        })),
       });
-      created.push(candidate);
     }
 
     await this.audit.append({
@@ -158,7 +151,7 @@ export class AccrualsService {
       actorLabel: actorLabel(session),
       subjectType: SUBJECT,
       subjectId: periodId,
-      detail: { count: created.length },
+      detail: { count: invoices.length },
     });
 
     return this.getPeriod(periodId);
@@ -251,18 +244,28 @@ export class AccrualsService {
   }
 
   async lockPeriod(session: UserSession, id: string, body: { reason: string }) {
-    const period = await this.getPeriod(id);
+    const period = await this.prisma.accrualPeriod.findUnique({
+      where: { id },
+    });
+    if (!period) throw notFound('Accrual period', id);
     if (period.lockedAt) {
       throw new DomainException('This period is already locked.');
     }
-    if (!period.candidates.length) {
+
+    const candidateCount = await this.prisma.accrualCandidate.count({
+      where: { periodId: id },
+    });
+    if (!candidateCount) {
       throw new DomainException('Generate candidates before locking.');
     }
 
-    const open = period.candidates.filter(
-      (c) => c.standing !== 'finalized' && c.standing !== 'excluded',
-    );
-    if (open.length) {
+    const openCount = await this.prisma.accrualCandidate.count({
+      where: {
+        periodId: id,
+        standing: { notIn: ['finalized', 'excluded'] },
+      },
+    });
+    if (openCount > 0) {
       throw new DomainException(
         'Every candidate must be finalized or excluded before locking.',
       );
@@ -300,12 +303,23 @@ export class AccrualsService {
     id: string,
     body: { format: string; official?: boolean },
   ) {
-    const period = await this.getPeriod(id);
+    const period = await this.prisma.accrualPeriod.findUnique({
+      where: { id },
+    });
+    if (!period) throw notFound('Accrual period', id);
     if (body.official && !period.lockedAt) {
       throw new DomainException('Lock the period before producing an official export.');
     }
 
-    const rows = period.candidates.filter((c) => c.standing !== 'excluded');
+    const rows = await this.prisma.accrualCandidate.findMany({
+      where: { periodId: id, standing: { not: 'excluded' } },
+      include: {
+        department: true,
+        glAccount: true,
+        costCentre: true,
+      },
+      orderBy: { reference: 'asc' },
+    });
     const lines: string[] = [EXPORT_COLUMNS.join(',')];
 
     for (const c of rows) {

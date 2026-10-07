@@ -321,21 +321,23 @@ export class ApprovalsEngineService {
   }
 
   async levelsHeld(userId: string): Promise<ApprovalLevel[]> {
-    const direct = await this.prisma.approvalAssignment.findMany({
-      where: { userId, isActive: true },
-      select: { level: true },
-    });
-    const delegated = await this.prisma.approvalAssignment.findMany({
+    const rows = await this.prisma.approvalAssignment.findMany({
       where: {
         isActive: true,
-        user: {
-          delegateToId: userId,
-          outOfOfficeUntil: { gt: new Date() },
-        },
+        OR: [
+          { userId },
+          {
+            user: {
+              delegateToId: userId,
+              outOfOfficeUntil: { gt: new Date() },
+            },
+          },
+        ],
       },
       select: { level: true },
+      distinct: ['level'],
     });
-    return [...new Set([...direct, ...delegated].map((r) => r.level))];
+    return rows.map((r) => r.level);
   }
 
   awaitingForUser(user: User, recordType?: WorkflowRecordType) {
