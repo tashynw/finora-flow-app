@@ -2,11 +2,23 @@ import { Module } from '@nestjs/common';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { LoggerModule } from 'nestjs-pino';
 import { auth } from './better-auth/index.js';
+import { AdminModule } from './admin.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { ApprovalsModule } from './approvals/approvals.module.js';
+import { CommonModule } from './common/common.module.js';
+import { CostCentresModule } from './cost-centres/cost-centres.module.js';
+import { DepartmentsModule } from './departments/departments.module.js';
 import { DocumentsModule } from './documents/documents.module.js';
+import { EstimatesModule } from './estimates/estimates.module.js';
+import { GlAccountsModule } from './gl-accounts/gl-accounts.module.js';
+import { HealthModule } from './health/health.module.js';
+import { InvoicesModule } from './invoices/invoices.module.js';
+import { OperationsModule } from './operations.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
-import { YessirModule } from './yessir/yessir.module.js';
+import { PurchaseOrdersModule } from './purchase-orders/purchase-orders.module.js';
+import { ReferenceModule } from './reference/reference.module.js';
+import { VendorsModule } from './vendors/vendors.module.js';
 
 const pretty = process.env.NODE_ENV !== 'production';
 
@@ -41,9 +53,21 @@ const pretty = process.env.NODE_ENV !== 'production';
       // Existing routes stay open until we lock them down route by route.
       disableGlobalAuthGuard: true,
     }),
+    CommonModule,
     PrismaModule,
+    HealthModule,
+    ReferenceModule,
+    VendorsModule,
+    GlAccountsModule,
+    CostCentresModule,
+    DepartmentsModule,
+    AdminModule,
+    EstimatesModule,
+    PurchaseOrdersModule,
+    InvoicesModule,
+    ApprovalsModule,
+    OperationsModule,
     DocumentsModule,
-    YessirModule,
   ],
   controllers: [AppController],
   providers: [AppService],
