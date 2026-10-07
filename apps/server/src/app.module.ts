@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { LoggerModule } from 'nestjs-pino';
+import { auth } from './better-auth/index.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { PrismaModule } from './prisma/prisma.module.js';
@@ -32,6 +34,11 @@ const pretty = process.env.NODE_ENV !== 'production';
           return 'info';
         },
       },
+    }),
+    AuthModule.forRoot({
+      auth,
+      // Existing routes stay open until we lock them down route by route.
+      disableGlobalAuthGuard: true,
     }),
     PrismaModule,
     YessirModule,
