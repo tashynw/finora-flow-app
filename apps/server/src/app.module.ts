@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { PrismaModule } from './prisma/prisma.module.js';
 import { YessirModule } from './yessir/yessir.module.js';
 
 const pretty = process.env.NODE_ENV !== 'production';
@@ -32,6 +33,7 @@ const pretty = process.env.NODE_ENV !== 'production';
         },
       },
     }),
+    PrismaModule,
     YessirModule,
   ],
   controllers: [AppController],
