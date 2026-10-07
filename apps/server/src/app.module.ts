@@ -4,6 +4,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { auth } from './better-auth/index.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { DocumentsModule } from './documents/documents.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { YessirModule } from './yessir/yessir.module.js';
 
@@ -41,6 +42,7 @@ const pretty = process.env.NODE_ENV !== 'production';
       disableGlobalAuthGuard: true,
     }),
     PrismaModule,
+    DocumentsModule,
     YessirModule,
   ],
   controllers: [AppController],
