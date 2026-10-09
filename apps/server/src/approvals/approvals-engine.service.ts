@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import type {
   ApprovalLevel,
   ApprovalStepStatus,
@@ -7,6 +7,7 @@ import type {
 } from '../generated/prisma/index.js';
 import { AuditService } from '../common/audit.service.js';
 import { DomainException, conflict } from '../common/errors.js';
+import { sendEmail } from '../mail/email.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
   openStepOrder,
@@ -18,7 +19,8 @@ import {
   type MatrixRule,
   type StepProgress,
 } from './approval-domain.js';
-import { toPrismaApprovalRecordType } from './record-types.js';
+import { LEVEL_LABELS } from './approval-levels.js';
+import { RECORD_TYPE_META, toPrismaApprovalRecordType } from './record-types.js';
 import type { WorkflowRecordType } from './record-types.js';
 
 export type WorkflowActor = {
@@ -55,6 +57,8 @@ export type DecisionInput = {
 
 @Injectable()
 export class ApprovalsEngineService {
+  private readonly logger = new Logger(ApprovalsEngineService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
@@ -186,6 +190,8 @@ export class ApprovalsEngineService {
       },
     });
 
+    await this.notifyReadyApprovers(request);
+
     return request;
   }
 
@@ -292,6 +298,11 @@ export class ApprovalsEngineService {
       },
     });
 
+    if (settled === 'OPEN') {
+      const advanced = await this.openRequest(input.recordType, input.recordId);
+      if (advanced) await this.notifyReadyApprovers(advanced);
+    }
+
     return settled;
   }
 
@@ -382,6 +393,128 @@ export class ApprovalsEngineService {
     return result;
   }
 
+  /**
+   * Email whoever can decide the steps that are ready now.
+   * A person who is out of office is skipped in favour of their cover.
+   * Mail failure is logged and does not undo the approval write.
+   */
+  private async notifyReadyApprovers(request: {
+    recordType: string;
+    recordId: string;
+    requesterId: string;
+    departmentId: string | null;
+    amountMinorUnits: bigint;
+    currency: Currency;
+    steps: Array<{ stepOrder: number; level: ApprovalLevel; status: ApprovalStepStatus }>;
+  }) {
+    const ready = request.steps.filter((step) => step.status === 'READY');
+    if (ready.length === 0) return;
+
+    const record = await this.describeRecord(
+      request.recordType as WorkflowRecordType,
+      request.recordId,
+    );
+    const amount = formatAmount(request.amountMinorUnits, request.currency);
+    const base = (process.env.WEB_APP_URL ?? 'http://localhost:5173').replace(
+      /\/$/,
+      '',
+    );
+    const link = `${base}${record.path}`;
+
+    const sent = new Set<string>();
+    for (const step of ready) {
+      const people = await this.decisionMakers(
+        step.level,
+        request.departmentId,
+        request.requesterId,
+      );
+      for (const person of people) {
+        const key = `${person.email}:${step.level}`;
+        if (sent.has(key)) continue;
+        sent.add(key);
+
+        const level = LEVEL_LABELS[step.level];
+        try {
+          await sendEmail({
+            to: person.email,
+            subject: `Approval needed: ${record.label} ${record.reference}`,
+            text: `Hi ${person.name},\n\n${record.label} ${record.reference} is waiting for your approval as ${level}.\n\nAmount: ${amount}\n\nOpen it and record your decision: ${link}\n\nFinora Flow`,
+          });
+        } catch (error) {
+          this.logger.error(
+            `Approval email to ${person.email} failed for ${record.label} ${record.reference}`,
+            error instanceof Error ? error.stack : String(error),
+          );
+        }
+      }
+    }
+  }
+
+  private async decisionMakers(
+    level: ApprovalLevel,
+    departmentId: string | null,
+    requesterId: string,
+  ) {
+    const assigned = await this.prisma.user.findMany({
+      where: {
+        archivedAt: null,
+        id: { not: requesterId },
+        approvalAssignments: {
+          some: {
+            level,
+            isActive: true,
+            OR: [
+              { departmentId: null },
+              ...(departmentId ? [{ departmentId }] : []),
+            ],
+          },
+        },
+      },
+      include: { delegateTo: true },
+    });
+
+    const now = new Date();
+    const makers = new Map<string, { email: string; name: string }>();
+    for (const person of assigned) {
+      const covering =
+        person.delegateTo &&
+        person.outOfOfficeUntil != null &&
+        person.outOfOfficeUntil > now &&
+        person.delegateTo.id !== requesterId &&
+        person.delegateTo.archivedAt == null
+          ? person.delegateTo
+          : person;
+      if (!covering.email) continue;
+      makers.set(covering.id, { email: covering.email, name: covering.name });
+    }
+    return [...makers.values()];
+  }
+
+  private async describeRecord(recordType: WorkflowRecordType, recordId: string) {
+    const meta = RECORD_TYPE_META[recordType];
+    const path = `${meta.pathPrefix}/${recordId}`;
+
+    if (recordType === 'estimate') {
+      const row = await this.prisma.estimate.findUnique({
+        where: { id: recordId },
+        select: { reference: true },
+      });
+      return { label: meta.label, reference: row?.reference ?? recordId, path };
+    }
+    if (recordType === 'purchase_order') {
+      const row = await this.prisma.purchaseOrder.findUnique({
+        where: { id: recordId },
+        select: { number: true },
+      });
+      return { label: meta.label, reference: row?.number ?? recordId, path };
+    }
+    const row = await this.prisma.invoice.findUnique({
+      where: { id: recordId },
+      select: { reference: true },
+    });
+    return { label: meta.label, reference: row?.reference ?? recordId, path };
+  }
+
   private async assignees(level: ApprovalLevel, departmentId: string | null) {
     return this.prisma.user.findMany({
       where: {
@@ -458,4 +591,9 @@ export class ApprovalsEngineService {
     if (state === 'REJECTED') return 'REJECTED' as const;
     return 'OPEN' as const;
   }
+}
+
+function formatAmount(minor: bigint, currency: string) {
+  const major = Number(minor) / 100;
+  return `${currency} ${major.toFixed(2)}`;
 }
