@@ -12,6 +12,7 @@ import { EstimatesModule } from './estimates/estimates.module.js';
 import { GlAccountsModule } from './gl-accounts/gl-accounts.module.js';
 import { HealthModule } from './health/health.module.js';
 import { InvoicesModule } from './invoices/invoices.module.js';
+import { JobsModule } from './jobs/jobs.module.js';
 import { OperationsModule } from './operations.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { PurchaseOrdersModule } from './purchase-orders/purchase-orders.module.js';
@@ -66,6 +67,7 @@ const pretty = process.env.NODE_ENV !== 'production';
     ApprovalsModule,
     OperationsModule,
     DocumentsModule,
+    JobsModule,
   ],
 })
 export class AppModule {}

@@ -1,4 +1,5 @@
-import { Test, type Provider } from '@nestjs/testing';
+import { type Provider } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
 import { vi } from 'vitest';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { AuditService } from '../common/audit.service.js';
