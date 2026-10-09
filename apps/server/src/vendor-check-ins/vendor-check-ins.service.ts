@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { actorLabel, moveInvoiceStatus } from '../common/invoice-status.js';
 import { AuditService } from '../common/audit.service.js';
 import { DomainException, notFound } from '../common/errors.js';
 import { nextReference } from '../common/ids.js';
+import { sendEmail } from '../mail/email.js';
 import { resolvePage, type PageQuery } from '../common/pagination.js';
 import { TransitionsService } from '../common/transitions.service.js';
 import {
@@ -20,6 +21,8 @@ const SUBJECT = 'vendor_check_in';
 
 @Injectable()
 export class VendorCheckInsService {
+  private readonly logger = new Logger(VendorCheckInsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
@@ -182,6 +185,43 @@ export class VendorCheckInsService {
     const row = await this.getById(id);
     if (row.sentAt) {
       throw new DomainException('This supplier has already been asked.');
+    }
+
+    const email = row.vendor?.email?.trim();
+    if (!email) {
+      throw new DomainException(
+        'This supplier has no email address, so the question cannot be sent.',
+      );
+    }
+
+    const base = (process.env.WEB_APP_URL ?? 'http://localhost:5173').replace(
+      /\/$/,
+      '',
+    );
+    const link = `${base}/payment-check-in/${row.correlationTag}`;
+    const vendorName = row.vendor?.name ?? 'there';
+    const lines = row.lines
+      .map((line) => {
+        const number = line.invoiceNumber ?? line.invoiceReference;
+        const amount = `${line.currency} ${(Number(line.amountMinorUnits) / 100).toFixed(2)}`;
+        return `- ${number}: ${amount}`;
+      })
+      .join('\n');
+
+    try {
+      await sendEmail({
+        to: email,
+        subject: `Did this payment reach you? ${row.package.reference}`,
+        text: `Hi ${vendorName},\n\nWe sent a payment for the following and need to know whether it reached you.\n\n${lines || '- (no invoices listed)'}\n\nOpen this link and tell us: ${link}\n\nFinora Flow`,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Vendor check-in email to ${email} failed for ${row.reference}`,
+        error instanceof Error ? error.stack : String(error),
+      );
+      throw new DomainException(
+        'The email could not be sent, so this supplier has not been asked yet.',
+      );
     }
 
     const updated = await this.prisma.vendorCheckIn.update({
