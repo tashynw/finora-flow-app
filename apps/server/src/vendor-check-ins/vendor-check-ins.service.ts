@@ -365,7 +365,45 @@ export class VendorCheckInsService {
       detail: { outcome: body.outcome },
     });
 
+    if (body.outcome === 'paid') {
+      await this.completePackageIfSettled(session, row.packageId);
+    }
+
     return this.getById(id);
+  }
+
+  /** End of the payment flow: every invoice on the package has been marked paid. */
+  private async completePackageIfSettled(session: UserSession, packageId: string) {
+    const pkg = await this.prisma.paymentPackage.findUnique({
+      where: { id: packageId },
+      select: { id: true, status: true, reference: true },
+    });
+    if (!pkg || pkg.status !== PaymentPackageStatus.SUBMITTED) return;
+
+    const unsettled = await this.prisma.paymentPackageLine.count({
+      where: {
+        packageId,
+        invoice: { status: { not: InvoiceStatus.PAID } },
+      },
+    });
+    if (unsettled > 0) return;
+
+    await this.prisma.paymentPackage.update({
+      where: { id: packageId },
+      data: {
+        status: PaymentPackageStatus.COMPLETED,
+        completedAt: new Date(),
+      },
+    });
+
+    await this.audit.append({
+      action: 'payment_package.completed',
+      actorId: session.user.id,
+      actorLabel: actorLabel(session),
+      subjectType: 'payment_package',
+      subjectId: packageId,
+      detail: { reference: pkg.reference },
+    });
   }
 
   async findByToken(token: string) {

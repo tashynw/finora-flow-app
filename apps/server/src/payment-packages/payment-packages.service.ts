@@ -510,13 +510,13 @@ export class PaymentPackagesService {
   }
 
   private assertOpen(pkg: PaymentPackage) {
-    if (pkg.status !== PaymentPackageStatus.OPEN) {
-      throw new DomainException(
-        pkg.status === PaymentPackageStatus.SUBMITTED
-          ? 'This package has already gone to the bank.'
-          : 'This package was cancelled.',
-        HttpStatus.CONFLICT,
-      );
-    }
+    if (pkg.status === PaymentPackageStatus.OPEN) return;
+    const message =
+      pkg.status === PaymentPackageStatus.SUBMITTED
+        ? 'This package has already gone to the bank.'
+        : pkg.status === PaymentPackageStatus.COMPLETED
+          ? 'This package is already complete.'
+          : 'This package was cancelled.';
+    throw new DomainException(message, HttpStatus.CONFLICT);
   }
 }
