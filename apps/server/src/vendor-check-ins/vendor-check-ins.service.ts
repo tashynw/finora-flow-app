@@ -211,7 +211,7 @@ export class VendorCheckInsService {
     try {
       await sendEmail({
         to: email,
-        subject: `Did this payment reach you? ${row.package.reference}`,
+        subject: `Did this payment reach you? ${row.package.reference} [${row.correlationTag}]`,
         text: `Hi ${vendorName},\n\nWe sent a payment for the following and need to know whether it reached you.\n\n${lines || '- (no invoices listed)'}\n\nOpen this link and tell us: ${link}\n\nFinora Flow`,
       });
     } catch (error) {

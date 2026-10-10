@@ -450,6 +450,29 @@ export class ApprovalsEngineService {
     }
   }
 
+  async listReadyApprovers(request: {
+    requesterId: string;
+    departmentId: string | null;
+    steps: Array<{ level: ApprovalLevel; status: ApprovalStepStatus }>;
+  }) {
+    const people: Array<{ email: string; name: string; level: ApprovalLevel }> = [];
+    const sent = new Set<string>();
+    for (const step of request.steps.filter((item) => item.status === 'READY')) {
+      const makers = await this.decisionMakers(
+        step.level,
+        request.departmentId,
+        request.requesterId,
+      );
+      for (const person of makers) {
+        const key = `${person.email}:${step.level}`;
+        if (sent.has(key)) continue;
+        sent.add(key);
+        people.push({ ...person, level: step.level });
+      }
+    }
+    return people;
+  }
+
   private async decisionMakers(
     level: ApprovalLevel,
     departmentId: string | null,

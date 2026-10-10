@@ -67,6 +67,8 @@ model User {
   vendorCheckInsCreated  VendorCheckIn[] @relation("VendorCheckInCreatedBy")
   vendorCheckInsReviewed VendorCheckIn[] @relation("VendorCheckInReviewedBy")
 
+  reminderSchedules ReminderSchedule[] @relation("ReminderRecipient")
+
   inboundMessagesUploaded    InboundMessage[]     @relation("InboundMessageUploadedBy")
   extractionsAccepted        DocumentExtraction[] @relation("ExtractionAcceptedBy")
   extractionReviewsCreated   ExtractionReview[]   @relation("ExtractionReviewCreatedBy")
@@ -237,6 +239,29 @@ model MailboxCheckpoint {
   updatedAt       DateTime  @updatedAt
 
   @@map("mailbox_checkpoints")
+}
+
+model ReminderSchedule {
+  id              String    @id @default(cuid())
+  recordType      String
+  recordId        String
+  purpose         String
+  startedAt       DateTime  @default(now())
+  nextDueAt       DateTime?
+  lastSentAt      DateTime?
+  sentCount       Int       @default(0)
+  escalationLevel Int       @default(0)
+  stoppedAt       DateTime?
+  stoppedReason   String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  recipient   User?   @relation("ReminderRecipient", fields: [recipientId], references: [id])
+  recipientId String?
+
+  @@unique([recordType, recordId, purpose])
+  @@index([purpose, nextDueAt])
+  @@map("reminder_schedules")
 }
 
 model Vendor {

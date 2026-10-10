@@ -1,9 +1,13 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
+import { ApprovalsModule } from '../approvals/approvals.module.js';
 import { resolveCacheTarget } from './elasticache-auth.js';
+import { DocumentsJob } from './documents/documents.job.js';
+import { FinoraJobScheduler } from './finora-job.scheduler.js';
+import { FinoraProcessor } from './finora.processor.js';
+import { InboxJob } from './inbox/inbox.job.js';
 import { useCacheTarget } from './redis-client.js';
-import { SampleJobScheduler } from './sample-job.scheduler.js';
-import { SampleProcessor } from './sample.processor.js';
+import { RemindersJob } from './reminders/reminders.job.js';
 
 @Module({
   imports: [
@@ -25,8 +29,15 @@ import { SampleProcessor } from './sample.processor.js';
         };
       },
     }),
-    BullModule.registerQueue({ name: '{sample}' }),
+    BullModule.registerQueue({ name: '{finora}' }),
+    ApprovalsModule,
   ],
-  providers: [SampleProcessor, SampleJobScheduler],
+  providers: [
+    InboxJob,
+    DocumentsJob,
+    RemindersJob,
+    FinoraProcessor,
+    FinoraJobScheduler,
+  ],
 })
 export class JobsModule {}
