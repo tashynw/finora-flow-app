@@ -165,7 +165,7 @@ jobs:
           --health-retries 20
 
       minio:
-        image: minio/minio:latest
+        image: cgr.dev/chainguard/minio:latest
         env:
           MINIO_ROOT_USER: finora_ci_access
           MINIO_ROOT_PASSWORD: finora_ci_only
@@ -175,7 +175,7 @@ jobs:
           MINIO_KMS_SECRET_KEY: finora-ci-key:PGgQ0Xm5cE3XkxWXm3vHTF6q1sZ8mQeMcLPPFV0MTMs=
         ports: ["9000:9000"]
         options: >-
-          --health-cmd "mc ready local"
+          --health-cmd "mc alias set local http://127.0.0.1:9000 finora_ci_access finora_ci_only && mc ready local"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 30
