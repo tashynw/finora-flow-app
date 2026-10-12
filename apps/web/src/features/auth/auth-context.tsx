@@ -30,9 +30,17 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
 
+  // The supplier page has no account. Asking who is signed in would hold that
+  // screen on a request that is going to answer nobody, so the session calls
+  // stay off while the address is a check-in link.
+  const supplierPage =
+    typeof window !== 'undefined' &&
+    window.location.pathname.startsWith('/payment-check-in/');
+
   const userQuery = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: () => api.get<CurrentUser>('/auth/me'),
+    enabled: !supplierPage,
     // A 401 is the expected answer for a signed-out visitor, not a fault, so it
     // must not be retried into a delay before the login screen appears.
     retry: (failureCount, error) =>
@@ -43,6 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const methodsQuery = useQuery({
     queryKey: ['auth', 'methods'],
     queryFn: () => api.get<AuthMethods>('/auth/methods'),
+    enabled: !supplierPage,
     staleTime: 5 * 60_000,
   });
 

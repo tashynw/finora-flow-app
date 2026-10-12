@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plus, Search, Wallet } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/app-link';
 
 import type { PaymentPackageSummary } from '@finora/shared-types';
 

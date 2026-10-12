@@ -10,7 +10,7 @@ import {
   ShieldAlert,
   Undo2,
 } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from '@/lib/app-link';
 
 import type { PurchaseOrderDetail as Order } from '@finora/shared-types';
 

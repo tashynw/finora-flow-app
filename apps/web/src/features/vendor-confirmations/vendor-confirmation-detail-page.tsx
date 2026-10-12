@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from '@/lib/app-link';
 import { ArrowLeft, Gavel, Mail, PhoneCall } from 'lucide-react';
 
 import type { CheckInDetailOut } from '@finora/shared-types';

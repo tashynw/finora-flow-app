@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/app-link';
 import { Lock } from 'lucide-react';
 
 import { Card } from '@/components/ui/card';

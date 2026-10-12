@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { type BlockerFunction, useBlocker } from 'react-router-dom';
+import { useBlocker } from '@tanstack/react-router';
 
 /**
  * Guards work that has been typed but not saved.
@@ -25,13 +25,14 @@ export interface UnsavedChanges {
 }
 
 export function useUnsavedChanges(dirty: boolean): UnsavedChanges {
-  const blocker = useBlocker(
-    useCallback<BlockerFunction>(
-      ({ currentLocation, nextLocation }) =>
-        dirty && currentLocation.pathname !== nextLocation.pathname,
+  const blocker = useBlocker({
+    withResolver: true,
+    enableBeforeUnload: false,
+    shouldBlockFn: useCallback(
+      ({ current, next }) => dirty && current.pathname !== next.pathname,
       [dirty],
     ),
-  );
+  });
 
   useEffect(() => {
     if (!dirty) return;
@@ -49,11 +50,11 @@ export function useUnsavedChanges(dirty: boolean): UnsavedChanges {
   // would hold the next navigation hostage, so it is released once there is
   // nothing left to protect.
   useEffect(() => {
-    if (!dirty && blocker.state === 'blocked') blocker.reset();
+    if (!dirty && blocker.status === 'blocked') blocker.reset();
   }, [dirty, blocker]);
 
   return {
-    blocked: blocker.state === 'blocked',
+    blocked: blocker.status === 'blocked',
     discard: () => blocker.proceed?.(),
     keepEditing: () => blocker.reset?.(),
   };

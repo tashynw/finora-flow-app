@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/app-link';
 
 import type { InvoiceDetail } from '@finora/shared-types';
 

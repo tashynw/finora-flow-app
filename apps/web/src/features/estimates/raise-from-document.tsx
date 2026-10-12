@@ -1,5 +1,5 @@
 import { ArrowRight, ScrollText } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from '@/lib/app-link';
 
 import type { DocumentDetail } from '@finora/shared-types';
 
