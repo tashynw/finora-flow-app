@@ -1,6 +1,6 @@
 /** Users and roles administration screen. */
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { UserPlus, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Controller, useForm } from "react-hook-form";
@@ -46,9 +46,11 @@ function RoleEditor({
   selected,
   onChange,
 }: {
-  selected: ReadonlySet<string>;
-  onChange: (next: Set<string>) => void;
+  selected: readonly string[];
+  onChange: (next: string[]) => void;
 }) {
+  const baseId = useId();
+
   return (
     <fieldset className="m-0 border-0 p-0">
       <legend className="mb-[var(--space-2)] text-[length:var(--text-body-sm)] font-semibold">
@@ -56,31 +58,32 @@ function RoleEditor({
       </legend>
       <ul className="m-0 flex list-none flex-col gap-[var(--space-2)] p-0">
         {ROLE_OPTIONS.map((role) => {
-          const checked = selected.has(role.id);
+          const inputId = `${baseId}-${role.id}`;
+          const checked = selected.includes(role.id);
           return (
             <li key={role.id}>
-              <label className="flex cursor-pointer items-start gap-[var(--space-2)]">
+              <div className="flex items-start gap-[var(--space-2)]">
                 <input
+                  id={inputId}
                   type="checkbox"
                   className="mt-1 size-4 accent-[var(--color-primary)]"
                   checked={checked}
-                  aria-label={role.label}
-                  onChange={() => {
+                  onChange={(event) => {
                     const next = new Set(selected);
-                    if (next.has(role.id)) next.delete(role.id);
-                    else next.add(role.id);
-                    onChange(next);
+                    if (event.target.checked) next.add(role.id);
+                    else next.delete(role.id);
+                    onChange([...next]);
                   }}
                 />
-                <span>
+                <label htmlFor={inputId} className="cursor-pointer">
                   <span className="block font-medium text-[var(--color-text-strong)]">
                     {role.label}
                   </span>
                   <span className="block text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
                     {role.help}
                   </span>
-                </span>
-              </label>
+                </label>
+              </div>
             </li>
           );
         })}
@@ -235,10 +238,7 @@ function CreateUserModal({
           name="roles"
           render={({ field, fieldState }) => (
             <>
-              <RoleEditor
-                selected={new Set(field.value)}
-                onChange={(next) => field.onChange([...next])}
-              />
+              <RoleEditor selected={field.value} onChange={field.onChange} />
               {fieldState.error?.message ? (
                 <p role="alert" className="m-0 text-[var(--color-danger-700)]">
                   {fieldState.error.message}
@@ -277,7 +277,6 @@ function CreateUserModal({
 
 const rolesSchema = z.object({
   roles: z.array(z.string()).min(1, "Choose at least one role."),
-  reason: auditReason,
 });
 
 type RolesForm = z.infer<typeof rolesSchema>;
@@ -292,19 +291,19 @@ function EditRolesModal({
   const setRoles = useSetUserRoles();
   const { control, handleSubmit, reset } = useForm<RolesForm>({
     resolver: zodResolver(rolesSchema),
-    defaultValues: { roles: [], reason: "" },
+    defaultValues: { roles: [] },
   });
 
   useEffect(() => {
     if (!user) return;
-    reset({ roles: user.roles, reason: "" });
+    reset({ roles: user.roles });
     setRoles.reset();
-  }, [user, reset, setRoles]);
+  }, [user, reset, setRoles.reset]);
 
   const onSubmit = handleSubmit((values) => {
     if (!user) return;
     setRoles.mutate(
-      { userId: user.id, body: { roles: values.roles, reason: values.reason } },
+      { userId: user.id, body: { roles: values.roles } },
       { onSuccess: () => onClose() },
     );
   });
@@ -327,10 +326,7 @@ function EditRolesModal({
             name="roles"
             render={({ field, fieldState }) => (
               <>
-                <RoleEditor
-                  selected={new Set(field.value)}
-                  onChange={(next) => field.onChange([...next])}
-                />
+                <RoleEditor selected={field.value} onChange={field.onChange} />
                 {fieldState.error?.message ? (
                   <p
                     role="alert"
@@ -342,17 +338,6 @@ function EditRolesModal({
               </>
             )}
           />
-          <HookField control={control} name="reason" label="Why" required>
-            {({ inputId, describedBy, invalid }, field) => (
-              <Textarea
-                id={inputId}
-                aria-describedby={describedBy}
-                invalid={invalid}
-                rows={3}
-                {...field}
-              />
-            )}
-          </HookField>
           {setRoles.isError ? (
             <p role="alert" className="m-0 text-[var(--color-danger-700)]">
               {errorMessage(setRoles.error) ?? "The roles could not be saved."}

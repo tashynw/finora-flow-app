@@ -1,5 +1,5 @@
-import { useId, useMemo, useState } from 'react';
-import { Link } from '@/lib/app-link';
+import { useId, useMemo, useState } from "react";
+import { Link } from "@/lib/app-link";
 import {
   Bar,
   BarChart,
@@ -8,7 +8,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts';
+} from "recharts";
 import {
   AlertTriangle,
   ArrowRight,
@@ -31,16 +31,16 @@ import {
   Send,
   ShieldCheck,
   type LucideIcon,
-} from 'lucide-react';
+} from "lucide-react";
 
-import { cn } from '@/lib/utils';
-import { formatRelative } from '@/lib/dates';
-import { formatMoney, formatMoneyCompact } from '@/lib/money';
-import { Skeleton } from '@/components/ui/skeleton';
-import { waitedFor } from '@/features/approvals/approval-vocabulary';
-import { useAuth } from '@/features/auth/auth-context';
-import { DEPENDENCY_INFO, useHealth } from '@/features/operations/use-health';
-import { useWorkDashboard, type WorkItemOut } from '@/features/work/use-work';
+import { cn } from "@/lib/utils";
+import { formatRelative } from "@/lib/dates";
+import { formatMoney, formatMoneyCompact } from "@/lib/money";
+import { Skeleton } from "@/components/ui/skeleton";
+import { waitedFor } from "@/features/approvals/approval-vocabulary";
+import { useAuth } from "@/features/auth/auth-context";
+import { DEPENDENCY_INFO, useHealth } from "@/features/operations/use-health";
+import { useWorkDashboard, type WorkItemOut } from "@/features/work/use-work";
 import {
   useOverview,
   type ActivityOut,
@@ -48,12 +48,12 @@ import {
   type OverviewOut,
   type SpendCardOut,
   type VendorSpendOut,
-} from './use-overview';
+} from "./use-overview";
 
 /* ----------------------------------------------------------------- shared */
 
 const PANEL =
-  'rounded-[18px] border border-[rgb(226_233_248_/_0.95)] bg-white/80 shadow-[0_10px_30px_rgb(70_100_180_/_0.08)] backdrop-blur-xl';
+  "rounded-[18px] border border-[rgb(226_233_248_/_0.95)] bg-white/80 shadow-[0_10px_30px_rgb(70_100_180_/_0.08)] backdrop-blur-xl";
 
 function IconTile({
   icon: Icon,
@@ -65,7 +65,10 @@ function IconTile({
   return (
     <span
       aria-hidden="true"
-      className={cn('flex size-10 shrink-0 items-center justify-center rounded-[12px]', className)}
+      className={cn(
+        "flex size-10 shrink-0 items-center justify-center rounded-[12px]",
+        className,
+      )}
     >
       <Icon className="size-5" strokeWidth={2.2} />
     </span>
@@ -92,15 +95,22 @@ function PanelTitle({
       <div className="flex min-w-0 items-center gap-3">
         <IconTile icon={icon} className={tile} />
         <div className="min-w-0">
-          <h2 id={id} className="m-0 text-[16px] font-semibold text-[var(--color-text-heading)]">
+          <h2
+            id={id}
+            className="m-0 text-[16px] font-semibold text-[var(--color-text-heading)]"
+          >
             {title}
           </h2>
           {subtitle ? (
-            <p className="m-0 mt-0.5 text-[12px] text-[var(--color-text-muted)]">{subtitle}</p>
+            <p className="m-0 mt-0.5 text-[12px] text-[var(--color-text-muted)]">
+              {subtitle}
+            </p>
           ) : null}
         </div>
       </div>
-      {aside ? <div className="flex flex-wrap items-center gap-2">{aside}</div> : null}
+      {aside ? (
+        <div className="flex flex-wrap items-center gap-2">{aside}</div>
+      ) : null}
     </div>
   );
 }
@@ -123,9 +133,9 @@ function PillSelect<T extends string>({
       value={value}
       onChange={(event) => onChange(event.target.value as T)}
       className={cn(
-        'h-8 shrink-0 cursor-pointer rounded-[9px] border border-[var(--color-border)] bg-white/90 pl-2 pr-1',
-        'text-[12px] font-medium text-[#3b4868]',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary-600)]',
+        "h-8 shrink-0 cursor-pointer rounded-[9px] border border-[var(--color-border)] bg-white/90 pl-2 pr-1",
+        "text-[12px] font-medium text-[#3b4868]",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary-600)]",
       )}
     >
       {options.map((option) => (
@@ -146,7 +156,7 @@ function PeriodPill({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ViewAll({ to, label = 'View all' }: { to: string; label?: string }) {
+function ViewAll({ to, label = "View all" }: { to: string; label?: string }) {
   return (
     <Link
       to={to}
@@ -160,9 +170,9 @@ function ViewAll({ to, label = 'View all' }: { to: string; label?: string }) {
 
 function greeting(now: Date): string {
   const hour = now.getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
 }
 
 /* ------------------------------------------------------------- priorities */
@@ -178,9 +188,11 @@ function Priorities({
 }) {
   const approvals = counts.approval ?? 0;
   const receipts = counts.sign_off ?? 0;
-  const packages = overview?.kpis.find((kpi) => kpi.key === 'open_packages')?.value ?? 0;
+  const packages =
+    overview?.kpis.find((kpi) => kpi.key === "open_packages")?.value ?? 0;
   const blockers =
-    overview?.invoice_states.find((slice) => slice.label === 'Exception')?.count ?? 0;
+    overview?.invoice_states.find((slice) => slice.label === "Exception")
+      ?.count ?? 0;
 
   const tiles: {
     icon: LucideIcon;
@@ -191,42 +203,45 @@ function Priorities({
   }[] = [
     {
       icon: ClipboardCheck,
-      tile: 'bg-[#e6eeff] text-[#3569f4]',
+      tile: "bg-[#e6eeff] text-[#3569f4]",
       count: approvals,
-      label: ['Review', 'approvals'],
-      to: '/approvals',
+      label: ["Review", "approvals"],
+      to: "/approvals",
     },
     {
       icon: Receipt,
-      tile: 'bg-[#e3f7ec] text-[#16a66a]',
+      tile: "bg-[#e3f7ec] text-[#16a66a]",
       count: receipts,
-      label: ['Confirm', 'receipts'],
-      to: '/invoices',
+      label: ["Confirm", "receipts"],
+      to: "/invoices",
     },
     {
       icon: Send,
-      tile: 'bg-[#efe8ff] text-[#7c3aed]',
+      tile: "bg-[#efe8ff] text-[#7c3aed]",
       count: packages,
-      label: ['Submit', packages === 1 ? 'package' : 'packages'],
-      to: '/payments',
+      label: ["Submit", packages === 1 ? "package" : "packages"],
+      to: "/payments",
     },
     {
       icon: AlertTriangle,
-      tile: 'bg-[#fff0e3] text-[#e06a2c]',
+      tile: "bg-[#fff0e3] text-[#e06a2c]",
       count: blockers,
-      label: ['View', 'blockers'],
-      to: '/invoices',
+      label: ["View", "blockers"],
+      to: "/invoices",
     },
   ];
 
   const summary = [
-    `${approvals} approval${approvals === 1 ? '' : 's'} waiting`,
-    `${receipts} invoice${receipts === 1 ? ' needs' : 's need'} receipt confirmation`,
-    `${packages} payment package${packages === 1 ? '' : 's'} being assembled`,
-  ].join(' · ');
+    `${approvals} approval${approvals === 1 ? "" : "s"} waiting`,
+    `${receipts} invoice${receipts === 1 ? " needs" : "s need"} receipt confirmation`,
+    `${packages} payment package${packages === 1 ? "" : "s"} being assembled`,
+  ].join(" · ");
 
   return (
-    <section aria-labelledby="priorities-heading" className={cn(PANEL, 'w-full p-4 xl:w-[440px]')}>
+    <section
+      aria-labelledby="priorities-heading"
+      className={cn(PANEL, "w-full p-4 xl:w-[440px]")}
+    >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <span
@@ -245,18 +260,21 @@ function Priorities({
         <ViewAll to="/work" />
       </div>
       <p className="m-0 mt-2 line-clamp-2 text-[12px] text-[var(--color-text-muted)]">
-        {isLoading ? 'Checking what is waiting on you.' : summary}
+        {isLoading ? "Checking what is waiting on you." : summary}
       </p>
       <ul className="m-0 mt-3 grid list-none grid-cols-2 gap-2 p-0 sm:grid-cols-4">
         {tiles.map((tile) => (
-          <li key={tile.label.join(' ')}>
+          <li key={tile.label.join(" ")}>
             <Link
               to={tile.to}
               className="group flex h-full items-start gap-2 rounded-[12px] border border-[var(--color-border)] bg-white/85 p-2.5 no-underline transition-colors hover:border-[var(--color-primary-200)]"
             >
               <span
                 aria-hidden="true"
-                className={cn('flex size-7 shrink-0 items-center justify-center rounded-[8px]', tile.tile)}
+                className={cn(
+                  "flex size-7 shrink-0 items-center justify-center rounded-[8px]",
+                  tile.tile,
+                )}
               >
                 <tile.icon className="size-3.5" />
               </span>
@@ -284,7 +302,7 @@ function Priorities({
 
 /* ------------------------------------------------------------- stat cards */
 
-type Period = 'month' | 'all';
+type Period = "month" | "all";
 
 const CARD_STYLE: Record<
   string,
@@ -292,27 +310,27 @@ const CARD_STYLE: Record<
 > = {
   total_spend: {
     icon: Coins,
-    tile: 'bg-[#e6eeff] text-[#3569f4]',
-    stroke: '#3569f4',
-    fill: 'rgb(53 105 244 / 0.18)',
+    tile: "bg-[#e6eeff] text-[#3569f4]",
+    stroke: "#3569f4",
+    fill: "rgb(53 105 244 / 0.18)",
   },
   approved_amount: {
     icon: CheckCircle2,
-    tile: 'bg-[#e3f7ec] text-[#16a66a]',
-    stroke: '#16a66a',
-    fill: 'rgb(22 166 106 / 0.16)',
+    tile: "bg-[#e3f7ec] text-[#16a66a]",
+    stroke: "#16a66a",
+    fill: "rgb(22 166 106 / 0.16)",
   },
   pending_approvals: {
     icon: Clock3,
-    tile: 'bg-[#fff0e3] text-[#e06a2c]',
-    stroke: '#f08a3c',
-    fill: 'rgb(240 138 60 / 0.16)',
+    tile: "bg-[#fff0e3] text-[#e06a2c]",
+    stroke: "#f08a3c",
+    fill: "rgb(240 138 60 / 0.16)",
   },
   open_items: {
     icon: ClipboardList,
-    tile: 'bg-[#efe8ff] text-[#7c3aed]',
-    stroke: '#8b6cf0',
-    fill: 'rgb(139 108 240 / 0.18)',
+    tile: "bg-[#efe8ff] text-[#7c3aed]",
+    stroke: "#8b6cf0",
+    fill: "rgb(139 108 240 / 0.18)",
   },
 };
 
@@ -338,7 +356,9 @@ function Sparkline({
     (index / (values.length - 1)) * width,
     height - 4 - ((value - min) / span) * (height - 10),
   ]);
-  const line = points.map(([x, y], index) => `${index === 0 ? 'M' : 'L'}${x},${y}`).join(' ');
+  const line = points
+    .map(([x, y], index) => `${index === 0 ? "M" : "L"}${x},${y}`)
+    .join(" ");
   const area = `${line} L${width},${height} L0,${height} Z`;
   return (
     <svg
@@ -355,16 +375,35 @@ function Sparkline({
         </linearGradient>
       </defs>
       <path d={area} fill={`url(#${gradientId})`} />
-      <path d={line} fill="none" stroke={stroke} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+      <path
+        d={line}
+        fill="none"
+        stroke={stroke}
+        strokeWidth={2}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 
-function MiniBars({ values, color, label }: { values: number[]; color: string; label: string }) {
+function MiniBars({
+  values,
+  color,
+  label,
+}: {
+  values: number[];
+  color: string;
+  label: string;
+}) {
   const max = Math.max(1, ...values);
   if (values.every((value) => value === 0)) return null;
   return (
-    <span role="img" aria-label={label} className="flex h-11 items-end gap-[5px]">
+    <span
+      role="img"
+      aria-label={label}
+      className="flex h-11 items-end gap-[5px]"
+    >
       {values.map((value, index) => (
         <span
           key={index}
@@ -392,43 +431,46 @@ function StatCard({
   const style = CARD_STYLE[card.key] ?? CARD_STYLE.total_spend!;
   const hasPeriods = card.month_money !== null;
   const [period, setPeriod] = useState<Period>(
-    hasPeriods && (card.month_money?.minor_units ?? 0) > 0 ? 'month' : 'all',
+    hasPeriods && (card.month_money?.minor_units ?? 0) > 0 ? "month" : "all",
   );
 
-  const money = period === 'month' && card.month_money ? card.month_money : card.money;
+  const money =
+    period === "month" && card.month_money ? card.month_money : card.money;
   const value = money ? money.formatted : String(card.count ?? 0);
-  const [currency, ...amountParts] = value.split(' ');
-  const amount = amountParts.join(' ');
+  const [currency, ...amountParts] = value.split(" ");
+  const amount = amountParts.join(" ");
 
   let meta: React.ReactNode;
-  if (period === 'month' && hasPeriods) {
+  if (period === "month" && hasPeriods) {
     const previous = card.previous_money?.formatted;
     meta =
       card.delta_pct !== null ? (
         <>
           <span
             className={cn(
-              'font-semibold',
-              card.delta_pct >= 0 ? 'text-[#16a66a]' : 'text-[#dc2626]',
+              "font-semibold",
+              card.delta_pct >= 0 ? "text-[#16a66a]" : "text-[#dc2626]",
             )}
           >
-            {card.delta_pct >= 0 ? '▲' : '▼'} {Math.abs(card.delta_pct)}%
-          </span>{' '}
-          vs. last month{previous ? ` (${previous})` : ''}
+            {card.delta_pct >= 0 ? "▲" : "▼"} {Math.abs(card.delta_pct)}%
+          </span>{" "}
+          vs. last month{previous ? ` (${previous})` : ""}
         </>
       ) : (
         <>Nothing recorded last month</>
       );
-  } else if (card.key === 'pending_approvals') {
-    meta = `across ${openCount} item${openCount === 1 ? '' : 's'}`;
-  } else if (card.key === 'open_items') {
-    meta = 'Require attention';
+  } else if (card.key === "pending_approvals") {
+    meta = `across ${openCount} item${openCount === 1 ? "" : "s"}`;
+  } else if (card.key === "open_items") {
+    meta = "Require attention";
   } else {
     meta = card.hint;
   }
 
   return (
-    <li className={cn(PANEL, 'flex min-h-[132px] flex-col justify-between p-4')}>
+    <li
+      className={cn(PANEL, "flex min-h-[132px] flex-col justify-between p-4")}
+    >
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2.5">
           <IconTile icon={style.icon} className={style.tile} />
@@ -442,12 +484,14 @@ function StatCard({
             value={period}
             onChange={setPeriod}
             options={[
-              { value: 'month', label: 'This month' },
-              { value: 'all', label: 'All time' },
+              { value: "month", label: "This month" },
+              { value: "all", label: "All time" },
             ]}
           />
         ) : (
-          <PeriodPill>{card.key === 'open_items' ? 'All queues' : 'Now'}</PeriodPill>
+          <PeriodPill>
+            {card.key === "open_items" ? "All queues" : "Now"}
+          </PeriodPill>
         )}
       </div>
       <p className="m-0 mt-3 whitespace-nowrap text-[24px] font-bold leading-none tabular text-[var(--color-text-heading)]">
@@ -460,7 +504,9 @@ function StatCard({
         )}
       </p>
       <div className="mt-1 flex items-end justify-between gap-3">
-        <p className="m-0 min-w-0 pb-1 text-[12px] leading-snug text-[var(--color-text-muted)]">{meta}</p>
+        <p className="m-0 min-w-0 pb-1 text-[12px] leading-snug text-[var(--color-text-muted)]">
+          {meta}
+        </p>
         {card.series.length > 1 ? (
           <Sparkline
             values={card.series}
@@ -468,8 +514,12 @@ function StatCard({
             fill={style.fill}
             label={`${card.label}, one point per month`}
           />
-        ) : card.key === 'open_items' ? (
-          <MiniBars values={kindCounts} color={style.stroke} label="Open items by kind of work" />
+        ) : card.key === "open_items" ? (
+          <MiniBars
+            values={kindCounts}
+            color={style.stroke}
+            label="Open items by kind of work"
+          />
         ) : null}
       </div>
     </li>
@@ -479,13 +529,13 @@ function StatCard({
 /* ---------------------------------------------------------- spend activity */
 
 const SOURCES = [
-  { key: 'invoices', label: 'Invoices', color: '#3569f4' },
-  { key: 'purchase_orders', label: 'Purchase orders', color: '#a78bfa' },
-  { key: 'credit_cards', label: 'Credit cards', color: '#4fd6ee' },
-  { key: 'accruals', label: 'Accruals', color: '#c7b8fb' },
+  { key: "invoices", label: "Invoices", color: "#3569f4" },
+  { key: "purchase_orders", label: "Purchase orders", color: "#a78bfa" },
+  { key: "credit_cards", label: "Credit cards", color: "#4fd6ee" },
+  { key: "accruals", label: "Accruals", color: "#c7b8fb" },
 ] as const;
 
-type SourceKey = (typeof SOURCES)[number]['key'];
+type SourceKey = (typeof SOURCES)[number]["key"];
 
 function SpendActivity({
   data,
@@ -498,13 +548,23 @@ function SpendActivity({
   months: number;
   onMonths: (months: number) => void;
 }) {
-  const [source, setSource] = useState<'all' | SourceKey>('all');
-  const shown = source === 'all' ? SOURCES : SOURCES.filter((entry) => entry.key === source);
-  const rows = data.map((row) => ({ ...row, label: row.label.replace(/ (\d{4})$/, ' $1') }));
-  const compact = (minor: number) => formatMoneyCompact({ minorUnits: minor, currency });
+  const [source, setSource] = useState<"all" | SourceKey>("all");
+  const shown =
+    source === "all"
+      ? SOURCES
+      : SOURCES.filter((entry) => entry.key === source);
+  const rows = data.map((row) => ({
+    ...row,
+    label: row.label.replace(/ (\d{4})$/, " $1"),
+  }));
+  const compact = (minor: number) =>
+    formatMoneyCompact({ minorUnits: minor, currency });
 
   return (
-    <section aria-labelledby="spend-heading" className={cn(PANEL, 'min-w-0 p-5')}>
+    <section
+      aria-labelledby="spend-heading"
+      className={cn(PANEL, "min-w-0 p-5")}
+    >
       <PanelTitle
         id="spend-heading"
         icon={BarChart3}
@@ -518,17 +578,20 @@ function SpendActivity({
               value={String(months)}
               onChange={(value) => onMonths(Number(value))}
               options={[
-                { value: '6', label: 'Last 6 months' },
-                { value: '12', label: 'Last 12 months' },
+                { value: "6", label: "Last 6 months" },
+                { value: "12", label: "Last 12 months" },
               ]}
             />
-            <PillSelect<'all' | SourceKey>
+            <PillSelect<"all" | SourceKey>
               label="Payment type"
               value={source}
               onChange={setSource}
               options={[
-                { value: 'all', label: 'All payment types' },
-                ...SOURCES.map((entry) => ({ value: entry.key, label: entry.label })),
+                { value: "all", label: "All payment types" },
+                ...SOURCES.map((entry) => ({
+                  value: entry.key,
+                  label: entry.label,
+                })),
               ]}
             />
           </>
@@ -536,27 +599,31 @@ function SpendActivity({
       />
       <div className="mt-4 h-[236px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={rows} margin={{ top: 8, right: 8, left: 8, bottom: 0 }} barCategoryGap="34%">
+          <BarChart
+            data={rows}
+            margin={{ top: 8, right: 8, left: 8, bottom: 0 }}
+            barCategoryGap="34%"
+          >
             <CartesianGrid vertical={false} stroke="#e8edf7" />
             <XAxis
               dataKey="label"
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 11, fill: '#6b7898' }}
+              tick={{ fontSize: 11, fill: "#6b7898" }}
             />
             <YAxis
               tickLine={false}
               axisLine={false}
               width={72}
-              tick={{ fontSize: 11, fill: '#6b7898' }}
+              tick={{ fontSize: 11, fill: "#6b7898" }}
               tickFormatter={(value: number) => compact(value)}
             />
             <Tooltip
-              cursor={{ fill: 'rgb(53 105 244 / 0.06)' }}
+              cursor={{ fill: "rgb(53 105 244 / 0.06)" }}
               contentStyle={{
                 borderRadius: 12,
-                border: '1px solid #e2e8f5',
-                boxShadow: '0 12px 30px rgb(70 100 180 / 0.14)',
+                border: "1px solid #e2e8f5",
+                boxShadow: "0 12px 30px rgb(70 100 180 / 0.14)",
                 fontSize: 12,
               }}
               formatter={(value: number, name: string) => [
@@ -570,7 +637,9 @@ function SpendActivity({
                 dataKey={entry.key}
                 stackId="spend"
                 fill={entry.color}
-                radius={index === shown.length - 1 ? [6, 6, 0, 0] : [0, 0, 0, 0]}
+                radius={
+                  index === shown.length - 1 ? [6, 6, 0, 0] : [0, 0, 0, 0]
+                }
               />
             ))}
           </BarChart>
@@ -578,8 +647,15 @@ function SpendActivity({
       </div>
       <ul className="m-0 mt-2 flex list-none flex-wrap justify-center gap-x-5 gap-y-1 p-0">
         {SOURCES.map((entry) => (
-          <li key={entry.key} className="flex items-center gap-1.5 text-[12px] text-[var(--color-text-muted)]">
-            <span aria-hidden="true" className="size-2.5 rounded-[3px]" style={{ backgroundColor: entry.color }} />
+          <li
+            key={entry.key}
+            className="flex items-center gap-1.5 text-[12px] text-[var(--color-text-muted)]"
+          >
+            <span
+              aria-hidden="true"
+              className="size-2.5 rounded-[3px]"
+              style={{ backgroundColor: entry.color }}
+            />
             {entry.label}
           </li>
         ))}
@@ -600,7 +676,10 @@ function TopVendors({
   canSeeVendors: boolean;
 }) {
   return (
-    <section aria-labelledby="vendors-heading" className={cn(PANEL, 'flex min-w-0 flex-col p-5')}>
+    <section
+      aria-labelledby="vendors-heading"
+      className={cn(PANEL, "flex min-w-0 flex-col p-5")}
+    >
       <PanelTitle
         id="vendors-heading"
         icon={Building2}
@@ -609,15 +688,24 @@ function TopVendors({
         aside={<PeriodPill>All time</PeriodPill>}
       />
       {vendors.length === 0 ? (
-        <p className="m-0 mt-6 text-[13px] text-[var(--color-text-muted)]">No approved spend yet.</p>
+        <p className="m-0 mt-6 text-[13px] text-[var(--color-text-muted)]">
+          No approved spend yet.
+        </p>
       ) : (
         <ul className="m-0 mt-5 flex list-none flex-col gap-4 p-0">
           {vendors.slice(0, 5).map((vendor) => {
             const pct =
-              approvedMinor > 0 ? Math.round((vendor.money.minor_units / approvedMinor) * 100) : 0;
+              approvedMinor > 0
+                ? Math.round((vendor.money.minor_units / approvedMinor) * 100)
+                : 0;
             return (
-              <li key={vendor.name} className="grid grid-cols-[minmax(0,1.3fr)_auto_minmax(0,1fr)_2.5rem] items-center gap-3">
-                <span className="truncate text-[13px] text-[#3b4868]">{vendor.name}</span>
+              <li
+                key={vendor.name}
+                className="grid grid-cols-[minmax(0,1.3fr)_auto_minmax(0,1fr)_2.5rem] items-center gap-3"
+              >
+                <span className="truncate text-[13px] text-[#3b4868]">
+                  {vendor.name}
+                </span>
                 <span className="text-[13px] font-semibold tabular text-[var(--color-text-heading)]">
                   {vendor.money.formatted}
                 </span>
@@ -627,13 +715,17 @@ function TopVendors({
                     style={{ width: `${Math.max(pct, 3)}%` }}
                   />
                 </span>
-                <span className="text-right text-[12px] tabular text-[var(--color-text-muted)]">{pct}%</span>
+                <span className="text-right text-[12px] tabular text-[var(--color-text-muted)]">
+                  {pct}%
+                </span>
               </li>
             );
           })}
         </ul>
       )}
-      <p className="m-0 mt-3 text-[11px] text-[var(--color-text-subtle)]">Share of approved spend.</p>
+      <p className="m-0 mt-3 text-[11px] text-[var(--color-text-subtle)]">
+        Share of approved spend.
+      </p>
       {canSeeVendors ? (
         <Link
           to="/settings/reference"
@@ -649,47 +741,106 @@ function TopVendors({
 
 /* ------------------------------------------------------------- work queue */
 
-const RECORD_TYPE: { prefix: string; label: string; tab: string; icon: LucideIcon; tile: string }[] = [
-  { prefix: '/invoices', label: 'Invoice', tab: 'Invoices', icon: FileText, tile: 'bg-[#e6eeff] text-[#3569f4]' },
-  { prefix: '/purchase-orders', label: 'Purchase order', tab: 'POs', icon: Package, tile: 'bg-[#e3f7ec] text-[#16a66a]' },
-  { prefix: '/estimates', label: 'Estimate', tab: 'Estimates', icon: ClipboardList, tile: 'bg-[#efe8ff] text-[#7c3aed]' },
-  { prefix: '/vendor-confirmations', label: 'Vendor confirmation', tab: 'Vendor conf.', icon: ShieldCheck, tile: 'bg-[#fff0e3] text-[#e06a2c]' },
-  { prefix: '/payments', label: 'Payment package', tab: 'Packages', icon: CreditCard, tile: 'bg-[#e6f9fc] text-[#0891b2]' },
-  { prefix: '/documents', label: 'Document', tab: 'Documents', icon: FileText, tile: 'bg-[#f2f4f7] text-[#475467]' },
-  { prefix: '/intake', label: 'Message', tab: 'Inbox', icon: Mail, tile: 'bg-[#f2f4f7] text-[#475467]' },
+const RECORD_TYPE: {
+  prefix: string;
+  label: string;
+  tab: string;
+  icon: LucideIcon;
+  tile: string;
+}[] = [
+  {
+    prefix: "/invoices",
+    label: "Invoice",
+    tab: "Invoices",
+    icon: FileText,
+    tile: "bg-[#e6eeff] text-[#3569f4]",
+  },
+  {
+    prefix: "/purchase-orders",
+    label: "Purchase order",
+    tab: "POs",
+    icon: Package,
+    tile: "bg-[#e3f7ec] text-[#16a66a]",
+  },
+  {
+    prefix: "/estimates",
+    label: "Estimate",
+    tab: "Estimates",
+    icon: ClipboardList,
+    tile: "bg-[#efe8ff] text-[#7c3aed]",
+  },
+  {
+    prefix: "/vendor-confirmations",
+    label: "Vendor confirmation",
+    tab: "Vendor conf.",
+    icon: ShieldCheck,
+    tile: "bg-[#fff0e3] text-[#e06a2c]",
+  },
+  {
+    prefix: "/payments",
+    label: "Payment package",
+    tab: "Packages",
+    icon: CreditCard,
+    tile: "bg-[#e6f9fc] text-[#0891b2]",
+  },
+  {
+    prefix: "/documents",
+    label: "Document",
+    tab: "Documents",
+    icon: FileText,
+    tile: "bg-[#f2f4f7] text-[#475467]",
+  },
+  {
+    prefix: "/intake",
+    label: "Message",
+    tab: "Inbox",
+    icon: Mail,
+    tile: "bg-[#f2f4f7] text-[#475467]",
+  },
 ];
 
 function recordType(item: WorkItemOut) {
-  return RECORD_TYPE.find((entry) => item.record_path.startsWith(entry.prefix)) ?? RECORD_TYPE[0]!;
+  return (
+    RECORD_TYPE.find((entry) => item.record_path.startsWith(entry.prefix)) ??
+    RECORD_TYPE[0]!
+  );
 }
 
 const KIND_PILL: Record<string, string> = {
-  approval: 'bg-[#e6eeff] text-[#2449b8]',
-  sign_off: 'bg-[#fff4e5] text-[#b45309]',
-  document_review: 'bg-[#efe8ff] text-[#6d28d9]',
-  vendor_review: 'bg-[#fff4e5] text-[#b45309]',
-  intake: 'bg-[#f2f4f7] text-[#475467]',
+  approval: "bg-[#e6eeff] text-[#2449b8]",
+  sign_off: "bg-[#fff4e5] text-[#b45309]",
+  document_review: "bg-[#efe8ff] text-[#6d28d9]",
+  vendor_review: "bg-[#fff4e5] text-[#b45309]",
+  intake: "bg-[#f2f4f7] text-[#475467]",
 };
 
 function WorkQueue({ items, total }: { items: WorkItemOut[]; total: number }) {
-  const [tab, setTab] = useState('all');
+  const [tab, setTab] = useState("all");
   const tabs = useMemo(() => {
     const counts = new Map<string, number>();
     for (const item of items) {
       const type = recordType(item);
       counts.set(type.prefix, (counts.get(type.prefix) ?? 0) + 1);
     }
-    return RECORD_TYPE.filter((entry) => counts.has(entry.prefix)).map((entry) => ({
-      id: entry.prefix,
-      label: entry.tab,
-      count: counts.get(entry.prefix) ?? 0,
-    }));
+    return RECORD_TYPE.filter((entry) => counts.has(entry.prefix)).map(
+      (entry) => ({
+        id: entry.prefix,
+        label: entry.tab,
+        count: counts.get(entry.prefix) ?? 0,
+      }),
+    );
   }, [items]);
 
-  const shown = tab === 'all' ? items : items.filter((item) => recordType(item).prefix === tab);
+  const shown =
+    tab === "all"
+      ? items
+      : items.filter((item) => recordType(item).prefix === tab);
 
   return (
-    <section aria-labelledby="queue-heading" className={cn(PANEL, 'min-w-0 p-5')}>
+    <section
+      aria-labelledby="queue-heading"
+      className={cn(PANEL, "min-w-0 p-5")}
+    >
       <PanelTitle
         id="queue-heading"
         icon={ListChecks}
@@ -697,34 +848,42 @@ function WorkQueue({ items, total }: { items: WorkItemOut[]; total: number }) {
         title="My work queue"
         aside={<ViewAll to="/work" />}
       />
-      <div role="group" aria-label="Filter by record type" className="mt-4 flex flex-wrap gap-1.5">
-        {[{ id: 'all', label: 'All items', count: total }, ...tabs].map((entry) => {
-          const active = tab === entry.id;
-          return (
-            <button
-              key={entry.id}
-              type="button"
-              aria-pressed={active}
-              onClick={() => setTab(entry.id)}
-              className={cn(
-                'inline-flex h-8 items-center gap-1.5 rounded-[9px] px-3 text-[12px] font-medium transition-colors',
-                active
-                  ? 'bg-[#3569f4] text-white'
-                  : 'border border-[var(--color-border)] bg-white/85 text-[#3b4868] hover:border-[var(--color-primary-200)]',
-              )}
-            >
-              {entry.label}
-              <span
+      <div
+        role="group"
+        aria-label="Filter by record type"
+        className="mt-4 flex flex-wrap gap-1.5"
+      >
+        {[{ id: "all", label: "All items", count: total }, ...tabs].map(
+          (entry) => {
+            const active = tab === entry.id;
+            return (
+              <button
+                key={entry.id}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setTab(entry.id)}
                 className={cn(
-                  'rounded-full px-1.5 text-[11px] tabular',
-                  active ? 'bg-white/25 text-white' : 'bg-[#eef2f8] text-[#5b6a92]',
+                  "inline-flex h-8 items-center gap-1.5 rounded-[9px] px-3 text-[12px] font-medium transition-colors",
+                  active
+                    ? "bg-[#3569f4] text-white"
+                    : "border border-[var(--color-border)] bg-white/85 text-[#3b4868] hover:border-[var(--color-primary-200)]",
                 )}
               >
-                {entry.count}
-              </span>
-            </button>
-          );
-        })}
+                {entry.label}
+                <span
+                  className={cn(
+                    "rounded-full px-1.5 text-[11px] tabular",
+                    active
+                      ? "bg-white/25 text-white"
+                      : "bg-[#eef2f8] text-[#5b6a92]",
+                  )}
+                >
+                  {entry.count}
+                </span>
+              </button>
+            );
+          },
+        )}
       </div>
 
       {shown.length === 0 ? (
@@ -733,15 +892,33 @@ function WorkQueue({ items, total }: { items: WorkItemOut[]; total: number }) {
         </p>
       ) : (
         <div className="mt-3 overflow-x-auto">
-          <table className="w-full border-collapse text-[12px]" aria-label="Work waiting on you">
+          <table
+            className="w-full border-collapse text-[12px]"
+            aria-label="Work waiting on you"
+          >
             <thead>
               <tr className="text-left text-[11px] font-medium text-[var(--color-text-muted)]">
-                <th scope="col" className="py-2 pr-3 font-medium">Type</th>
-                <th scope="col" className="py-2 pr-3 font-medium">Item / Description</th>
-                <th scope="col" className="hidden py-2 pr-3 font-medium 2xl:table-cell">Vendor</th>
-                <th scope="col" className="py-2 pr-3 text-right font-medium">Amount</th>
-                <th scope="col" className="py-2 pr-3 font-medium">Status</th>
-                <th scope="col" className="py-2 font-medium">Waiting</th>
+                <th scope="col" className="py-2 pr-3 font-medium">
+                  Type
+                </th>
+                <th scope="col" className="py-2 pr-3 font-medium">
+                  Item / Description
+                </th>
+                <th
+                  scope="col"
+                  className="hidden py-2 pr-3 font-medium 2xl:table-cell"
+                >
+                  Vendor
+                </th>
+                <th scope="col" className="py-2 pr-3 text-right font-medium">
+                  Amount
+                </th>
+                <th scope="col" className="py-2 pr-3 font-medium">
+                  Status
+                </th>
+                <th scope="col" className="py-2 font-medium">
+                  Waiting
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -749,13 +926,24 @@ function WorkQueue({ items, total }: { items: WorkItemOut[]; total: number }) {
                 const type = recordType(item);
                 const waited = waitedFor(item.waiting_hours);
                 return (
-                  <tr key={`${item.kind}:${item.record_id}`} className="relative border-t border-[var(--color-divider)] hover:bg-[#f7f9ff]">
+                  <tr
+                    key={`${item.kind}:${item.record_id}`}
+                    className="relative border-t border-[var(--color-divider)] hover:bg-[#f7f9ff]"
+                  >
                     <td className="py-2.5 pr-3">
                       <span className="flex items-center gap-2">
-                        <span aria-hidden="true" className={cn('flex size-7 items-center justify-center rounded-[8px]', type.tile)}>
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            "flex size-7 items-center justify-center rounded-[8px]",
+                            type.tile,
+                          )}
+                        >
                           <type.icon className="size-3.5" />
                         </span>
-                        <span className="whitespace-nowrap text-[#3b4868]">{type.label}</span>
+                        <span className="whitespace-nowrap text-[#3b4868]">
+                          {type.label}
+                        </span>
                       </span>
                     </td>
                     <td className="py-2.5 pr-3">
@@ -773,12 +961,12 @@ function WorkQueue({ items, total }: { items: WorkItemOut[]; total: number }) {
                       {item.title}
                     </td>
                     <td className="whitespace-nowrap py-2.5 pr-3 text-right tabular text-[var(--color-text-heading)]">
-                      {item.amount_formatted ?? '—'}
+                      {item.amount_formatted ?? "—"}
                     </td>
                     <td className="py-2.5 pr-3">
                       <span
                         className={cn(
-                          'inline-flex h-6 items-center whitespace-nowrap rounded-full px-2.5 text-[11px] font-medium',
+                          "inline-flex h-6 items-center whitespace-nowrap rounded-full px-2.5 text-[11px] font-medium",
                           KIND_PILL[item.kind] ?? KIND_PILL.intake,
                         )}
                       >
@@ -787,15 +975,15 @@ function WorkQueue({ items, total }: { items: WorkItemOut[]; total: number }) {
                     </td>
                     <td
                       className={cn(
-                        'whitespace-nowrap py-2.5 text-[12px]',
-                        waited.tone === 'danger'
-                          ? 'font-semibold text-[#dc2626]'
-                          : waited.tone === 'warning'
-                            ? 'text-[#b45309]'
-                            : 'text-[var(--color-text-muted)]',
+                        "whitespace-nowrap py-2.5 text-[12px]",
+                        waited.tone === "danger"
+                          ? "font-semibold text-[#dc2626]"
+                          : waited.tone === "warning"
+                            ? "text-[#b45309]"
+                            : "text-[var(--color-text-muted)]",
                       )}
                     >
-                      {waited.label.replace('Waiting ', '')}
+                      {waited.label.replace("Waiting ", "")}
                     </td>
                   </tr>
                 );
@@ -810,9 +998,18 @@ function WorkQueue({ items, total }: { items: WorkItemOut[]; total: number }) {
 
 /* --------------------------------------------------------- recent activity */
 
-function RecentActivity({ entries, canAudit }: { entries: ActivityOut[]; canAudit: boolean }) {
+function RecentActivity({
+  entries,
+  canAudit,
+}: {
+  entries: ActivityOut[];
+  canAudit: boolean;
+}) {
   return (
-    <section aria-labelledby="activity-heading" className={cn(PANEL, 'min-w-0 p-5')}>
+    <section
+      aria-labelledby="activity-heading"
+      className={cn(PANEL, "min-w-0 p-5")}
+    >
       <PanelTitle
         id="activity-heading"
         icon={ListChecks}
@@ -821,22 +1018,36 @@ function RecentActivity({ entries, canAudit }: { entries: ActivityOut[]; canAudi
         aside={canAudit ? <ViewAll to="/audit" /> : undefined}
       />
       {entries.length === 0 ? (
-        <p className="m-0 mt-6 text-[13px] text-[var(--color-text-muted)]">Nothing recorded yet.</p>
+        <p className="m-0 mt-6 text-[13px] text-[var(--color-text-muted)]">
+          Nothing recorded yet.
+        </p>
       ) : (
         <ol className="relative m-0 mt-4 list-none p-0">
-          <span aria-hidden="true" className="absolute bottom-3 left-[13px] top-3 w-px bg-[var(--color-divider)]" />
+          <span
+            aria-hidden="true"
+            className="absolute bottom-3 left-[13px] top-3 w-px bg-[var(--color-divider)]"
+          />
           {entries.slice(0, 6).map((entry) => {
-            const done = entry.tone === 'success' || entry.tone === 'info';
+            const done = entry.tone === "success" || entry.tone === "info";
             return (
-              <li key={`${entry.kind}:${entry.reference}`} className="relative flex gap-3 py-2">
+              <li
+                key={`${entry.kind}:${entry.reference}`}
+                className="relative flex gap-3 py-2"
+              >
                 <span
                   aria-hidden="true"
                   className={cn(
-                    'relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-white',
-                    done ? 'bg-[#16a66a] text-white' : 'bg-[#e6eeff] text-[#3569f4]',
+                    "relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-white",
+                    done
+                      ? "bg-[#16a66a] text-white"
+                      : "bg-[#e6eeff] text-[#3569f4]",
                   )}
                 >
-                  {done ? <CheckCircle2 className="size-3.5" /> : <FileText className="size-3.5" />}
+                  {done ? (
+                    <CheckCircle2 className="size-3.5" />
+                  ) : (
+                    <FileText className="size-3.5" />
+                  )}
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[13px] font-semibold text-[var(--color-text-heading)]">
@@ -868,20 +1079,31 @@ function RecentActivity({ entries, canAudit }: { entries: ActivityOut[]; canAudi
 /* ----------------------------------------------------------- system health */
 
 const DEPENDENCY_STATE: Record<string, { label: string; className: string }> = {
-  up: { label: 'Operational', className: 'text-[#16a66a]' },
-  degraded: { label: 'Degraded', className: 'text-[#b45309]' },
-  down: { label: 'Down', className: 'text-[#dc2626]' },
-  not_configured: { label: 'Not configured', className: 'text-[var(--color-text-subtle)]' },
+  up: { label: "Operational", className: "text-[#16a66a]" },
+  degraded: { label: "Degraded", className: "text-[#b45309]" },
+  down: { label: "Down", className: "text-[#dc2626]" },
+  not_configured: {
+    label: "Not configured",
+    className: "text-[var(--color-text-subtle)]",
+  },
 };
 
 function SystemHealth({ canOperate }: { canOperate: boolean }) {
   const health = useHealth();
   const dependencies = health.data?.dependencies ?? [];
-  const troubled = dependencies.filter((dependency) => dependency.state === 'down' || dependency.state === 'degraded');
-  const checked = health.dataUpdatedAt ? new Date(health.dataUpdatedAt).toISOString() : null;
+  const troubled = dependencies.filter(
+    (dependency) =>
+      dependency.state === "down" || dependency.state === "degraded",
+  );
+  const checked = health.dataUpdatedAt
+    ? new Date(health.dataUpdatedAt).toISOString()
+    : null;
 
   return (
-    <section aria-labelledby="health-heading" className={cn(PANEL, 'flex min-w-0 flex-col p-5')}>
+    <section
+      aria-labelledby="health-heading"
+      className={cn(PANEL, "flex min-w-0 flex-col p-5")}
+    >
       <PanelTitle
         id="health-heading"
         icon={HeartPulse}
@@ -889,7 +1111,11 @@ function SystemHealth({ canOperate }: { canOperate: boolean }) {
         title="System health"
         aside={
           canOperate ? (
-            <Link to="/operations" aria-label="Open operational health" className="text-[var(--color-text-subtle)] hover:text-[var(--color-text-strong)]">
+            <Link
+              to="/operations"
+              aria-label="Open operational health"
+              className="text-[var(--color-text-subtle)] hover:text-[var(--color-text-strong)]"
+            >
               <ChevronRight aria-hidden="true" className="size-5" />
             </Link>
           ) : undefined
@@ -900,15 +1126,22 @@ function SystemHealth({ canOperate }: { canOperate: boolean }) {
       ) : (
         <ul className="m-0 mt-4 flex list-none flex-col gap-2.5 p-0">
           {dependencies.map((dependency) => {
-            const state = DEPENDENCY_STATE[dependency.state] ?? DEPENDENCY_STATE.not_configured!;
-            const ok = dependency.state === 'up';
+            const state =
+              DEPENDENCY_STATE[dependency.state] ??
+              DEPENDENCY_STATE.not_configured!;
+            const ok = dependency.state === "up";
             return (
-              <li key={dependency.name} className="flex items-center gap-2.5 text-[13px]">
+              <li
+                key={dependency.name}
+                className="flex items-center gap-2.5 text-[13px]"
+              >
                 <span
                   aria-hidden="true"
                   className={cn(
-                    'flex size-4 shrink-0 items-center justify-center rounded-full',
-                    ok ? 'bg-[#16a66a] text-white' : 'bg-[#e5e7eb] text-[#667085]',
+                    "flex size-4 shrink-0 items-center justify-center rounded-full",
+                    ok
+                      ? "bg-[#16a66a] text-white"
+                      : "bg-[#e5e7eb] text-[#667085]",
                   )}
                 >
                   <CheckCircle2 className="size-3" />
@@ -916,7 +1149,12 @@ function SystemHealth({ canOperate }: { canOperate: boolean }) {
                 <span className="min-w-0 flex-1 truncate text-[#3b4868]">
                   {DEPENDENCY_INFO[dependency.name]?.label ?? dependency.name}
                 </span>
-                <span className={cn('shrink-0 text-[12px] font-medium', state.className)}>
+                <span
+                  className={cn(
+                    "shrink-0 text-[12px] font-medium",
+                    state.className,
+                  )}
+                >
                   {state.label}
                 </span>
               </li>
@@ -927,24 +1165,28 @@ function SystemHealth({ canOperate }: { canOperate: boolean }) {
       {health.data ? (
         <div
           className={cn(
-            'mt-auto flex items-center gap-3 rounded-[12px] px-3 py-2.5',
-            troubled.length === 0 ? 'bg-[#e8f8ef]' : 'bg-[#fff4e5]',
+            "mt-auto flex items-center gap-3 rounded-[12px] px-3 py-2.5",
+            troubled.length === 0 ? "bg-[#e8f8ef]" : "bg-[#fff4e5]",
           )}
         >
           <span
             aria-hidden="true"
             className={cn(
-              'flex size-7 items-center justify-center rounded-full text-white',
-              troubled.length === 0 ? 'bg-[#16a66a]' : 'bg-[#e06a2c]',
+              "flex size-7 items-center justify-center rounded-full text-white",
+              troubled.length === 0 ? "bg-[#16a66a]" : "bg-[#e06a2c]",
             )}
           >
-            {troubled.length === 0 ? <CheckCircle2 className="size-4" /> : <AlertTriangle className="size-4" />}
+            {troubled.length === 0 ? (
+              <CheckCircle2 className="size-4" />
+            ) : (
+              <AlertTriangle className="size-4" />
+            )}
           </span>
           <span className="min-w-0">
             <span className="block text-[13px] font-semibold text-[var(--color-text-heading)]">
               {troubled.length === 0
-                ? 'All systems operational'
-                : `${troubled.length} service${troubled.length === 1 ? '' : 's'} need attention`}
+                ? "All systems operational"
+                : `${troubled.length} service${troubled.length === 1 ? "" : "s"} need attention`}
             </span>
             {checked ? (
               <span className="block text-[11px] text-[var(--color-text-muted)]">
@@ -974,44 +1216,57 @@ export function DashboardPage() {
   const [months, setMonths] = useState(6);
   const work = useWorkDashboard(20);
 
-  const canReport = user ? new Set(user.permissions).has('report:view') : false;
+  const canReport = user ? new Set(user.permissions).has("report:view") : false;
   const overview = useOverview(canReport, months);
 
   if (!user) return null;
 
-  const firstName = user.display_name.split(' ')[0] ?? user.display_name;
+  const firstName = user.display_name.split(" ")[0] ?? user.display_name;
   const metrics = overview.data;
   const counts = work.data?.counts_by_kind ?? {};
   const items = work.data?.items ?? [];
   const approvedMinor =
-    metrics?.spend_cards.find((card) => card.key === 'approved_amount')?.money?.minor_units ?? 0;
-  const openCount = metrics?.spend_cards.find((card) => card.key === 'open_items')?.count ?? 0;
-  const kindCounts = ['approval', 'sign_off', 'document_review', 'vendor_review', 'intake'].map(
-    (kind) => counts[kind] ?? 0,
-  );
+    metrics?.spend_cards.find((card) => card.key === "approved_amount")?.money
+      ?.minor_units ?? 0;
+  const openCount =
+    metrics?.spend_cards.find((card) => card.key === "open_items")?.count ?? 0;
+  const kindCounts = [
+    "approval",
+    "sign_off",
+    "document_review",
+    "vendor_review",
+    "intake",
+  ].map((kind) => counts[kind] ?? 0);
 
   const today = new Date();
   const dateLine = today.toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
   });
 
   return (
     <div className="flex flex-col gap-5">
       <section className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0 pt-2">
-          <p className="m-0 text-[14px] font-medium text-[#4a5a86]">{dateLine}</p>
+          <p className="m-0 text-[14px] font-medium text-[#4a5a86]">
+            {dateLine}
+          </p>
           <h1 className="mt-1 text-[38px] font-bold leading-tight tracking-[-0.02em] text-[#0e1a4b]">
             {greeting(today)}, {firstName}
           </h1>
           <p className="mt-1 m-0 text-[15px] text-[#5b6a92]">
-            Here&rsquo;s what&rsquo;s happening across your finance operations today.
+            Here&rsquo;s what&rsquo;s happening across your finance operations
+            today.
           </p>
         </div>
         {canReport ? (
-          <Priorities counts={counts} overview={metrics} isLoading={work.isLoading || overview.isLoading} />
+          <Priorities
+            counts={counts}
+            overview={metrics}
+            isLoading={work.isLoading || overview.isLoading}
+          />
         ) : null}
       </section>
 
@@ -1027,7 +1282,12 @@ export function DashboardPage() {
             ) : metrics ? (
               <ul className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 xl:grid-cols-4">
                 {metrics.spend_cards.map((card) => (
-                  <StatCard key={card.key} card={card} openCount={openCount} kindCounts={kindCounts} />
+                  <StatCard
+                    key={card.key}
+                    card={card}
+                    openCount={openCount}
+                    kindCounts={kindCounts}
+                  />
                 ))}
               </ul>
             ) : null}
@@ -1044,7 +1304,7 @@ export function DashboardPage() {
               <TopVendors
                 vendors={metrics.top_vendors}
                 approvedMinor={approvedMinor}
-                canSeeVendors={can('admin:reference_data')}
+                canSeeVendors={can("admin:reference_data")}
               />
             </div>
           ) : null}
@@ -1053,10 +1313,10 @@ export function DashboardPage() {
 
       <div
         className={cn(
-          'grid gap-4',
+          "grid gap-4",
           canReport
-            ? 'xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1.05fr)_minmax(0,0.85fr)]'
-            : 'xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]',
+            ? "xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1.05fr)_minmax(0,0.85fr)]"
+            : "xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]",
         )}
       >
         {work.isLoading ? (
@@ -1065,9 +1325,12 @@ export function DashboardPage() {
           <WorkQueue items={items} total={work.data?.total ?? 0} />
         )}
         {canReport && metrics ? (
-          <RecentActivity entries={metrics.recent_activity} canAudit={can('audit:view')} />
+          <RecentActivity
+            entries={metrics.recent_activity}
+            canAudit={can("audit:view")}
+          />
         ) : null}
-        <SystemHealth canOperate={can('operations:view')} />
+        <SystemHealth canOperate={can("operations:view")} />
       </div>
     </div>
   );

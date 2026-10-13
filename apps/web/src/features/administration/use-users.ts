@@ -1,6 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { nestApi, toQuery } from '@/lib/api-client';
+import { nestApi, toQuery } from "@/lib/api-client";
+import { toast } from "sonner";
 
 export type AdminUserOut = {
   id: string;
@@ -24,7 +25,6 @@ export type UserCreateBody = {
 
 export type UserRolesBody = {
   roles: string[];
-  reason: string;
 };
 
 export type UserActiveBody = {
@@ -34,46 +34,46 @@ export type UserActiveBody = {
 
 export const ROLE_OPTIONS = [
   {
-    id: 'requester',
-    label: 'Requester',
-    help: 'Raise estimates and confirm goods or services arrived.',
+    id: "requester",
+    label: "Requester",
+    help: "Raise estimates and confirm goods or services arrived.",
   },
   {
-    id: 'approver',
-    label: 'Approver',
-    help: 'Decide on routes. Cannot also edit the approval matrix.',
+    id: "approver",
+    label: "Approver",
+    help: "Decide on routes. Cannot also edit the approval matrix.",
   },
   {
-    id: 'payment_coordinator',
-    label: 'Payment coordinator',
-    help: 'Assemble packages and send them to the bank.',
+    id: "payment_coordinator",
+    label: "Payment coordinator",
+    help: "Assemble packages and send them to the bank.",
   },
   {
-    id: 'finance',
-    label: 'Finance',
-    help: 'Invoices, credit cards, accruals and Paid/Outstanding review.',
+    id: "finance",
+    label: "Finance",
+    help: "Invoices, credit cards, accruals and Paid/Outstanding review.",
   },
   {
-    id: 'administrator',
-    label: 'Administrator',
-    help: 'Users, roles and the approval matrix. Cannot also decide approvals.',
+    id: "administrator",
+    label: "Administrator",
+    help: "Users, roles and the approval matrix. Cannot also decide approvals.",
   },
   {
-    id: 'operations',
-    label: 'Operations',
-    help: 'Intake health, retries and platform operations.',
+    id: "operations",
+    label: "Operations",
+    help: "Intake health, retries and platform operations.",
   },
   {
-    id: 'auditor',
-    label: 'Auditor',
-    help: 'Read the trail. Cannot change anything.',
+    id: "auditor",
+    label: "Auditor",
+    help: "Read the trail. Cannot change anything.",
   },
 ] as const;
 
 export const userAdminKeys = {
-  all: ['admin', 'users'] as const,
+  all: ["admin", "users"] as const,
   list: (includeInactive: boolean) =>
-    ['admin', 'users', includeInactive ? 'all' : 'active'] as const,
+    ["admin", "users", includeInactive ? "all" : "active"] as const,
 };
 
 export function useUsers(includeInactive = true) {
@@ -90,10 +90,10 @@ export function useCreateUser() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: UserCreateBody) =>
-      nestApi.post<AdminUserOut>('/admin/users', body),
+      nestApi.post<AdminUserOut>("/admin/users", body),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: userAdminKeys.all });
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'people'] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "people"] });
     },
   });
 }
@@ -105,7 +105,8 @@ export function useSetUserRoles() {
       nestApi.put<AdminUserOut>(`/admin/users/${userId}/roles`, body),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: userAdminKeys.all });
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'people'] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "people"] });
+      toast.success("Roles updated successfully");
     },
   });
 }
@@ -128,7 +129,7 @@ export function useSetUserActive() {
       nestApi.post<AdminUserOut>(`/admin/users/${userId}/active`, body),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: userAdminKeys.all });
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'people'] });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "people"] });
     },
   });
 }
