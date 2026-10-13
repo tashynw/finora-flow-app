@@ -53,7 +53,7 @@ export function useEstimates(filters: EstimateFilters, offset = 0) {
     queryFn: () =>
       api.get<EstimatePage>(
         `/estimates${toQuery({
-          state: filters.state.length ? filters.state : undefined,
+          status: filters.state.length ? filters.state : undefined,
           mine: filters.mine ? true : undefined,
           awaiting_me: filters.awaitingMe ? true : undefined,
           search: filters.search.trim() || undefined,

@@ -32,6 +32,15 @@ export class AdminSettingsController {
     return this.adminSettingsService.listRetention(parseBoolQuery(includeInactive, true));
   }
 
+  @Post('retention/:key/active')
+  setRetentionActive(
+    @Param('key') key: string,
+    @Body() body: { is_active: boolean; reason: string },
+    @Session() session: UserSession,
+  ) {
+    return this.adminSettingsService.setRetentionActive(key, body, session);
+  }
+
   @Patch('retention/:key')
   patchRetention(
     @Param('key') key: string,

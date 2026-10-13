@@ -26,8 +26,8 @@ export class IntakeController {
     return serialize({
       items: result.items,
       total: result.total,
-      page: page.page ?? 1,
-      pageSize: page.pageSize ?? page.take,
+      limit: 'limit' in page && page.limit != null ? page.limit : page.take,
+      offset: 'offset' in page && page.offset != null ? page.offset : page.skip,
     });
   }
 
@@ -50,6 +50,7 @@ export class IntakeController {
       bucket: string;
       subject?: string;
       note?: string;
+      kind?: string;
     },
   ) {
     return serialize(await this.service.manualUpload(session, body));
@@ -58,6 +59,11 @@ export class IntakeController {
   @Get('attachments/:documentId/download-url')
   async downloadUrl(@Param('documentId') documentId: string) {
     return serialize(await this.service.attachmentDownloadUrl(documentId));
+  }
+
+  @Get('messages/:id')
+  async getMessageByPath(@Param('id') id: string) {
+    return serialize(await this.service.getMessage(id));
   }
 
   @Get(':id')

@@ -63,7 +63,7 @@ export function useInvoices(filters: InvoiceFilters, offset = 0) {
     queryFn: () =>
       api.get<InvoicePage>(
         `/invoices${toQuery({
-          state: filters.state.length ? filters.state : undefined,
+          status: filters.state.length ? filters.state : undefined,
           mine: filters.mine ? true : undefined,
           awaiting_me: filters.awaitingMe ? true : undefined,
           awaiting_my_sign_off: filters.awaitingMySignOff ? true : undefined,

@@ -26,6 +26,7 @@ export type AdminCostCentreOut = {
   code: string;
   name: string;
   department: string | null;
+  departmentId: string | null;
   is_active: boolean;
 };
 
@@ -92,21 +93,89 @@ function invalidateReferenceCaches(queryClient: ReturnType<typeof useQueryClient
   void queryClient.invalidateQueries({ queryKey: referenceKey });
 }
 
+type NestVendor = {
+  id: string;
+  code: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  defaultCurrency: string;
+  paymentTermsDays: number | null;
+  isActive: boolean;
+};
+
+type NestGlAccount = {
+  id: string;
+  code: string;
+  name: string;
+  isActive: boolean;
+};
+
+type NestCostCentre = {
+  id: string;
+  code: string;
+  name: string;
+  departmentId: string | null;
+  isActive: boolean;
+};
+
+type NestDepartment = { id: string; name: string };
+
+function toVendor(row: NestVendor): AdminVendorOut {
+  return {
+    id: row.id,
+    code: row.code,
+    name: row.name,
+    email: row.email,
+    phone: row.phone,
+    default_currency: row.defaultCurrency,
+    payment_terms_days: row.paymentTermsDays,
+    is_active: row.isActive,
+  };
+}
+
+function toGlAccount(row: NestGlAccount): AdminGlAccountOut {
+  return {
+    id: row.id,
+    code: row.code,
+    name: row.name,
+    is_active: row.isActive,
+  };
+}
+
+function vendorWrite(body: VendorCreateBody | VendorUpdateBody) {
+  return {
+    ...('code' in body ? { code: body.code } : {}),
+    name: body.name,
+    email: body.email,
+    phone: body.phone,
+    defaultCurrency: body.default_currency,
+    paymentTermsDays: body.payment_terms_days,
+    reason: body.reason,
+  };
+}
+
+function activeWrite(body: ActiveBody) {
+  return { isActive: body.is_active, reason: body.reason };
+}
+
 export function useAdminVendors(includeInactive = true) {
   return useQuery({
     queryKey: referenceAdminKeys.vendors(includeInactive),
-    queryFn: () =>
-      api.get<AdminVendorOut[]>(
-        `/admin/reference/vendors${toQuery({ include_inactive: includeInactive })}`,
-      ),
+    queryFn: async () => {
+      const rows = await api.get<NestVendor[]>(
+        `/vendors${toQuery({ includeInactive })}`,
+      );
+      return rows.map(toVendor);
+    },
   });
 }
 
 export function useCreateVendor() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (body: VendorCreateBody) =>
-      api.post<AdminVendorOut>('/admin/reference/vendors', body),
+    mutationFn: async (body: VendorCreateBody) =>
+      toVendor(await api.post<NestVendor>('/vendors', vendorWrite(body))),
     onSuccess: () => invalidateReferenceCaches(queryClient),
   });
 }
@@ -114,8 +183,8 @@ export function useCreateVendor() {
 export function useUpdateVendor() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, body }: { id: string; body: VendorUpdateBody }) =>
-      api.put<AdminVendorOut>(`/admin/reference/vendors/${id}`, body),
+    mutationFn: async ({ id, body }: { id: string; body: VendorUpdateBody }) =>
+      toVendor(await api.put<NestVendor>(`/vendors/${id}`, vendorWrite(body))),
     onSuccess: () => invalidateReferenceCaches(queryClient),
   });
 }
@@ -123,8 +192,8 @@ export function useUpdateVendor() {
 export function useSetVendorActive() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, body }: { id: string; body: ActiveBody }) =>
-      api.post<AdminVendorOut>(`/admin/reference/vendors/${id}/active`, body),
+    mutationFn: async ({ id, body }: { id: string; body: ActiveBody }) =>
+      toVendor(await api.post<NestVendor>(`/vendors/${id}/active`, activeWrite(body))),
     onSuccess: () => invalidateReferenceCaches(queryClient),
   });
 }
@@ -132,18 +201,20 @@ export function useSetVendorActive() {
 export function useAdminGlAccounts(includeInactive = true) {
   return useQuery({
     queryKey: referenceAdminKeys.glAccounts(includeInactive),
-    queryFn: () =>
-      api.get<AdminGlAccountOut[]>(
-        `/admin/reference/gl-accounts${toQuery({ include_inactive: includeInactive })}`,
-      ),
+    queryFn: async () => {
+      const rows = await api.get<NestGlAccount[]>(
+        `/gl-accounts${toQuery({ includeInactive })}`,
+      );
+      return rows.map(toGlAccount);
+    },
   });
 }
 
 export function useCreateGlAccount() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (body: GlAccountCreateBody) =>
-      api.post<AdminGlAccountOut>('/admin/reference/gl-accounts', body),
+    mutationFn: async (body: GlAccountCreateBody) =>
+      toGlAccount(await api.post<NestGlAccount>('/gl-accounts', body)),
     onSuccess: () => invalidateReferenceCaches(queryClient),
   });
 }
@@ -151,8 +222,8 @@ export function useCreateGlAccount() {
 export function useUpdateGlAccount() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, body }: { id: string; body: GlAccountUpdateBody }) =>
-      api.put<AdminGlAccountOut>(`/admin/reference/gl-accounts/${id}`, body),
+    mutationFn: async ({ id, body }: { id: string; body: GlAccountUpdateBody }) =>
+      toGlAccount(await api.put<NestGlAccount>(`/gl-accounts/${id}`, body)),
     onSuccess: () => invalidateReferenceCaches(queryClient),
   });
 }
@@ -160,8 +231,10 @@ export function useUpdateGlAccount() {
 export function useSetGlAccountActive() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, body }: { id: string; body: ActiveBody }) =>
-      api.post<AdminGlAccountOut>(`/admin/reference/gl-accounts/${id}/active`, body),
+    mutationFn: async ({ id, body }: { id: string; body: ActiveBody }) =>
+      toGlAccount(
+        await api.post<NestGlAccount>(`/gl-accounts/${id}/active`, activeWrite(body)),
+      ),
     onSuccess: () => invalidateReferenceCaches(queryClient),
   });
 }
@@ -169,10 +242,21 @@ export function useSetGlAccountActive() {
 export function useAdminCostCentres(includeInactive = true) {
   return useQuery({
     queryKey: referenceAdminKeys.costCentres(includeInactive),
-    queryFn: () =>
-      api.get<AdminCostCentreOut[]>(
-        `/admin/reference/cost-centres${toQuery({ include_inactive: includeInactive })}`,
-      ),
+    queryFn: async () => {
+      const [rows, departments] = await Promise.all([
+        api.get<NestCostCentre[]>(`/cost-centres${toQuery({ includeInactive })}`),
+        api.get<NestDepartment[]>(`/departments${toQuery({ includeInactive: true })}`),
+      ]);
+      const names = new Map(departments.map((department) => [department.id, department.name]));
+      return rows.map((row) => ({
+        id: row.id,
+        code: row.code,
+        name: row.name,
+        department: row.departmentId ? (names.get(row.departmentId) ?? null) : null,
+        departmentId: row.departmentId,
+        is_active: row.isActive,
+      }));
+    },
   });
 }
 
@@ -180,7 +264,12 @@ export function useCreateCostCentre() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: CostCentreCreateBody) =>
-      api.post<AdminCostCentreOut>('/admin/reference/cost-centres', body),
+      api.post('/cost-centres', {
+        code: body.code,
+        name: body.name,
+        departmentId: body.department,
+        reason: body.reason,
+      }),
     onSuccess: () => invalidateReferenceCaches(queryClient),
   });
 }
@@ -189,7 +278,11 @@ export function useUpdateCostCentre() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, body }: { id: string; body: CostCentreUpdateBody }) =>
-      api.put<AdminCostCentreOut>(`/admin/reference/cost-centres/${id}`, body),
+      api.put(`/cost-centres/${id}`, {
+        name: body.name,
+        departmentId: body.department,
+        reason: body.reason,
+      }),
     onSuccess: () => invalidateReferenceCaches(queryClient),
   });
 }
@@ -198,10 +291,7 @@ export function useSetCostCentreActive() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, body }: { id: string; body: ActiveBody }) =>
-      api.post<AdminCostCentreOut>(
-        `/admin/reference/cost-centres/${id}/active`,
-        body,
-      ),
+      api.post(`/cost-centres/${id}/active`, activeWrite(body)),
     onSuccess: () => invalidateReferenceCaches(queryClient),
   });
 }

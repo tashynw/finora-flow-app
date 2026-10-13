@@ -10,6 +10,10 @@ import type {
 } from '@finora/shared-types';
 
 import { api, toQuery } from '@/lib/api-client';
+import {
+  uploadDocumentToS3,
+  type DocumentFolderKind,
+} from '@/features/documents/upload-to-s3';
 
 export const intakeKeys = {
   all: ['intake'] as const,
@@ -52,11 +56,39 @@ export function useUploadDocument() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ file, note }: { file: File; note?: string }) => {
-      const form = new FormData();
-      form.append('file', file);
-      if (note) form.append('note', note);
-      return api.upload<UploadAccepted>('/intake/uploads', form);
+    mutationFn: async ({
+      file,
+      note,
+      kind = 'unknown',
+    }: {
+      file: File;
+      note?: string;
+      kind?: DocumentFolderKind;
+    }) => {
+      const stored = await uploadDocumentToS3(file, kind);
+      const message = await api.post<{ id: string; documents?: { id: string }[] }>(
+        '/intake/uploads',
+        {
+          filename: stored.filename,
+          contentType: stored.contentType,
+          sizeBytes: stored.sizeBytes,
+          sha256: stored.sha256,
+          key: stored.fileKey,
+          bucket: stored.bucket,
+          note,
+          kind,
+        },
+      );
+      const storedCount = message.documents?.length ?? 1;
+      const accepted: UploadAccepted = {
+        message_id: message.id,
+        enrolled_documents: storedCount,
+        quarantined_attachments: 0,
+        rejected_attachments: 0,
+        stored_attachments: storedCount,
+        status: 'ready',
+      };
+      return accepted;
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: intakeKeys.all });

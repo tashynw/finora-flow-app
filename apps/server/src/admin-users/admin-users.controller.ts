@@ -57,7 +57,7 @@ export class AdminUsersController {
   @Put(':id/roles')
   setRoles(
     @Param('id') id: string,
-    @Body() body: { roles: string[]; reason: string },
+    @Body() body: { roles: string[] },
     @Session() session: UserSession,
   ) {
     return this.adminUsersService.setRoles(id, body, session);

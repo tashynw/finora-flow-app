@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApprovalsEngineService } from '../approvals/approvals-engine.service.js';
+import { LinksService } from '../links/links.service.js';
 import { DomainException } from '../common/errors.js';
 import {
   auditMock,
@@ -53,6 +54,7 @@ describe('InvoicesService', () => {
       provideTransitions(transitionsMock()),
       provideAudit(audit),
       { provide: ApprovalsEngineService, useValue: approvals },
+      { provide: LinksService, useValue: { issue: vi.fn(), resolve: vi.fn() } },
     ]);
   }
 

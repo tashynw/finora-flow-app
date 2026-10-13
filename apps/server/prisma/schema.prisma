@@ -68,6 +68,7 @@ model User {
   vendorCheckInsReviewed VendorCheckIn[] @relation("VendorCheckInReviewedBy")
 
   reminderSchedules ReminderSchedule[] @relation("ReminderRecipient")
+  signedLinksIssued SignedLink[]      @relation("SignedLinkIssuedTo")
 
   inboundMessagesUploaded    InboundMessage[]     @relation("InboundMessageUploadedBy")
   extractionsAccepted        DocumentExtraction[] @relation("ExtractionAcceptedBy")
@@ -262,6 +263,25 @@ model ReminderSchedule {
   @@unique([recordType, recordId, purpose])
   @@index([purpose, nextDueAt])
   @@map("reminder_schedules")
+}
+
+model SignedLink {
+  id          String    @id @default(cuid())
+  tokenSha256 String    @unique
+  recordType  String
+  recordId    String
+  purpose     String
+  expiresAt   DateTime
+  usedAt      DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  issuedTo   User?   @relation("SignedLinkIssuedTo", fields: [issuedToId], references: [id])
+  issuedToId String?
+
+  @@index([recordType, recordId])
+  @@map("signed_links")
 }
 
 model Vendor {

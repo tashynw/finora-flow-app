@@ -22,10 +22,11 @@ export class IntakeService {
         orderBy: { receivedAt: 'desc' },
         take: page.take,
         skip: page.skip,
+        include: { documents: true },
       }),
       this.prisma.inboundMessage.count(),
     ]);
-    return { items, total, ...page };
+    return { items: items.map((row) => this.toSummary(row)), total, ...page };
   }
 
   async getMessage(id: string) {
@@ -34,7 +35,7 @@ export class IntakeService {
       include: { documents: true },
     });
     if (!message) throw notFound('Inbound message', id);
-    return message;
+    return this.toDetail(message);
   }
 
   async operationsSummary() {
@@ -73,6 +74,7 @@ export class IntakeService {
       bucket: string;
       subject?: string;
       note?: string;
+      kind?: string;
     },
   ) {
     const now = new Date();
@@ -103,7 +105,7 @@ export class IntakeService {
             sha256: body.sha256,
             key: body.key,
             bucket: body.bucket,
-            kind: 'manual_upload',
+            kind: body.kind && body.kind !== 'manual_upload' ? body.kind : 'unknown',
             status: 'ready',
           },
         },
@@ -135,5 +137,104 @@ export class IntakeService {
     });
 
     return { documentId, ...view };
+  }
+
+  private toSummary(row: {
+    id: string;
+    subject: string;
+    source: string;
+    status: string;
+    fromAddress: string | null;
+    fromDisplayName: string | null;
+    forwardedFromAddress: string | null;
+    receivedAt: Date;
+    parseWarnings: unknown;
+    documents: { id: string }[];
+  }) {
+    const warnings = this.warningLines(row.parseWarnings);
+    return {
+      id: row.id,
+      subject: row.subject,
+      source: row.source,
+      status: row.status,
+      from_address: row.fromAddress,
+      from_display_name: row.fromDisplayName,
+      forwarded_from_address: row.forwardedFromAddress,
+      received_at: row.receivedAt.toISOString(),
+      attachment_count: row.documents.length,
+      quarantined_count: 0,
+      has_warnings: warnings.length > 0,
+    };
+  }
+
+  private toDetail(row: {
+    id: string;
+    subject: string;
+    source: string;
+    status: string;
+    fromAddress: string | null;
+    fromDisplayName: string | null;
+    forwardedFromAddress: string | null;
+    forwardedShape: string | null;
+    replyToAddress: string | null;
+    messageId: string | null;
+    bodyText: string;
+    receivedAt: Date;
+    sentAt: Date | null;
+    failureReason: string | null;
+    rawSha256: string;
+    rawSizeBytes: bigint;
+    toAddresses: unknown;
+    ccAddresses: unknown;
+    parseWarnings: unknown;
+    documents: {
+      id: string;
+      filename: string;
+      contentType: string;
+      sizeBytes: bigint;
+      sha256: string;
+    }[];
+  }) {
+    return {
+      ...this.toSummary(row),
+      body_text: row.bodyText,
+      cc_addresses: this.stringList(row.ccAddresses),
+      to_addresses: this.stringList(row.toAddresses),
+      failure_reason: row.failureReason,
+      forwarded_shape: row.forwardedShape,
+      reply_to_address: row.replyToAddress,
+      message_id: row.messageId,
+      parse_warnings: this.warningLines(row.parseWarnings),
+      raw_sha256: row.rawSha256,
+      raw_size_bytes: Number(row.rawSizeBytes),
+      sent_at: row.sentAt?.toISOString() ?? null,
+      attachments: row.documents.map((document) => ({
+        id: document.id,
+        filename: document.filename,
+        content_type: document.contentType,
+        size_bytes: Number(document.sizeBytes),
+        sha256: document.sha256,
+        can_download: true,
+        inline: false,
+        is_quarantined: false,
+        rejection_detail: null,
+        rejection_reason: null,
+        scan_detail: null,
+        scan_verdict: null,
+      })),
+    };
+  }
+
+  private stringList(value: unknown): string[] {
+    return Array.isArray(value)
+      ? value.filter((item): item is string => typeof item === 'string')
+      : [];
+  }
+
+  private warningLines(value: unknown): string[] {
+    if (!Array.isArray(value)) return [];
+    return value.map((item) =>
+      typeof item === 'string' ? item : JSON.stringify(item),
+    );
   }
 }

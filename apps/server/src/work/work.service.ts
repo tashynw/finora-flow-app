@@ -110,10 +110,7 @@ export class WorkService {
     const items = [...invoices, ...estimates, ...orders]
       .sort((a, b) => a.waitingSince.getTime() - b.waitingSince.getTime())
       .slice(0, take)
-      .map((item) => ({
-        ...item,
-        waitingHours: this.waitingHours(item.waitingSince),
-      }));
+      .map((item) => this.toQueueItem(item));
 
     const [invoiceCount, estimateCount, poCount] = await Promise.all([
       this.prisma.invoice.count({
@@ -152,11 +149,41 @@ export class WorkService {
     return {
       items,
       total: items.length,
-      countsByKind: {
+      counts_by_kind: {
+        approval: invoiceCount + estimateCount + poCount,
+        sign_off: invoiceCount,
         invoice: invoiceCount,
         estimate: estimateCount,
         purchase_order: poCount,
       },
+    };
+  }
+
+  private toQueueItem(item: WorkItem) {
+    const recordPath =
+      item.kind === 'estimate'
+        ? `/estimates/${item.recordId}`
+        : item.kind === 'purchase_order'
+          ? `/purchase-orders/${item.recordId}`
+          : `/invoices/${item.recordId}`;
+    const kindLabel =
+      item.kind === 'estimate'
+        ? 'Estimate'
+        : item.kind === 'purchase_order'
+          ? 'Purchase order'
+          : 'Invoice';
+    return {
+      kind: item.kind,
+      kind_label: kindLabel,
+      record_id: item.recordId,
+      record_path: recordPath,
+      reference: item.reference,
+      title: item.title,
+      subtitle: item.subtitle,
+      waiting_since: item.waitingSince.toISOString(),
+      waiting_hours: this.waitingHours(item.waitingSince),
+      amount_formatted: null,
+      detail: null,
     };
   }
 
@@ -218,7 +245,6 @@ export class WorkService {
   }
 
   async dashboard(topN = 10) {
-    const queue = await this.queue(topN);
-    return { items: queue.items };
+    return this.queue(topN);
   }
 }

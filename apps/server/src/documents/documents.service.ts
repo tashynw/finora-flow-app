@@ -1,4 +1,5 @@
 import {
+  CopyObjectCommand,
   DeleteObjectCommand,
   GetObjectCommand,
 } from '@aws-sdk/client-s3';
@@ -65,6 +66,18 @@ export class DocumentsService {
     );
 
     return { url, fileKey: input.key, bucket };
+  }
+
+  async copyObject(input: { fromKey: string; toKey: string; bucket?: string }) {
+    const bucket = resolveDocumentsBucket(input.bucket);
+    await s3Client.send(
+      new CopyObjectCommand({
+        Bucket: bucket,
+        Key: input.toKey,
+        CopySource: `${bucket}/${encodeURIComponent(input.fromKey)}`,
+      }),
+    );
+    return { fileKey: input.toKey, bucket };
   }
 
   async deleteObject(input: DeleteObjectInput) {

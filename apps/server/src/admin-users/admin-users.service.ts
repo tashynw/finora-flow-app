@@ -71,7 +71,10 @@ export class AdminUsersService {
     const email = body.email.trim().toLowerCase();
     const existing = await this.prisma.user.findUnique({ where: { email } });
     if (existing) {
-      throw new DomainException('A user with that email already exists.', HttpStatus.CONFLICT);
+      throw new DomainException(
+        'A user with that email already exists.',
+        HttpStatus.CONFLICT,
+      );
     }
     this.requireKnownRoles(body.roles);
 
@@ -112,7 +115,11 @@ export class AdminUsersService {
       actorLabel: session.user.name ?? session.user.email,
       subjectType: 'user',
       subjectId: row.id,
-      detail: { email: row.email, roles: body.roles, reason: body.reason.trim() },
+      detail: {
+        email: row.email,
+        roles: body.roles,
+        reason: body.reason.trim(),
+      },
     });
 
     return serialize(this.toOut(row));
@@ -145,12 +152,7 @@ export class AdminUsersService {
     return serialize(this.toOut(row));
   }
 
-  async setRoles(
-    id: string,
-    body: { roles: string[]; reason: string },
-    session: UserSession,
-  ) {
-    this.requireReason(body.reason);
+  async setRoles(id: string, body: { roles: string[] }, session: UserSession) {
     try {
       assertRolesCompatible(body.roles);
     } catch (error) {
@@ -179,7 +181,6 @@ export class AdminUsersService {
       detail: {
         before: parseRoleField(before.role),
         after: body.roles,
-        reason: body.reason.trim(),
       },
     });
 
@@ -251,7 +252,9 @@ export class AdminUsersService {
 
   private requireReason(reason: string) {
     if (!reason?.trim() || reason.trim().length < 3) {
-      throw new DomainException('A reason of at least 3 characters is required.');
+      throw new DomainException(
+        'A reason of at least 3 characters is required.',
+      );
     }
   }
 
@@ -270,12 +273,17 @@ export class AdminUsersService {
     return this.resolveDepartmentId(body.department);
   }
 
-  private async resolveDepartmentId(department: string | null): Promise<string | null> {
+  private async resolveDepartmentId(
+    department: string | null,
+  ): Promise<string | null> {
     const name = department?.trim();
     if (!name) return null;
     const row = await this.prisma.department.findFirst({
       where: {
-        OR: [{ name: { equals: name, mode: 'insensitive' } }, { costCentreNumber: name }],
+        OR: [
+          { name: { equals: name, mode: 'insensitive' } },
+          { costCentreNumber: name },
+        ],
       },
     });
     if (!row) {
@@ -293,7 +301,10 @@ export class AdminUsersService {
   }
 
   private async sendInvite(email: string) {
-    const origin = (process.env.WEB_ORIGIN ?? 'http://localhost:5173').replace(/\/$/, '');
+    const origin = (process.env.WEB_ORIGIN ?? 'http://localhost:5173').replace(
+      /\/$/,
+      '',
+    );
     try {
       await auth.api.requestPasswordReset({
         body: {

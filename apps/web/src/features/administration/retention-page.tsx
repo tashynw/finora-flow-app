@@ -78,7 +78,7 @@ function EditRetentionModal({
     if (!editing) return;
     update.mutate(
       {
-        id: editing.id,
+        id: editing.record_class,
         body: {
           retention_days: Number.parseInt(values.days, 10),
           reason: values.reason,
@@ -200,7 +200,7 @@ export function RetentionPage() {
               );
               if (!reason || reason.trim().length < 3) return;
               setActive.mutate({
-                id: row.id,
+                id: row.record_class,
                 body: {
                   is_active: !row.is_active,
                   reason: reason.trim(),

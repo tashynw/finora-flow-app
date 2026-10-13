@@ -7,7 +7,8 @@
  * reason a financial action was refused.
  */
 
-export const API_PREFIX = '/api/v1';
+/** Nest API, reached through the Vite proxy so the session cookie stays same-origin. */
+export const API_PREFIX = '/api/nest';
 
 export interface FieldError {
   field: string;
@@ -186,6 +187,10 @@ export const nestApi = {
     request<T>(path, { method: 'POST', body, prefix: NEST_PREFIX }),
   put: <T>(path: string, body?: unknown) =>
     request<T>(path, { method: 'PUT', body, prefix: NEST_PREFIX }),
+  patch: <T>(path: string, body?: unknown) =>
+    request<T>(path, { method: 'PATCH', body, prefix: NEST_PREFIX }),
+  delete: <T>(path: string) =>
+    request<T>(path, { method: 'DELETE', prefix: NEST_PREFIX }),
 };
 
 /**

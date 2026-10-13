@@ -195,6 +195,41 @@ export class AdminSettingsService {
     return serialize(this.retentionOut(key, defaults, row.id, row.value));
   }
 
+  async setRetentionActive(
+    keyParam: string,
+    body: { is_active: boolean; reason: string },
+    session: UserSession,
+  ) {
+    this.requireReason(body.reason);
+    const key = retentionSettingKey(keyParam);
+    const recordClass = recordClassFromSettingKey(key);
+    const defaults = RETENTION_DEFAULTS.find((d) => d.record_class === recordClass);
+    if (!defaults) {
+      throw new DomainException(
+        `Unknown retention key '${keyParam}'.`,
+        HttpStatus.NOT_FOUND,
+        'NOT_FOUND',
+      );
+    }
+    const existing = await this.prisma.systemSetting.findUnique({ where: { key } });
+    const current = this.parseRetentionValue(existing?.value, defaults);
+    const value: RetentionValue = { ...current, is_active: body.is_active };
+    const row = existing
+      ? await this.prisma.systemSetting.update({
+          where: { key },
+          data: { value, changeReason: body.reason.trim(), version: { increment: 1 } },
+        })
+      : await this.prisma.systemSetting.create({
+          data: {
+            key,
+            value,
+            description: defaults.description,
+            changeReason: body.reason.trim(),
+          },
+        });
+    return serialize(this.retentionOut(key, defaults, row.id, row.value));
+  }
+
   private retentionOut(
     key: string,
     defaults: (typeof RETENTION_DEFAULTS)[number],

@@ -1,27 +1,29 @@
 import { describe, expect, it, vi } from 'vitest';
-import { InvoiceStatus } from '../generated/prisma/index.js';
 import { compile, providePrisma } from '../testing/fixtures.js';
 import { OverviewService } from './overview.service.js';
 
 describe('OverviewService', () => {
-  it('aggregates invoice counts and approved spend in the database', async () => {
+  it('returns the dashboard arrays even when every register is empty', async () => {
     const prisma = {
-      invoice: {
-        groupBy: vi
-          .fn()
-          .mockResolvedValueOnce([
-            { status: InvoiceStatus.APPROVED, _count: { _all: 3 } },
-          ])
-          .mockResolvedValueOnce([
-            { currency: 'JMD', _sum: { totalMinorUnits: 15_000n } },
-          ]),
-      },
+      invoice: { findMany: vi.fn().mockResolvedValue([]) },
+      estimate: { findMany: vi.fn().mockResolvedValue([]) },
+      purchaseOrder: { findMany: vi.fn().mockResolvedValue([]) },
+      paymentPackage: { count: vi.fn().mockResolvedValue(2) },
+      accrualPeriod: { count: vi.fn().mockResolvedValue(0) },
+      creditCardPeriod: { count: vi.fn().mockResolvedValue(0) },
+      approvalRequest: { findMany: vi.fn().mockResolvedValue([]) },
     };
     const service = await compile(OverviewService, [providePrisma(prisma)]);
     const metrics = await service.metrics(6);
 
-    expect(metrics.invoiceCountsByStatus).toEqual({ APPROVED: 3 });
-    expect(metrics.approvedSpendByCurrency).toEqual({ JMD: '15000' });
-    expect(prisma.invoice.groupBy).toHaveBeenCalledTimes(2);
+    expect(metrics.spend_cards.map((card) => card.key)).toEqual([
+      'total_spend',
+      'approved_amount',
+      'pending_approvals',
+      'open_items',
+    ]);
+    expect(metrics.kpis.find((kpi) => kpi.key === 'open_packages')?.value).toBe(2);
+    expect(metrics.invoice_states.find((slice) => slice.label === 'Exception')?.count).toBe(0);
+    expect(metrics.monthly_spend).toHaveLength(6);
   });
 });

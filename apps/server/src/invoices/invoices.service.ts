@@ -11,8 +11,26 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { approvalLevelFromApi } from '../approvals/approval-levels.js';
 import { ApprovalsEngineService } from '../approvals/approvals-engine.service.js';
 import { RECORD_TYPES } from '../approvals/record-types.js';
+import { sendEmail } from '../mail/email.js';
+import { LinksService } from '../links/links.service.js';
 
 const RECORD_TYPE = RECORD_TYPES.invoice;
+
+function formatMoney(minor: number, currency: string) {
+  return new Intl.NumberFormat('en-JM', {
+    style: 'currency',
+    currency,
+    currencyDisplay: 'code',
+  }).format(minor / 100);
+}
+
+function daysUntil(due: Date | null) {
+  if (!due) return null;
+  const today = new Date();
+  const start = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  const end = Date.UTC(due.getUTCFullYear(), due.getUTCMonth(), due.getUTCDate());
+  return Math.round((end - start) / 86_400_000);
+}
 
 const TRANSITIONS: Record<InvoiceStatus, readonly InvoiceStatus[]> = {
   DRAFT: ['PENDING_SIGN_OFF', 'CANCELLED'],
@@ -51,19 +69,87 @@ export class InvoicesService {
     private readonly transitions: TransitionsService,
     private readonly audit: AuditService,
     private readonly approvals: ApprovalsEngineService,
+    private readonly links: LinksService,
   ) {}
 
   async summary() {
-    const groups = await this.prisma.invoice.groupBy({
-      by: ['status'],
+    const invoices = await this.prisma.invoice.findMany({
       where: { archivedAt: null },
-      _count: { _all: true },
+      select: { status: true, currency: true, totalMinorUnits: true },
     });
-    const counts: Record<string, number> = {};
-    for (const row of groups) {
-      counts[toWorkflowState(row.status)] = row._count._all;
+    const currencyCounts = new Map<string, number>();
+    for (const invoice of invoices) {
+      if (!invoice.currency) continue;
+      currencyCounts.set(
+        invoice.currency,
+        (currencyCounts.get(invoice.currency) ?? 0) + 1,
+      );
     }
-    return serialize({ counts_by_status: counts });
+    const primary =
+      [...currencyCounts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ??
+      'JMD';
+    const summed = (statuses: readonly InvoiceStatus[]) =>
+      invoices.reduce((total, invoice) => {
+        if (!statuses.includes(invoice.status) || invoice.currency !== primary) {
+          return total;
+        }
+        return total + Number(invoice.totalMinorUnits ?? 0n);
+      }, 0);
+    const count = (...statuses: InvoiceStatus[]) =>
+      invoices.filter((invoice) => statuses.includes(invoice.status)).length;
+
+    return serialize({
+      count: invoices.length,
+      stats: [
+        {
+          key: 'count',
+          label: 'Total invoices',
+          value: String(invoices.length),
+          tone: 'primary',
+        },
+        {
+          key: 'outstanding',
+          label: 'Outstanding to pay',
+          value: formatMoney(
+            summed([
+              'APPROVED',
+              'READY_FOR_SUBMISSION',
+              'SUBMITTED',
+              'OUTSTANDING',
+              'ACCRUAL_NEEDED',
+            ]),
+            primary,
+          ),
+          tone: 'warning',
+        },
+        {
+          key: 'paid',
+          label: 'Settled',
+          value: formatMoney(summed(['PAID']), primary),
+          tone: 'success',
+        },
+      ],
+      status_mix: [
+        { label: 'Draft', count: count('DRAFT'), tone: 'neutral' },
+        {
+          label: 'In approval',
+          count: count('PENDING_SIGN_OFF', 'PENDING_APPROVAL'),
+          tone: 'primary',
+        },
+        {
+          label: 'In flight',
+          count: count('APPROVED', 'READY_FOR_SUBMISSION', 'SUBMITTED'),
+          tone: 'info',
+        },
+        {
+          label: 'Outstanding',
+          count: count('OUTSTANDING', 'ACCRUAL_NEEDED'),
+          tone: 'warning',
+        },
+        { label: 'Paid', count: count('PAID'), tone: 'success' },
+        { label: 'Exception', count: count('EXCEPTION'), tone: 'danger' },
+      ],
+    });
   }
 
   async linkableReference() {
@@ -145,12 +231,26 @@ export class InvoicesService {
         id: row.id,
         reference: row.reference,
         state: toWorkflowState(row.status),
+        state_label: row.status.toLowerCase().replaceAll('_', ' '),
+        invoice_number: row.invoiceNumber,
+        description: row.description,
         vendor_name: row.vendor?.name ?? '',
         total_minor_units:
           row.totalMinorUnits != null ? Number(row.totalMinorUnits) : null,
+        total_formatted:
+          row.totalMinorUnits != null && row.currency
+            ? formatMoney(Number(row.totalMinorUnits), row.currency)
+            : null,
         currency: row.currency,
         requester_label: row.requester?.name ?? null,
         created_at: row.createdAt.toISOString(),
+        due_date: row.dueDate?.toISOString().slice(0, 10) ?? null,
+        days_until_due: daysUntil(row.dueDate),
+        awaiting_labels: [],
+        awaiting_me: false,
+        awaiting_my_sign_off: false,
+        problem_count: 0,
+        blocker_count: 0,
       })),
       total,
       limit: page.limit ?? page.take,
@@ -278,6 +378,24 @@ export class InvoicesService {
       },
     });
     await this.moveStatus(invoice, 'PENDING_SIGN_OFF', user, null);
+    const requester = await this.prisma.user.findUnique({
+      where: { id: body.requesterId },
+    });
+    if (requester) {
+      const link = await this.links.issue({
+        recordType: 'invoice',
+        recordId: id,
+        purpose: 'sign_off',
+        issuedToId: requester.id,
+      });
+      if (requester.email) {
+        await sendEmail({
+          to: requester.email,
+          subject: `Confirm receipt of ${invoice.reference}`,
+          text: `Open the invoice: ${link.url}`,
+        }).catch(() => undefined);
+      }
+    }
     return this.getById(id, user);
   }
 

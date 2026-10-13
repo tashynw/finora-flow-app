@@ -31,7 +31,7 @@ export function useRetentionPolicies(includeInactive = true) {
     queryKey: retentionKeys.list(includeInactive),
     queryFn: () =>
       api.get<RetentionPolicyOut[]>(
-        `/admin/retention${toQuery({ include_inactive: includeInactive })}`,
+        `/admin/settings/retention${toQuery({ include_inactive: includeInactive })}`,
       ),
   });
 }
@@ -40,7 +40,7 @@ export function useUpdateRetentionPolicy() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, body }: { id: string; body: RetentionUpdateBody }) =>
-      api.patch<RetentionPolicyOut>(`/admin/retention/${id}`, body),
+      api.patch<RetentionPolicyOut>(`/admin/settings/retention/${id}`, body),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: retentionKeys.all });
     },
@@ -51,7 +51,7 @@ export function useSetRetentionActive() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, body }: { id: string; body: ActiveBody }) =>
-      api.post<RetentionPolicyOut>(`/admin/retention/${id}/active`, body),
+      api.post<RetentionPolicyOut>(`/admin/settings/retention/${id}/active`, body),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: retentionKeys.all });
     },

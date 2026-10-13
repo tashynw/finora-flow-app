@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard, Session, type UserSession } from '@thallesp/nestjs-better-auth';
+import { DomainException } from '../common/errors.js';
 import { resolvePage, type PageQuery } from '../common/pagination.js';
 import { serialize } from '../common/serialize.js';
 import { VendorCheckInsService } from './vendor-check-ins.service.js';
@@ -29,6 +30,19 @@ export class VendorCheckInsController {
       page: page.page ?? 1,
       pageSize: page.pageSize ?? page.take,
     });
+  }
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async raiseFromBody(
+    @Session() session: UserSession,
+    @Body() body: { package_id?: string; packageId?: string },
+  ) {
+    const packageId = body.packageId ?? body.package_id;
+    if (!packageId) {
+      throw new DomainException('A payment package is required.');
+    }
+    return serialize(await this.service.raiseForPackage(session, packageId));
   }
 
   @Post(':packageId')
@@ -55,10 +69,22 @@ export class VendorCheckInsController {
     @Session() session: UserSession,
     @Param('id') id: string,
     @Body()
-    body: { claim: string; respondentName: string; note?: string },
+    body: {
+      claim: string;
+      respondentName?: string;
+      respondent_name?: string;
+      note?: string;
+    },
   ) {
     return serialize(
-      await this.service.answer(id, body, {
+      await this.service.answer(
+        id,
+        {
+          claim: body.claim,
+          respondentName: body.respondentName ?? body.respondent_name ?? '',
+          note: body.note,
+        },
+        {
         actorLabel: session.user.name ?? session.user.id,
       }),
     );

@@ -22,6 +22,7 @@ import { ToneBadge } from '@/components/workflow/status-badge';
 import { EmailText } from '@/features/shared/email-text';
 import { PageHeader } from '@/features/shared/page-header';
 import { DepartmentsCatalogue } from '@/features/administration/departments-panel';
+import { useDepartments } from '@/features/administration/use-departments';
 import {
   useAdminCostCentres,
   useAdminGlAccounts,
@@ -417,6 +418,7 @@ function CreateCostCentreModal({
   onClose: () => void;
 }) {
   const create = useCreateCostCentre();
+  const departments = useDepartments(false, open);
   const { control, handleSubmit, reset } = useForm<CostCentreForm>({
     resolver: zodResolver(costCentreSchema),
     defaultValues: emptyCostCentre,
@@ -460,7 +462,20 @@ function CreateCostCentreModal({
         </HookField>
         <HookField control={control} name="department" label="Department" help="Optional.">
           {({ inputId, describedBy, invalid }, field) => (
-            <Input id={inputId} aria-describedby={describedBy} invalid={invalid} {...field} />
+            <select
+              id={inputId}
+              aria-describedby={describedBy}
+              aria-invalid={invalid || undefined}
+              className="h-10 rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3"
+              {...field}
+            >
+              <option value="">No department</option>
+              {(departments.data ?? []).map((department) => (
+                <option key={department.id} value={department.id}>
+                  {department.name}
+                </option>
+              ))}
+            </select>
           )}
         </HookField>
         <HookField control={control} name="reason" label="Why" required>
@@ -489,6 +504,7 @@ function EditCostCentreModal({
   onClose: () => void;
 }) {
   const update = useUpdateCostCentre();
+  const departments = useDepartments(false, centre !== null);
   const { control, handleSubmit, reset } = useForm<EditCostCentreForm>({
     resolver: zodResolver(editCostCentreSchema),
     defaultValues: { name: '', department: '', reason: '' },
@@ -496,7 +512,7 @@ function EditCostCentreModal({
 
   useEffect(() => {
     if (!centre) return;
-    reset({ name: centre.name, department: centre.department ?? '', reason: '' });
+    reset({ name: centre.name, department: centre.departmentId ?? '', reason: '' });
     update.reset();
   }, [centre, reset, update]);
 
@@ -531,7 +547,20 @@ function EditCostCentreModal({
           </HookField>
           <HookField control={control} name="department" label="Department" help="Optional.">
             {({ inputId, describedBy, invalid }, field) => (
-              <Input id={inputId} aria-describedby={describedBy} invalid={invalid} {...field} />
+              <select
+                id={inputId}
+                aria-describedby={describedBy}
+                aria-invalid={invalid || undefined}
+                className="h-10 rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3"
+                {...field}
+              >
+                <option value="">No department</option>
+                {(departments.data ?? []).map((department) => (
+                  <option key={department.id} value={department.id}>
+                    {department.name}
+                  </option>
+                ))}
+              </select>
             )}
           </HookField>
           <HookField control={control} name="reason" label="Why" required>
