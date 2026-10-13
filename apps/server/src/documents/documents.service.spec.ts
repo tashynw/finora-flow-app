@@ -9,6 +9,12 @@ vi.mock('@aws-sdk/client-s3', () => ({
   S3Client: class {
     send = send;
   },
+  GetBucketCorsCommand: class {
+    constructor(public input: unknown) {}
+  },
+  PutBucketCorsCommand: class {
+    constructor(public input: unknown) {}
+  },
   CopyObjectCommand: class {
     constructor(public input: unknown) {}
   },

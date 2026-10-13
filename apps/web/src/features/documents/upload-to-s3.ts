@@ -44,6 +44,7 @@ export async function uploadDocumentToS3(file: File, kind: DocumentFolderKind) {
 
   const form = new FormData();
   for (const [key, value] of Object.entries(link.fields)) {
+    if (key === 'Content-Type') continue;
     form.append(key, value);
   }
   form.append('Content-Type', file.type || 'application/octet-stream');
