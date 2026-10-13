@@ -1,87 +1,108 @@
-import { useState } from 'react';
-import { useReducedMotion } from 'motion/react';
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useReducedMotion } from "motion/react";
 import {
   ArrowRight,
   BarChart3,
+  Eye,
+  EyeOff,
   KeyRound,
   ListChecks,
   Lock,
   Mail,
   ShieldCheck,
   type LucideIcon,
-} from 'lucide-react';
+} from "lucide-react";
+import { toast } from "sonner";
+import { z } from "zod";
 
-import { ApiError } from '@/lib/api-client';
-import { Button } from '@/components/ui/button';
-import { Field, Input } from '@/components/ui/field';
-import { FinoraMark } from '@/components/brand/finora-mark';
-import { useAuth } from '@/features/auth/auth-context';
-import { WorkflowSpiral, WorkflowStrip } from '@/features/auth/workflow-flow';
-import scene from '@/assets/scene/signin-scene.jpg';
-import flowVideo from '@/assets/scene/signin-flow.mp4';
+import { Button } from "@/components/ui/button";
+import { Field, Input } from "@/components/ui/field";
+import { FinoraMark } from "@/components/brand/finora-mark";
+import { useAuth } from "@/features/auth/auth-context";
+import { WorkflowSpiral, WorkflowStrip } from "@/features/auth/workflow-flow";
+import scene from "@/assets/scene/signin-scene.jpg";
+import flowVideo from "@/assets/scene/signin-flow.mp4";
+
+const signInSchema = z.object({
+  email: z.email("Enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+type SignInValues = z.infer<typeof signInSchema>;
 
 const FEATURES: { icon: LucideIcon; title: string; desc: string }[] = [
   {
     icon: BarChart3,
-    title: 'Real-time visibility',
-    desc: 'Track spend, approvals and payments across all units in one place.',
+    title: "Real-time visibility",
+    desc: "Track spend, approvals and payments across all units in one place.",
   },
   {
     icon: ShieldCheck,
-    title: 'Enterprise controls',
-    desc: 'Role-based access, approval workflows and policy enforcement.',
+    title: "Enterprise controls",
+    desc: "Role-based access, approval workflows and policy enforcement.",
   },
   {
     icon: ListChecks,
-    title: 'Complete audit trail',
-    desc: 'Every action tracked and traceable for greater accountability.',
+    title: "Complete audit trail",
+    desc: "Every action tracked and traceable for greater accountability.",
   },
 ];
 
 const TRUST: { icon: LucideIcon; title: string; desc: string }[] = [
-  { icon: Lock, title: 'Secure & compliant', desc: 'Every decision is audited' },
-  { icon: ShieldCheck, title: 'Your data stays yours', desc: 'AI runs on your own gateway' },
-  { icon: KeyRound, title: 'Built for control', desc: 'Segregation of duties enforced' },
+  {
+    icon: Lock,
+    title: "Secure & compliant",
+    desc: "Every decision is audited",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Your data stays yours",
+    desc: "AI runs on your own gateway",
+  },
+  {
+    icon: KeyRound,
+    title: "Built for control",
+    desc: "Segregation of duties enforced",
+  },
 ];
 
 /**
  * Sign-in.
  *
  * The full-bleed glass-spiral scene, a marketing column, the workflow flowing
- * through its four stages, and a frosted sign-in panel. Which methods appear is
- * decided by the API, not hard-coded here: single sign-on shows only when the
- * deployment has an identity provider, and the email form only when local
- * accounts are enabled.
+ * through its four stages, and a frosted sign-in panel. Email and password go
+ * to the Nest server through Better Auth.
  */
 export function SignInPage() {
-  const { signIn, methods } = useAuth();
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const { signIn } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const reduceMotion = useReducedMotion();
+  const { control, handleSubmit } = useForm<SignInValues>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: { email: "", password: "" },
+  });
 
-  const submit = async () => {
-    setError(null);
+  const onSubmit = handleSubmit(async (values) => {
+    setFormError(null);
     setSubmitting(true);
     try {
-      await signIn(email.trim());
+      await signIn(values.email.trim(), values.password);
+      toast.success("Signed in");
     } catch (caught) {
-      setError(
-        caught instanceof ApiError
+      const message =
+        caught instanceof Error
           ? caught.message
-          : 'Sign-in could not be completed. Check your connection and try again.',
-      );
+          : "Sign-in could not be completed. Check your connection and try again.";
+      setFormError(message);
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    void submit();
-  };
-
-  const ssoUrl = methods?.oidc_enabled ? methods.oidc_authorize_url : null;
+  });
 
   return (
     <div className="relative isolate min-h-dvh overflow-hidden bg-[#eaf2ff]">
@@ -118,7 +139,7 @@ export function SignInPage() {
         <header className="relative z-10 flex flex-col gap-5 lg:hidden">
           <FinoraMark size="md" />
           <h1 className="m-0 text-[30px] font-bold leading-[1.1] tracking-[-0.02em] text-[#0e1a4b]">
-            From estimate to payment,{' '}
+            From estimate to payment,{" "}
             <span className="bg-[linear-gradient(90deg,#3569f4_0%,#6d4cf0_100%)] bg-clip-text text-transparent">
               in flow.
             </span>
@@ -136,14 +157,14 @@ export function SignInPage() {
           <h1 className="mt-3 text-[40px] font-bold leading-[1.08] tracking-[-0.02em] text-[#0e1a4b] xl:text-[46px] 2xl:text-[48px]">
             From estimate
             <br />
-            to payment,{' '}
+            to payment,{" "}
             <span className="bg-[linear-gradient(90deg,#3569f4_0%,#6d4cf0_100%)] bg-clip-text text-transparent">
               in flow.
             </span>
           </h1>
           <p className="mt-4 m-0 max-w-[400px] text-[16px] leading-relaxed text-[#4a5a86]">
-            Streamline your finance operations with complete visibility, stronger
-            controls, and faster workflows across your business.
+            Streamline your finance operations with complete visibility,
+            stronger controls, and faster workflows across your business.
           </p>
 
           {/* Laptop widths have no room for the spiral, so the flow runs here. */}
@@ -184,93 +205,116 @@ export function SignInPage() {
               Welcome back
             </h2>
             <p className="mt-2 m-0 text-[14px] leading-relaxed text-[#5b6a92]">
-              Sign in to access your finance operations and keep your business in
-              flow.
+              Sign in to access your finance operations and keep your business
+              in flow.
             </p>
 
             <div className="mt-7">
-              {methods?.local_accounts_enabled ? (
-                <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-                  <Field
-                    label="Work email"
-                    required
-                    help="Development sign-in. Single sign-on is used in production."
-                    error={error ?? undefined}
-                  >
-                    {({ inputId, describedBy, invalid }) => (
-                      <span className="relative block">
-                        <Mail
-                          aria-hidden="true"
-                          className="pointer-events-none absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-[#5b6a92]"
-                        />
-                        <Input
-                          id={inputId}
-                          aria-describedby={describedBy}
-                          invalid={invalid}
-                          type="email"
-                          name="email"
-                          autoComplete="username"
-                          placeholder="you@company.com"
-                          required
-                          value={email}
-                          onChange={(event) => setEmail(event.target.value)}
-                          className="h-12 rounded-[12px] border-[#c9d6f5] bg-white/85 pl-11 text-[14px] shadow-[inset_0_1px_2px_rgb(30_60_140_/_0.05)]"
-                        />
-                      </span>
-                    )}
-                  </Field>
+              <form
+                onSubmit={(event) => {
+                  void onSubmit(event);
+                }}
+                noValidate
+                className="flex flex-col gap-5"
+              >
+                <Controller
+                  control={control}
+                  name="email"
+                  render={({ field, fieldState }) => (
+                    <Field
+                      label="Work email"
+                      required
+                      error={fieldState.error?.message}
+                    >
+                      {({ inputId, describedBy, invalid }) => (
+                        <span className="relative block">
+                          <Mail
+                            aria-hidden="true"
+                            className="pointer-events-none absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-[#5b6a92]"
+                          />
+                          <Input
+                            {...field}
+                            id={inputId}
+                            aria-describedby={describedBy}
+                            invalid={invalid}
+                            type="email"
+                            autoComplete="username"
+                            placeholder="you@company.com"
+                            className="h-12 rounded-[12px] border-[#c9d6f5] bg-white/85 pl-11 text-[14px] shadow-[inset_0_1px_2px_rgb(30_60_140_/_0.05)]"
+                          />
+                        </span>
+                      )}
+                    </Field>
+                  )}
+                />
 
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    fullWidth
-                    isLoading={submitting}
-                    loadingLabel="Signing in"
-                    className="h-12 rounded-[12px] bg-[linear-gradient(90deg,#2f6bf2_0%,#3a5ff0_55%,#5b4bf0_100%)] text-[15px] shadow-[0_10px_22px_rgb(53_90_240_/_0.32)] hover:brightness-[1.06]"
-                  >
-                    Continue
-                    <ArrowRight aria-hidden="true" className="size-4" />
-                  </Button>
-                </form>
-              ) : null}
+                <Controller
+                  control={control}
+                  name="password"
+                  render={({ field, fieldState }) => (
+                    <Field
+                      label="Password"
+                      required
+                      error={
+                        fieldState.error?.message ?? formError ?? undefined
+                      }
+                    >
+                      {({ inputId, describedBy, invalid }) => (
+                        <span className="relative block">
+                          <Lock
+                            aria-hidden="true"
+                            className="pointer-events-none absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-[#5b6a92]"
+                          />
+                          <Input
+                            {...field}
+                            id={inputId}
+                            aria-describedby={describedBy}
+                            invalid={invalid}
+                            type={showPassword ? "text" : "password"}
+                            autoComplete="current-password"
+                            placeholder="Enter your password"
+                            className="h-12 rounded-[12px] border-[#c9d6f5] bg-white/85 pl-11 pr-11 text-[14px] shadow-[inset_0_1px_2px_rgb(30_60_140_/_0.05)]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setShowPassword((current) => !current)
+                            }
+                            aria-label={
+                              showPassword ? "Hide password" : "Show password"
+                            }
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5b6a92]"
+                          >
+                            {showPassword ? (
+                              <EyeOff
+                                aria-hidden="true"
+                                className="size-5 cursor-pointer"
+                              />
+                            ) : (
+                              <Eye
+                                aria-hidden="true"
+                                className="size-5 cursor-pointer"
+                              />
+                            )}
+                          </button>
+                        </span>
+                      )}
+                    </Field>
+                  )}
+                />
 
-              {ssoUrl && methods?.local_accounts_enabled ? (
-                <div className="my-5 flex items-center gap-4" aria-hidden="true">
-                  <span className="h-px flex-1 bg-[#d3dcf0]" />
-                  <span className="text-[11px] font-medium tracking-wide text-[#7a88aa]">OR</span>
-                  <span className="h-px flex-1 bg-[#d3dcf0]" />
-                </div>
-              ) : null}
-
-              {ssoUrl ? (
                 <Button
-                  variant="secondary"
+                  type="submit"
+                  variant="primary"
                   fullWidth
-                  asChild
-                  className="h-12 rounded-[12px] border-[#d6def0] bg-white/85 text-[14px] text-[#0e1a4b]"
+                  isLoading={submitting}
+                  loadingLabel="Signing in"
+                  className="h-12 rounded-[12px] bg-[linear-gradient(90deg,#2f6bf2_0%,#3a5ff0_55%,#5b4bf0_100%)] text-[15px] shadow-[0_10px_22px_rgb(53_90_240_/_0.32)] hover:brightness-[1.06] cursor-pointer"
                 >
-                  <a href={ssoUrl}>
-                    <ShieldCheck aria-hidden="true" className="size-4 text-[var(--color-primary-600)]" />
-                    Continue with single sign-on
-                  </a>
+                  Sign in
+                  <ArrowRight aria-hidden="true" className="size-4" />
                 </Button>
-              ) : null}
-
-              {!methods ? (
-                <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
-                  Checking available sign-in methods.
-                </p>
-              ) : null}
-
-              {methods && !methods.oidc_enabled && !methods.local_accounts_enabled ? (
-                <div className="rounded-[var(--radius-md)] border border-[var(--color-warning-600)] bg-[var(--color-warning-50)] p-[var(--space-4)]">
-                  <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-warning-700)]">
-                    No sign-in method is configured for this deployment. An
-                    administrator needs to register an identity provider before
-                    anyone can sign in.
-                  </p>
-                </div>
-              ) : null}
+              </form>
             </div>
 
             <ul className="mt-8 m-0 grid list-none grid-cols-3 divide-x divide-[#dbe3f5] p-0">

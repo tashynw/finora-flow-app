@@ -34,10 +34,12 @@ function RootLayout() {
   const location = useRouterState({ select: (state) => state.location });
   const supplier = location.pathname.startsWith('/payment-check-in/');
   const signingIn = location.pathname === '/sign-in';
+  const resettingPassword = location.pathname === '/reset-password';
+  const publicPage = supplier || signingIn || resettingPassword;
 
-  if (!supplier && isLoading) return <CheckingSession />;
+  if (!publicPage && isLoading) return <CheckingSession />;
 
-  if (!supplier && !signingIn && !user) {
+  if (!publicPage && !user) {
     return (
       <Navigate
         to="/sign-in"

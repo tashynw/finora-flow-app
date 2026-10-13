@@ -2,13 +2,18 @@
  * Operational settings — AI kill switch and read-only workflow snapshot.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Power, SlidersHorizontal } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
 import { errorMessage } from '@/lib/api-client';
+import { auditReason } from '@/lib/form-schemas';
+import { HookField } from '@/components/form/hook-field';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
-import { Field, Textarea } from '@/components/ui/field';
+import { Textarea } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
 import { ToneBadge } from '@/components/workflow/status-badge';
@@ -17,6 +22,9 @@ import {
   useOperationalSettings,
   useSetAiKillSwitch,
 } from '@/features/administration/use-operational-settings';
+
+const killSwitchSchema = z.object({ reason: auditReason });
+type KillSwitchForm = z.infer<typeof killSwitchSchema>;
 
 function KillSwitchModal({
   open,
@@ -28,21 +36,27 @@ function KillSwitchModal({
   onClose: () => void;
 }) {
   const mutation = useSetAiKillSwitch();
-  const [reason, setReason] = useState('');
+  const formId = `kill-switch-${useId().replace(/:/g, '')}`;
+  const { control, handleSubmit, reset } = useForm<KillSwitchForm>({
+    resolver: zodResolver(killSwitchSchema),
+    defaultValues: { reason: '' },
+  });
 
   useEffect(() => {
     if (!open) return;
-    setReason('');
+    reset({ reason: '' });
     mutation.reset();
-  }, [open, engage, mutation]);
-
-  const canSave = reason.trim().length >= 3 && !mutation.isPending;
+  }, [open, engage, reset, mutation]);
 
   function resetAndClose() {
-    setReason('');
+    reset({ reason: '' });
     mutation.reset();
     onClose();
   }
+
+  const onSubmit = handleSubmit((values) => {
+    mutation.mutate({ engaged: engage, reason: values.reason }, { onSuccess: resetAndClose });
+  });
 
   return (
     <Modal
@@ -61,42 +75,35 @@ function KillSwitchModal({
             Cancel
           </Button>
           <Button
-            type="button"
+            type="submit"
+            form={formId}
             variant={engage ? 'danger' : 'primary'}
-            disabled={!canSave}
             isLoading={mutation.isPending}
             loadingLabel="Saving"
-            onClick={() => {
-              mutation.mutate(
-                { engaged: engage, reason: reason.trim() },
-                { onSuccess: () => resetAndClose() },
-              );
-            }}
           >
             {engage ? 'Engage kill switch' : 'Clear kill switch'}
           </Button>
         </div>
       }
     >
-      <div className="flex flex-col gap-[var(--space-4)]">
-        <Field label="Reason" help="Recorded in the audit trail. At least three characters.">
-          {({ inputId, describedBy, invalid }) => (
-            <Textarea
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              rows={3}
-              value={reason}
-              onChange={(event) => setReason(event.target.value)}
-            />
+      <form id={formId} className="flex flex-col gap-[var(--space-4)]" onSubmit={onSubmit} noValidate>
+        <HookField
+          control={control}
+          name="reason"
+          label="Reason"
+          required
+          help="Recorded in the audit trail. At least three characters."
+        >
+          {({ inputId, describedBy, invalid }, field) => (
+            <Textarea id={inputId} aria-describedby={describedBy} invalid={invalid} rows={3} {...field} />
           )}
-        </Field>
+        </HookField>
         {mutation.isError ? (
           <p role="alert" className="m-0 text-[var(--color-danger-700)]">
             {errorMessage(mutation.error) ?? 'The kill switch could not be updated.'}
           </p>
         ) : null}
-      </div>
+      </form>
     </Modal>
   );
 }

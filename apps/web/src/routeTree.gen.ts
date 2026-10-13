@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root';
 import { Route as AppRouteImport } from './routes/_app';
+import { Route as ResetPasswordRouteImport } from './routes/reset-password';
 import { Route as SignInRouteImport } from './routes/sign-in';
 import { Route as AppSplatRouteImport } from './routes/_app/$';
 import { Route as PaymentCheckInTokenRouteImport } from './routes/payment-check-in.$token';
@@ -51,6 +52,11 @@ import { Route as AppsystemOperationsIntakeRouteImport } from './routes/_app/(sy
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any);
 const SignInRoute = SignInRouteImport.update({
@@ -262,6 +268,7 @@ const AppsystemOperationsIntakeRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof AppoverviewIndexRoute;
+  '/reset-password': typeof ResetPasswordRoute;
   '/sign-in': typeof SignInRoute;
   '/$': typeof AppSplatRoute;
   '/payment-check-in/$token': typeof PaymentCheckInTokenRoute;
@@ -301,6 +308,7 @@ export interface FileRoutesByFullPath {
   '/operations/': typeof AppsystemOperationsIndexRoute;
 }
 export interface FileRoutesByTo {
+  '/reset-password': typeof ResetPasswordRoute;
   '/sign-in': typeof SignInRoute;
   '/$': typeof AppSplatRoute;
   '/payment-check-in/$token': typeof PaymentCheckInTokenRoute;
@@ -343,6 +351,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   '/_app': typeof AppRouteWithChildren;
+  '/reset-password': typeof ResetPasswordRoute;
   '/sign-in': typeof SignInRoute;
   '/_app/$': typeof AppSplatRoute;
   '/payment-check-in/$token': typeof PaymentCheckInTokenRoute;
@@ -386,6 +395,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | '/'
+    | '/reset-password'
     | '/sign-in'
     | '/$'
     | '/payment-check-in/$token'
@@ -425,6 +435,7 @@ export interface FileRouteTypes {
     | '/operations/';
   fileRoutesByTo: FileRoutesByTo;
   to:
+    | '/reset-password'
     | '/sign-in'
     | '/$'
     | '/payment-check-in/$token'
@@ -466,6 +477,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_app'
+    | '/reset-password'
     | '/sign-in'
     | '/_app/$'
     | '/payment-check-in/$token'
@@ -508,6 +520,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren;
+  ResetPasswordRoute: typeof ResetPasswordRoute;
   SignInRoute: typeof SignInRoute;
   PaymentCheckInTokenRoute: typeof PaymentCheckInTokenRoute;
 }
@@ -519,6 +532,13 @@ declare module '@tanstack/react-router' {
       path: '';
       fullPath: '/';
       preLoaderRoute: typeof AppRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/reset-password': {
+      id: '/reset-password';
+      path: '/reset-password';
+      fullPath: '/reset-password';
+      preLoaderRoute: typeof ResetPasswordRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/sign-in': {
@@ -874,6 +894,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren);
 
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
+  ResetPasswordRoute: ResetPasswordRoute,
   SignInRoute: SignInRoute,
   PaymentCheckInTokenRoute: PaymentCheckInTokenRoute,
 };

@@ -10,8 +10,8 @@ import { routeTree } from '@/routeTree.gen';
  * The route files under `src/routes` are the source of truth. The Vite plugin
  * generates `routeTree.gen.ts` from them. Client-side permission checks keep a
  * user out of a screen they cannot use; the API's check is what actually
- * protects the data. The browser still talks to the original Python API
- * through the Vite proxy on port 8000.
+ * protects the data. Sign-in goes to the Nest server. Other API calls still
+ * go to the Python API through the Vite proxy on port 8000.
  */
 
 export const router = createRouter({

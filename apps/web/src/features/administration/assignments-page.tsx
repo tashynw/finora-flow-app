@@ -258,6 +258,7 @@ function AssignDialog({
 }) {
   const [userId, setUserId] = useState('');
   const [department, setDepartment] = useState('');
+  const [whoError, setWhoError] = useState('');
 
   const { data: people } = usePeople();
   const assign = useAssignLevel();
@@ -284,11 +285,15 @@ function AssignDialog({
           </Button>
           <Button
             variant="primary"
-            disabled={!userId || !level}
             isLoading={assign.isPending}
             loadingLabel="Adding"
             onClick={() => {
-              if (!level || !userId) return;
+              if (!level || !userId) {
+                setWhoError('Choose somebody.');
+                return;
+              }
+              if (chosen && !chosen.may_decide) return;
+              setWhoError('');
               assign.mutate(
                 { userId, level, department },
                 {
@@ -318,9 +323,11 @@ function AssignDialog({
           required
           help="Only people with an open account are listed."
           error={
-            chosen && !chosen.may_decide
-              ? 'This person cannot record an approval decision, so putting them at a level would leave the level unstaffed in practice. Give them an approver role first.'
-              : undefined
+            whoError
+              ? whoError
+              : chosen && !chosen.may_decide
+                ? 'This person cannot record an approval decision, so putting them at a level would leave the level unstaffed in practice. Give them an approver role first.'
+                : undefined
           }
         >
           {({ inputId, describedBy, invalid }) => (

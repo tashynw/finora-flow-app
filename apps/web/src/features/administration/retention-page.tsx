@@ -2,14 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import { Hourglass } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
 import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
+import { auditReason } from '@/lib/form-schemas';
+import { HookField } from '@/components/form/hook-field';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { DataTable, type Column } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Field, Input, Textarea } from '@/components/ui/field';
+import { Input, Textarea } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
 import { ViewTabs } from '@/components/ui/view-tabs';
@@ -32,6 +37,16 @@ function approximateYears(days: number): string | null {
   return `~${years} year${years === 1 ? '' : 's'}`;
 }
 
+const retentionSchema = z.object({
+  days: z
+    .string()
+    .trim()
+    .regex(/^[1-9]\d*$/, 'Enter a whole number of days, at least one.'),
+  reason: auditReason,
+});
+
+type RetentionForm = z.infer<typeof retentionSchema>;
+
 function EditRetentionModal({
   open,
   editing,
@@ -42,26 +57,36 @@ function EditRetentionModal({
   onClose: () => void;
 }) {
   const update = useUpdateRetentionPolicy();
-  const [days, setDays] = useState('');
-  const [reason, setReason] = useState('');
+  const { control, handleSubmit, reset } = useForm<RetentionForm>({
+    resolver: zodResolver(retentionSchema),
+    defaultValues: { days: '', reason: '' },
+  });
 
   useEffect(() => {
     if (!open || !editing) return;
-    setDays(String(editing.retention_days));
-    setReason('');
+    reset({ days: String(editing.retention_days), reason: '' });
     update.reset();
-  }, [open, editing, update]);
-
-  const parsedDays = Number.parseInt(days, 10);
-  const daysOk = Number.isInteger(parsedDays) && parsedDays >= 1;
-  const canSave = editing !== null && daysOk && reason.trim().length >= 3 && !update.isPending;
+  }, [open, editing, reset, update]);
 
   function resetAndClose() {
-    setDays('');
-    setReason('');
+    reset({ days: '', reason: '' });
     update.reset();
     onClose();
   }
+
+  const onSubmit = handleSubmit((values) => {
+    if (!editing) return;
+    update.mutate(
+      {
+        id: editing.id,
+        body: {
+          retention_days: Number.parseInt(values.days, 10),
+          reason: values.reason,
+        },
+      },
+      { onSuccess: resetAndClose },
+    );
+  });
 
   return (
     <Modal
@@ -70,61 +95,31 @@ function EditRetentionModal({
       title={editing ? `Edit ${formatRecordClass(editing.record_class)}` : 'Edit retention'}
       description="Periods are provisional defaults until the requirements document confirms them. Changes are audited."
     >
-      <div className="flex flex-col gap-[var(--space-4)]">
+      <form className="flex flex-col gap-[var(--space-4)]" onSubmit={onSubmit} noValidate>
         {editing ? (
           <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
             {editing.description}
           </p>
         ) : null}
-        <Field label="Retention days" help="Whole days, at least one.">
-          {({ inputId, describedBy, invalid }) => (
-            <Input
-              id={inputId}
-              inputMode="numeric"
-              aria-describedby={describedBy}
-              invalid={invalid}
-              value={days}
-              onChange={(event) => setDays(event.target.value)}
-            />
+        <HookField control={control} name="days" label="Retention days" required help="Whole days, at least one.">
+          {({ inputId, describedBy, invalid }, field) => (
+            <Input id={inputId} inputMode="numeric" aria-describedby={describedBy} invalid={invalid} {...field} />
           )}
-        </Field>
-        <Field label="Why">
-          {({ inputId, describedBy, invalid }) => (
-            <Textarea
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              rows={3}
-              value={reason}
-              onChange={(event) => setReason(event.target.value)}
-            />
+        </HookField>
+        <HookField control={control} name="reason" label="Why" required>
+          {({ inputId, describedBy, invalid }, field) => (
+            <Textarea id={inputId} aria-describedby={describedBy} invalid={invalid} rows={3} {...field} />
           )}
-        </Field>
+        </HookField>
         {update.isError ? (
           <p role="alert" className="m-0 text-[var(--color-danger-700)]">
             {errorMessage(update.error) ?? 'The retention policy could not be saved.'}
           </p>
         ) : null}
-        <Button
-          type="button"
-          disabled={!canSave}
-          onClick={() => {
-            if (!editing || !daysOk) return;
-            update.mutate(
-              {
-                id: editing.id,
-                body: {
-                  retention_days: parsedDays,
-                  reason: reason.trim(),
-                },
-              },
-              { onSuccess: resetAndClose },
-            );
-          }}
-        >
-          {update.isPending ? 'Saving…' : 'Save period'}
+        <Button type="submit" isLoading={update.isPending} loadingLabel="Saving">
+          Save period
         </Button>
-      </div>
+      </form>
     </Modal>
   );
 }

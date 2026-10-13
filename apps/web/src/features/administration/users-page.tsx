@@ -1,33 +1,45 @@
 /** Users and roles administration screen. */
 
-import { useEffect, useState } from 'react';
-import { UserPlus, Users } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { UserPlus, Users } from "lucide-react";
+import { toast } from "sonner";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
-import { cn } from '@/lib/utils';
-import { errorMessage } from '@/lib/api-client';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { DataTable, type Column } from '@/components/ui/data-table';
-import { EmptyState } from '@/components/ui/empty-state';
-import { Field, Input, Textarea } from '@/components/ui/field';
-import { Modal } from '@/components/ui/modal';
-import { SkeletonText } from '@/components/ui/skeleton';
-import { ViewTabs } from '@/components/ui/view-tabs';
-import { ToneBadge } from '@/components/workflow/status-badge';
-import { EmailText } from '@/features/shared/email-text';
-import { PageHeader } from '@/features/shared/page-header';
-import { useAuth } from '@/features/auth/auth-context';
+import { cn } from "@/lib/utils";
+import { errorMessage } from "@/lib/api-client";
+import { auditReason, requiredText } from "@/lib/form-schemas";
+import { HookField } from "@/components/form/hook-field";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { DataTable, type Column } from "@/components/ui/data-table";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input, Textarea } from "@/components/ui/field";
+import { Modal } from "@/components/ui/modal";
+import { SkeletonText } from "@/components/ui/skeleton";
+import { ViewTabs } from "@/components/ui/view-tabs";
+import { ToneBadge } from "@/components/workflow/status-badge";
+import { EmailText } from "@/features/shared/email-text";
+import { PageHeader } from "@/features/shared/page-header";
+import { Combobox } from "@/components/ui/combobox";
+import { useDepartments } from "@/features/administration/use-departments";
+import { useAuth } from "@/features/auth/auth-context";
 import {
   ROLE_OPTIONS,
   useCreateUser,
+  useResendInvite,
   useSetUserActive,
   useSetUserRoles,
   useUsers,
   type AdminUserOut,
-} from '@/features/administration/use-users';
+} from "@/features/administration/use-users";
 
 function roleLabel(id: string): string {
-  return ROLE_OPTIONS.find((role) => role.id === id)?.label ?? id.replaceAll('_', ' ');
+  return (
+    ROLE_OPTIONS.find((role) => role.id === id)?.label ??
+    id.replaceAll("_", " ")
+  );
 }
 
 function RoleEditor({
@@ -74,12 +86,33 @@ function RoleEditor({
         })}
       </ul>
       <p className="mt-[var(--space-3)] m-0 text-[length:var(--text-caption)] text-[var(--color-text-subtle)]">
-        Administrator and Approver cannot be combined: editing the approval matrix
-        and deciding approvals must sit with different people.
+        Administrator and Approver cannot be combined: editing the approval
+        matrix and deciding approvals must sit with different people.
       </p>
     </fieldset>
   );
 }
+
+const inviteSchema = z.object({
+  email: requiredText("An email address is required.").refine(
+    (value) => z.email().safeParse(value).success,
+    "Enter a valid email address.",
+  ),
+  displayName: requiredText("A display name is required."),
+  departmentId: z.string(),
+  roles: z.array(z.string()).min(1, "Choose at least one role."),
+  reason: auditReason,
+});
+
+type InviteForm = z.infer<typeof inviteSchema>;
+
+const emptyInvite: InviteForm = {
+  email: "",
+  displayName: "",
+  departmentId: "",
+  roles: ["requester"],
+  reason: "",
+};
 
 function CreateUserModal({
   open,
@@ -89,117 +122,165 @@ function CreateUserModal({
   onClose: () => void;
 }) {
   const create = useCreateUser();
-  const [email, setEmail] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [department, setDepartment] = useState('');
-  const [roles, setRoles] = useState<Set<string>>(new Set(['requester']));
-  const [reason, setReason] = useState('');
+  const departments = useDepartments(false, open);
+  const { control, handleSubmit, reset } = useForm<InviteForm>({
+    resolver: zodResolver(inviteSchema),
+    defaultValues: emptyInvite,
+  });
 
-  function reset() {
-    setEmail('');
-    setDisplayName('');
-    setDepartment('');
-    setRoles(new Set(['requester']));
-    setReason('');
+  useEffect(() => {
+    if (!open) return;
+    reset(emptyInvite);
+  }, [open, reset]);
+
+  function close() {
+    reset(emptyInvite);
     create.reset();
+    onClose();
   }
+
+  const onSubmit = handleSubmit((values) => {
+    create.mutate(
+      {
+        email: values.email,
+        display_name: values.displayName,
+        department: null,
+        department_id: values.departmentId || null,
+        roles: values.roles,
+        reason: values.reason,
+      },
+      {
+        onSuccess: () => {
+          toast.success("An invitation link has been sent to the user.");
+          close();
+        },
+        onError: (error) => {
+          toast.error(
+            errorMessage(error) ?? "The invitation could not be sent.",
+          );
+        },
+      },
+    );
+  });
 
   return (
     <Modal
       open={open}
-      onClose={() => {
-        reset();
-        onClose();
-      }}
-      title="Create account"
-      description="A reason is required. Roles that grant incompatible rights are refused."
+      onClose={close}
+      title="Invite user"
+      description="They receive an email with a link to choose a password. Roles that grant incompatible rights are refused."
     >
-      <div className="flex flex-col gap-[var(--space-4)]">
-        <Field label="Email">
-          {({ inputId, describedBy, invalid }) => (
+      <form
+        className="flex flex-col gap-[var(--space-4)]"
+        onSubmit={onSubmit}
+        noValidate
+      >
+        <HookField control={control} name="email" label="Email" required>
+          {({ inputId, describedBy, invalid }, field) => (
             <Input
               id={inputId}
               type="email"
               aria-describedby={describedBy}
               invalid={invalid}
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              {...field}
             />
           )}
-        </Field>
-        <Field label="Display name">
-          {({ inputId, describedBy, invalid }) => (
+        </HookField>
+        <HookField
+          control={control}
+          name="displayName"
+          label="Display name"
+          required
+        >
+          {({ inputId, describedBy, invalid }, field) => (
             <Input
               id={inputId}
               aria-describedby={describedBy}
               invalid={invalid}
-              value={displayName}
-              onChange={(event) => setDisplayName(event.target.value)}
+              {...field}
             />
           )}
-        </Field>
-        <Field label="Department" help="Optional.">
-          {({ inputId, describedBy, invalid }) => (
-            <Input
+        </HookField>
+        <HookField
+          control={control}
+          name="departmentId"
+          label="Department"
+          help={
+            departments.data?.length
+              ? "Optional. Choose one that already exists."
+              : "Optional. Add departments under Reference data first."
+          }
+        >
+          {({ inputId, describedBy, invalid }, field) => (
+            <Combobox
               id={inputId}
-              aria-describedby={describedBy}
+              describedBy={describedBy}
               invalid={invalid}
-              value={department}
-              onChange={(event) => setDepartment(event.target.value)}
+              value={field.value}
+              onChange={field.onChange}
+              placeholder="Select a department"
+              emptyLabel="No department found."
+              clearLabel="No department"
+              items={(departments.data ?? [])
+                .filter((department) => department.isActive)
+                .map((department) => ({
+                  value: department.id,
+                  label: `${department.name} · ${department.costCentreNumber}`,
+                }))}
             />
           )}
-        </Field>
-        <RoleEditor selected={roles} onChange={setRoles} />
-        <Field label="Why">
-          {({ inputId, describedBy, invalid }) => (
+        </HookField>
+        <Controller
+          control={control}
+          name="roles"
+          render={({ field, fieldState }) => (
+            <>
+              <RoleEditor
+                selected={new Set(field.value)}
+                onChange={(next) => field.onChange([...next])}
+              />
+              {fieldState.error?.message ? (
+                <p role="alert" className="m-0 text-[var(--color-danger-700)]">
+                  {fieldState.error.message}
+                </p>
+              ) : null}
+            </>
+          )}
+        />
+        <HookField control={control} name="reason" label="Why" required>
+          {({ inputId, describedBy, invalid }, field) => (
             <Textarea
               id={inputId}
               aria-describedby={describedBy}
               invalid={invalid}
               rows={3}
-              value={reason}
-              onChange={(event) => setReason(event.target.value)}
+              {...field}
             />
           )}
-        </Field>
+        </HookField>
         {create.isError ? (
           <p role="alert" className="m-0 text-[var(--color-danger-700)]">
-            {errorMessage(create.error) ?? 'The account could not be created.'}
+            {errorMessage(create.error) ?? "The account could not be created."}
           </p>
         ) : null}
         <Button
-          type="button"
-          disabled={
-            create.isPending ||
-            !email.trim() ||
-            !displayName.trim() ||
-            roles.size === 0 ||
-            reason.trim().length < 3
-          }
-          onClick={() =>
-            create.mutate(
-              {
-                email: email.trim(),
-                display_name: displayName.trim(),
-                department: department.trim() || null,
-                roles: [...roles],
-                reason: reason.trim(),
-              },
-              {
-                onSuccess: () => {
-                  reset();
-                  onClose();
-                },
-              },
-            )
-          }
+          type="submit"
+          isLoading={create.isPending}
+          loadingLabel="Sending"
         >
-          {create.isPending ? 'Creating…' : 'Create account'}
+          Invite
         </Button>
-      </div>
+      </form>
     </Modal>
   );
 }
+
+const rolesSchema = z.object({
+  roles: z.array(z.string()).min(1, "Choose at least one role."),
+  reason: auditReason,
+});
+
+type RolesForm = z.infer<typeof rolesSchema>;
 
 function EditRolesModal({
   user,
@@ -209,62 +290,82 @@ function EditRolesModal({
   onClose: () => void;
 }) {
   const setRoles = useSetUserRoles();
-  const [roles, setSelected] = useState<Set<string>>(new Set());
-  const [reason, setReason] = useState('');
-
-  const open = user !== null;
+  const { control, handleSubmit, reset } = useForm<RolesForm>({
+    resolver: zodResolver(rolesSchema),
+    defaultValues: { roles: [], reason: "" },
+  });
 
   useEffect(() => {
-    if (user) {
-      setSelected(new Set(user.roles));
-      setReason('');
-      setRoles.reset();
-    }
-  }, [user, setRoles]);
+    if (!user) return;
+    reset({ roles: user.roles, reason: "" });
+    setRoles.reset();
+  }, [user, reset, setRoles]);
+
+  const onSubmit = handleSubmit((values) => {
+    if (!user) return;
+    setRoles.mutate(
+      { userId: user.id, body: { roles: values.roles, reason: values.reason } },
+      { onSuccess: () => onClose() },
+    );
+  });
 
   return (
     <Modal
-      open={open}
+      open={user !== null}
       onClose={onClose}
-      title={user ? `Roles for ${user.display_name}` : 'Roles'}
+      title={user ? `Roles for ${user.display_name}` : "Roles"}
       description="Changing roles is audited. Incompatible combinations are refused."
     >
       {user ? (
-        <div className="flex flex-col gap-[var(--space-4)]">
-          <RoleEditor selected={roles} onChange={setSelected} />
-          <Field label="Why">
-            {({ inputId, describedBy, invalid }) => (
+        <form
+          className="flex flex-col gap-[var(--space-4)]"
+          onSubmit={onSubmit}
+          noValidate
+        >
+          <Controller
+            control={control}
+            name="roles"
+            render={({ field, fieldState }) => (
+              <>
+                <RoleEditor
+                  selected={new Set(field.value)}
+                  onChange={(next) => field.onChange([...next])}
+                />
+                {fieldState.error?.message ? (
+                  <p
+                    role="alert"
+                    className="m-0 text-[var(--color-danger-700)]"
+                  >
+                    {fieldState.error.message}
+                  </p>
+                ) : null}
+              </>
+            )}
+          />
+          <HookField control={control} name="reason" label="Why" required>
+            {({ inputId, describedBy, invalid }, field) => (
               <Textarea
                 id={inputId}
                 aria-describedby={describedBy}
                 invalid={invalid}
                 rows={3}
-                value={reason}
-                onChange={(event) => setReason(event.target.value)}
+                {...field}
               />
             )}
-          </Field>
+          </HookField>
           {setRoles.isError ? (
             <p role="alert" className="m-0 text-[var(--color-danger-700)]">
-              {errorMessage(setRoles.error) ?? 'The roles could not be saved.'}
+              {errorMessage(setRoles.error) ?? "The roles could not be saved."}
             </p>
           ) : null}
           <Button
-            type="button"
-            disabled={setRoles.isPending || reason.trim().length < 3}
-            onClick={() =>
-              setRoles.mutate(
-                {
-                  userId: user.id,
-                  body: { roles: [...roles], reason: reason.trim() },
-                },
-                { onSuccess: () => onClose() },
-              )
-            }
+            type="submit"
+            isLoading={setRoles.isPending}
+            loadingLabel="Saving"
           >
-            {setRoles.isPending ? 'Saving…' : 'Save roles'}
+            Save roles
           </Button>
-        </div>
+        </form>
       ) : null}
     </Modal>
   );
@@ -277,19 +378,22 @@ export function UsersPage() {
   const [editing, setEditing] = useState<AdminUserOut | null>(null);
   const users = useUsers(includeInactive);
   const setActive = useSetUserActive();
+  const resendInvite = useResendInvite();
 
   const rows = users.data ?? [];
 
   const columns: Column<AdminUserOut>[] = [
     {
-      key: 'name',
-      header: 'Name',
-      width: 'w-52',
+      key: "name",
+      header: "Name",
+      width: "w-52",
       cell: (row) => (
         <span
           className={cn(
-            'font-semibold',
-            row.is_active ? 'text-[var(--color-text-strong)]' : 'text-[var(--color-text-muted)]',
+            "font-semibold",
+            row.is_active
+              ? "text-[var(--color-text-strong)]"
+              : "text-[var(--color-text-muted)]",
           )}
         >
           {row.display_name}
@@ -297,59 +401,99 @@ export function UsersPage() {
       ),
     },
     {
-      key: 'email',
-      header: 'Email',
+      key: "email",
+      header: "Email",
       cell: (row) => <EmailText email={row.email} />,
     },
     {
-      key: 'department',
-      header: 'Department',
-      width: 'w-40',
-      hideBelow: 'lg',
+      key: "department",
+      header: "Department",
+      width: "w-40",
+      hideBelow: "lg",
       cell: (row) => (
-        <span className={row.department ? undefined : 'text-[var(--color-text-subtle)]'}>
-          {row.department ?? 'No department'}
+        <span
+          className={
+            row.department ? undefined : "text-[var(--color-text-subtle)]"
+          }
+        >
+          {row.department ?? "No department"}
         </span>
       ),
     },
     {
-      key: 'roles',
-      header: 'Roles',
-      hideBelow: 'md',
-      cell: (row) => <span>{row.roles.map(roleLabel).join(', ') || 'No roles'}</span>,
+      key: "roles",
+      header: "Roles",
+      hideBelow: "md",
+      cell: (row) => (
+        <span>{row.roles.map(roleLabel).join(", ") || "No roles"}</span>
+      ),
     },
     {
-      key: 'status',
-      header: 'Status',
-      width: 'w-32',
+      key: "status",
+      header: "Status",
+      width: "w-32",
       cell: (row) =>
-        row.is_active ? (
+        !row.is_active ? (
+          <ToneBadge label="Deactivated" tone="neutral" />
+        ) : row.email_verified ? (
           <ToneBadge label="Active" tone="success" />
         ) : (
-          <ToneBadge label="Deactivated" tone="neutral" />
+          <ToneBadge label="Invited" tone="warning" />
         ),
     },
     {
-      key: 'actions',
+      key: "actions",
       header: <span className="sr-only">Actions</span>,
-      width: 'w-52',
-      align: 'right',
+      width: "w-52",
+      align: "right",
       cell: (row) => (
         <span className="inline-flex flex-wrap justify-end gap-1">
-          <Button type="button" size="sm" variant="ghost" onClick={() => setEditing(row)}>
-            Edit roles
-          </Button>
           <Button
             type="button"
             size="sm"
             variant="ghost"
-            disabled={setActive.isPending || (me?.id === row.id && row.is_active)}
-            className={cn(!row.is_active && 'text-[var(--color-success-700)]')}
+            onClick={() => setEditing(row)}
+          >
+            Edit roles
+          </Button>
+          {row.is_active && !row.email_verified ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              disabled={resendInvite.isPending}
+              onClick={() =>
+                resendInvite.mutate(row.id, {
+                  onSuccess: () => {
+                    toast.success(
+                      "An invitation link has been sent to the user.",
+                    );
+                  },
+                  onError: (error) => {
+                    toast.error(
+                      errorMessage(error) ??
+                        "The invitation could not be sent.",
+                    );
+                  },
+                })
+              }
+            >
+              Resend invite
+            </Button>
+          ) : null}
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            disabled={
+              setActive.isPending || (me?.id === row.id && row.is_active)
+            }
+            className={cn(!row.is_active && "text-[var(--color-success-700)]")}
             onClick={() => {
               const reason = window.prompt(
                 row.is_active
-                  ? 'Why is this account being deactivated?'
-                  : 'Why is this account being reactivated?',
+                  ? "Why is this account being deactivated?"
+                  : "Why is this account being reactivated?",
               );
               if (!reason || reason.trim().length < 3) return;
               setActive.mutate({
@@ -358,7 +502,7 @@ export function UsersPage() {
               });
             }}
           >
-            {row.is_active ? 'Deactivate' : 'Reactivate'}
+            {row.is_active ? "Deactivate" : "Reactivate"}
           </Button>
         </span>
       ),
@@ -374,17 +518,22 @@ export function UsersPage() {
           <ViewTabs
             label="Which accounts"
             tabs={[
-              { id: 'all', label: 'All accounts' },
-              { id: 'active', label: 'Active only' },
+              { id: "all", label: "All accounts" },
+              { id: "active", label: "Active only" },
             ]}
-            value={includeInactive ? 'all' : 'active'}
-            onChange={(id) => setIncludeInactive(id === 'all')}
+            value={includeInactive ? "all" : "active"}
+            onChange={(id) => setIncludeInactive(id === "all")}
           />
         }
         actions={
-          <Button type="button" variant="primary" size="sm" onClick={() => setCreating(true)}>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            onClick={() => setCreating(true)}
+          >
             <UserPlus aria-hidden="true" className="size-4" />
-            Create account
+            Invite user
           </Button>
         }
       />
@@ -392,8 +541,12 @@ export function UsersPage() {
       {setActive.isError ? (
         <Card className="mb-[var(--space-5)] border-[var(--color-danger-600)]">
           <CardContent>
-            <p role="alert" className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]">
-              {errorMessage(setActive.error) ?? 'The account could not be changed.'}
+            <p
+              role="alert"
+              className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]"
+            >
+              {errorMessage(setActive.error) ??
+                "The account could not be changed."}
             </p>
           </CardContent>
         </Card>
@@ -409,7 +562,8 @@ export function UsersPage() {
         <Card className="border-[var(--color-danger-600)]">
           <CardContent>
             <p role="alert" className="m-0 text-[var(--color-danger-700)]">
-              {errorMessage(users.error) ?? 'The user list could not be loaded.'}
+              {errorMessage(users.error) ??
+                "The user list could not be loaded."}
             </p>
           </CardContent>
         </Card>
@@ -419,8 +573,8 @@ export function UsersPage() {
             <EmptyState
               icon={Users}
               title="No accounts yet"
-              explanation="Nobody has been granted access. Create an account to begin."
-              nextStep="Use Create account and name the roles they need."
+              explanation="Nobody has been granted access. Invite someone to begin."
+              nextStep="Use Invite user, choose their roles, and they will get an email to set a password."
             />
           </CardContent>
         </Card>

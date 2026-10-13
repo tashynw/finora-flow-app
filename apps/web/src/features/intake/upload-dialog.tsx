@@ -35,6 +35,7 @@ export interface UploadDialogProps {
 export function UploadDialog({ open, onClose }: UploadDialogProps) {
   const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState('');
   const [note, setNote] = useState('');
   const [result, setResult] = useState<UploadAccepted | null>(null);
 
@@ -42,6 +43,7 @@ export function UploadDialog({ open, onClose }: UploadDialogProps) {
 
   const reset = () => {
     setFile(null);
+    setFileError('');
     setNote('');
     setResult(null);
     upload.reset();
@@ -53,7 +55,11 @@ export function UploadDialog({ open, onClose }: UploadDialogProps) {
   };
 
   const submit = async () => {
-    if (!file) return;
+    if (!file) {
+      setFileError('Choose a document.');
+      return;
+    }
+    setFileError('');
     try {
       const accepted = await upload.mutateAsync(note ? { file, note } : { file });
       setResult(accepted);
@@ -167,7 +173,6 @@ export function UploadDialog({ open, onClose }: UploadDialogProps) {
           <Button
             variant="primary"
             onClick={() => void submit()}
-            disabled={!file}
             isLoading={upload.isPending}
             loadingLabel="Scanning"
           >
@@ -182,7 +187,7 @@ export function UploadDialog({ open, onClose }: UploadDialogProps) {
           label="Document"
           required
           help="PDF, image, or Office document."
-          error={errorMessage}
+          error={fileError || errorMessage}
         >
           {({ inputId, describedBy, invalid }) => (
             <Input

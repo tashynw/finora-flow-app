@@ -2,15 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import { BadgeDollarSign, Plus } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
 import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
 import { amountInputValue, formatMoney, isKnownCurrency, parseAmount } from '@/lib/money';
+import { auditReason } from '@/lib/form-schemas';
+import { HookField } from '@/components/form/hook-field';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { DataTable, type Column } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Field, Input, Textarea } from '@/components/ui/field';
+import { Input, Textarea } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
 import { ViewTabs } from '@/components/ui/view-tabs';
@@ -23,6 +28,34 @@ import {
   type ThresholdOut,
 } from '@/features/administration/use-thresholds';
 
+const thresholdSchema = z
+  .object({
+    currency: z.string().trim().length(3, 'Use a known three-letter currency code.'),
+    amount: z.string().trim().min(1, 'Enter an amount in major units.'),
+    reason: auditReason,
+  })
+  .superRefine((values, context) => {
+    const currency = values.currency.toUpperCase();
+    if (!isKnownCurrency(currency)) {
+      context.addIssue({
+        code: 'custom',
+        path: ['currency'],
+        message: 'Use a known three-letter currency code.',
+      });
+      return;
+    }
+    const minorUnits = parseAmount(values.amount, currency);
+    if (minorUnits === null || minorUnits < 0) {
+      context.addIssue({
+        code: 'custom',
+        path: ['amount'],
+        message: 'Enter an amount in major units.',
+      });
+    }
+  });
+
+type ThresholdForm = z.infer<typeof thresholdSchema>;
+
 function ThresholdFormModal({
   open,
   editing,
@@ -33,39 +66,42 @@ function ThresholdFormModal({
   onClose: () => void;
 }) {
   const upsert = useUpsertThreshold();
-  const [currency, setCurrency] = useState('JMD');
-  const [amount, setAmount] = useState('');
-  const [reason, setReason] = useState('');
+  const { control, handleSubmit, reset } = useForm<ThresholdForm>({
+    resolver: zodResolver(thresholdSchema),
+    defaultValues: { currency: 'JMD', amount: '', reason: '' },
+  });
 
   useEffect(() => {
     if (!open) return;
-    if (editing) {
-      setCurrency(editing.currency);
-      setAmount(amountInputValue(editing.applies_above_minor_units, editing.currency));
-    } else {
-      setCurrency('JMD');
-      setAmount('');
-    }
-    setReason('');
+    reset({
+      currency: editing?.currency ?? 'JMD',
+      amount: editing
+        ? amountInputValue(editing.applies_above_minor_units, editing.currency)
+        : '',
+      reason: '',
+    });
     upsert.reset();
-  }, [open, editing, upsert]);
-
-  const currencyOk = currency.trim().length === 3 && isKnownCurrency(currency.trim());
-  const minorUnits = currencyOk ? parseAmount(amount, currency.trim().toUpperCase()) : null;
-  const canSave =
-    currencyOk &&
-    minorUnits !== null &&
-    minorUnits >= 0 &&
-    reason.trim().length >= 3 &&
-    !upsert.isPending;
+  }, [open, editing, reset, upsert]);
 
   function resetAndClose() {
-    setCurrency('JMD');
-    setAmount('');
-    setReason('');
+    reset({ currency: 'JMD', amount: '', reason: '' });
     upsert.reset();
     onClose();
   }
+
+  const onSubmit = handleSubmit((values) => {
+    const currency = values.currency.toUpperCase();
+    const minorUnits = parseAmount(values.amount, currency);
+    if (minorUnits === null) return;
+    upsert.mutate(
+      {
+        currency,
+        applies_above_minor_units: minorUnits,
+        reason: values.reason,
+      },
+      { onSuccess: resetAndClose },
+    );
+  });
 
   return (
     <Modal
@@ -74,70 +110,60 @@ function ThresholdFormModal({
       title={editing ? `Edit ${editing.currency} threshold` : 'Add PO threshold'}
       description="Invoices at or below this amount need no purchase order. Amounts are entered in major units."
     >
-      <div className="flex flex-col gap-[var(--space-4)]">
-        <Field label="Currency" help="Three-letter ISO code. One threshold per currency.">
-          {({ inputId, describedBy, invalid }) => (
+      <form className="flex flex-col gap-[var(--space-4)]" onSubmit={onSubmit} noValidate>
+        <HookField
+          control={control}
+          name="currency"
+          label="Currency"
+          required
+          help="Three-letter ISO code. One threshold per currency."
+        >
+          {({ inputId, describedBy, invalid }, field) => (
             <Input
               id={inputId}
               aria-describedby={describedBy}
               invalid={invalid}
               maxLength={3}
               disabled={editing !== null}
-              value={currency}
-              onChange={(event) => setCurrency(event.target.value.toUpperCase())}
+              name={field.name}
+              ref={field.ref}
+              value={field.value}
+              onBlur={field.onBlur}
+              onChange={(event) => field.onChange(event.target.value.toUpperCase())}
             />
           )}
-        </Field>
-        <Field
+        </HookField>
+        <HookField
+          control={control}
+          name="amount"
           label="Applies above"
+          required
           help="Enter major units (e.g. 50000.00 for JMD 50,000.00). An invoice for exactly this amount needs no PO."
         >
-          {({ inputId, describedBy, invalid }) => (
+          {({ inputId, describedBy, invalid }, field) => (
             <Input
               id={inputId}
               inputMode="decimal"
               aria-describedby={describedBy}
               invalid={invalid}
-              value={amount}
-              onChange={(event) => setAmount(event.target.value)}
+              {...field}
             />
           )}
-        </Field>
-        <Field label="Why">
-          {({ inputId, describedBy, invalid }) => (
-            <Textarea
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              rows={3}
-              value={reason}
-              onChange={(event) => setReason(event.target.value)}
-            />
+        </HookField>
+        <HookField control={control} name="reason" label="Why" required>
+          {({ inputId, describedBy, invalid }, field) => (
+            <Textarea id={inputId} aria-describedby={describedBy} invalid={invalid} rows={3} {...field} />
           )}
-        </Field>
+        </HookField>
         {upsert.isError ? (
           <p role="alert" className="m-0 text-[var(--color-danger-700)]">
             {errorMessage(upsert.error) ?? 'The threshold could not be saved.'}
           </p>
         ) : null}
-        <Button
-          type="button"
-          disabled={!canSave}
-          onClick={() => {
-            if (minorUnits === null) return;
-            upsert.mutate(
-              {
-                currency: currency.trim().toUpperCase(),
-                applies_above_minor_units: minorUnits,
-                reason: reason.trim(),
-              },
-              { onSuccess: resetAndClose },
-            );
-          }}
-        >
-          {upsert.isPending ? 'Saving…' : editing ? 'Save threshold' : 'Add threshold'}
+        <Button type="submit" isLoading={upsert.isPending} loadingLabel="Saving">
+          {editing ? 'Save threshold' : 'Add threshold'}
         </Button>
-      </div>
+      </form>
     </Modal>
   );
 }

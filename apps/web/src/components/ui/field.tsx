@@ -71,13 +71,7 @@ export function Field({
             </span>
             <span className="sr-only">(required)</span>
           </>
-        ) : (
-          // Stating optional explicitly is clearer than leaving the reader to
-          // infer it from the absence of an asterisk.
-          <span className="ml-1 font-normal text-[var(--color-text-subtle)]">
-            (optional)
-          </span>
-        )}
+        ) : null}
       </label>
 
       {children({ inputId, describedBy, invalid: Boolean(error) })}

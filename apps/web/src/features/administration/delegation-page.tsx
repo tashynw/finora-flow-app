@@ -291,6 +291,7 @@ function CoverDialog({
 }) {
   const [delegateId, setDelegateId] = useState('');
   const [until, setUntil] = useState('');
+  const [formError, setFormError] = useState('');
 
   const { data: people } = usePeople();
   const setCover = useSetCover();
@@ -324,11 +325,17 @@ function CoverDialog({
           </Button>
           <Button
             variant="primary"
-            disabled={isSelf || (!clearing && (!delegateId || !until))}
             isLoading={setCover.isPending}
             loadingLabel="Saving"
             onClick={() => {
               if (!subject) return;
+              if (isSelf) return;
+              if (!clearing && (!delegateId || !until)) {
+                setFormError('Choose who covers and the day they are back, or clear both to end the cover.');
+                return;
+              }
+              if (!clearing && chosen && !chosen.may_decide) return;
+              setFormError('');
               setCover.mutate(
                 {
                   userId: subject.user_id,
@@ -355,11 +362,13 @@ function CoverDialog({
           label="Who decides instead"
           help="Clear both boxes to end the arrangement. Cover does not chain: if this person is themselves away, work waits rather than moving on again."
           error={
-            isSelf
-              ? 'Somebody cannot cover for themselves. That would leave the work exactly where it is.'
-              : chosen && !chosen.may_decide
-                ? 'This person cannot record an approval decision, so nothing routed to them could be decided.'
-                : undefined
+            formError
+              ? formError
+              : isSelf
+                ? 'Somebody cannot cover for themselves. That would leave the work exactly where it is.'
+                : chosen && !chosen.may_decide
+                  ? 'This person cannot record an approval decision, so nothing routed to them could be decided.'
+                  : undefined
           }
         >
           {({ inputId, describedBy, invalid }) => (

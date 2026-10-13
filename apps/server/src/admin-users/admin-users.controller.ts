@@ -33,6 +33,11 @@ export class AdminUsersController {
     return this.adminUsersService.getById(id);
   }
 
+  @Post(':id/resend-invite')
+  resendInvite(@Param('id') id: string, @Session() session: UserSession) {
+    return this.adminUsersService.resendInvite(id, session);
+  }
+
   @Post()
   create(
     @Body()
@@ -40,6 +45,7 @@ export class AdminUsersController {
       email: string;
       display_name: string;
       department: string | null;
+      department_id?: string | null;
       roles: string[];
       reason: string;
     },

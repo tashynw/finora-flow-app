@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@fontsource-variable/inter';
 import '@/styles/theme.css';
 import { AppRouter } from '@/router';
+import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/features/auth/auth-context';
 import { ApiError } from '@/lib/api-client';
 
@@ -41,6 +42,7 @@ createRoot(container).render(
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <AppRouter />
+        <Toaster />
       </AuthProvider>
     </QueryClientProvider>
   </StrictMode>,

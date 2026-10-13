@@ -107,6 +107,7 @@ export function RuleDialog({
   onConfirm,
 }: RuleDialogProps) {
   const [values, setValues] = useState<RuleFormValues>(blankValues);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const parallelId = useId();
 
   // Reset on open rather than on close, so a refusal from the server leaves what
@@ -114,6 +115,7 @@ export function RuleDialog({
   useEffect(() => {
     if (!open) return;
     setValues(replacing ? valuesFrom(replacing) : blankValues());
+    setErrors({});
   }, [open, replacing]);
 
   const set = <K extends keyof RuleFormValues>(key: K, value: RuleFormValues[K]) => {
@@ -125,14 +127,31 @@ export function RuleDialog({
   const step = Number(values.stepOrder);
 
   const inverted = floor !== null && ceiling !== null && ceiling < floor;
-  const ready =
-    values.name.trim().length > 0 &&
-    values.reason.trim().length > 0 &&
-    floor !== null &&
-    (values.max.trim() === '' || ceiling !== null) &&
-    !inverted &&
-    Number.isInteger(step) &&
-    step >= 1;
+
+  function submit() {
+    const next: Record<string, string> = {};
+    if (!values.name.trim()) next.name = 'A name is required.';
+    if (!Number.isInteger(step) || step < 1) next.step = 'Step must be a whole number of at least 1.';
+    if (floor === null) next.min = 'Enter the bottom of the band.';
+    if (values.max.trim() && ceiling === null) next.max = 'Enter a number, or leave the top empty.';
+    else if (inverted) next.max = 'The top of the band is below the bottom of it.';
+    if (!values.reason.trim()) next.reason = 'A reason is required.';
+    setErrors(next);
+    if (Object.keys(next).length > 0 || floor === null) return;
+    onConfirm({
+      name: values.name.trim(),
+      record_type: recordType,
+      level: values.level,
+      step_order: step,
+      min_amount_minor_units: floor,
+      max_amount_minor_units: ceiling,
+      currency: values.currency,
+      department: values.department.trim() || null,
+      is_parallel: values.isParallel,
+      reason: values.reason.trim(),
+      supersedes_id: replacing?.id ?? null,
+    });
+  }
 
   // Somebody else already at this step number in this band is what parallelism
   // means, so the box explains itself against what is actually there rather than
@@ -162,25 +181,9 @@ export function RuleDialog({
           </Button>
           <Button
             variant="primary"
-            disabled={!ready}
             isLoading={isPending}
             loadingLabel="Saving"
-            onClick={() => {
-              if (floor === null) return;
-              onConfirm({
-                name: values.name.trim(),
-                record_type: recordType,
-                level: values.level,
-                step_order: step,
-                min_amount_minor_units: floor,
-                max_amount_minor_units: ceiling,
-                currency: values.currency,
-                department: values.department.trim() || null,
-                is_parallel: values.isParallel,
-                reason: values.reason.trim(),
-                supersedes_id: replacing?.id ?? null,
-              });
-            }}
+            onClick={submit}
           >
             {replacing ? 'Replace it' : 'Add it'}
           </Button>
@@ -201,6 +204,7 @@ export function RuleDialog({
           label="What this rule is called"
           required
           help="Written for whoever reads the matrix next. “Manager for spend over a million” beats “Rule 4”."
+          error={errors.name}
         >
           {({ inputId, describedBy, invalid }) => (
             <Input
@@ -238,6 +242,7 @@ export function RuleDialog({
             label="Step"
             required
             help="Steps run in order. Two rules on the same step decide together."
+            error={errors.step}
           >
             {({ inputId, describedBy, invalid }) => (
               <Input
@@ -268,7 +273,7 @@ export function RuleDialog({
             )}
           </Field>
 
-          <Field label="From" required help="Included in the band." formatHint="1234.56">
+          <Field label="From" required help="Included in the band." formatHint="1234.56" error={errors.min}>
             {({ inputId, describedBy, invalid }) => (
               <Input
                 id={inputId}
@@ -287,7 +292,7 @@ export function RuleDialog({
             label="To"
             help="Also included. Leave empty for the top band, so nothing is above the matrix."
             formatHint="1234.56"
-            error={inverted ? 'The top of the band is below the bottom of it.' : undefined}
+            error={errors.max ?? (inverted ? 'The top of the band is below the bottom of it.' : undefined)}
           >
             {({ inputId, describedBy, invalid }) => (
               <Input
@@ -354,6 +359,7 @@ export function RuleDialog({
           label="Why this rule exists"
           required
           help="Recorded against the change. Whoever audits the matrix reads this rather than guessing."
+          error={errors.reason}
         >
           {({ inputId, describedBy, invalid }) => (
             <Textarea

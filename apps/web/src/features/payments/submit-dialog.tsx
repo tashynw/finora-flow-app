@@ -1,10 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
 import type { MoneyOut } from '@finora/shared-types';
 
 import { Button } from '@/components/ui/button';
-import { Field, Input } from '@/components/ui/field';
+import { Input } from '@/components/ui/field';
+import { HookField } from '@/components/form/hook-field';
 import { Modal } from '@/components/ui/modal';
+import { requiredText } from '@/lib/form-schemas';
 import { CurrencyTotals } from '@/features/payments/currency-totals';
 import { contentsSummary } from '@/features/payments/payment-vocabulary';
 
@@ -34,6 +39,15 @@ export interface SubmitDialogProps {
   onConfirm: (submissionReference: string) => void;
 }
 
+const submitSchema = z.object({
+  submissionReference: requiredText("The bank's reference is required.").max(
+    120,
+    'Keep the reference under 120 characters.',
+  ),
+});
+
+type SubmitForm = z.infer<typeof submitSchema>;
+
 export function SubmitDialog({
   open,
   reference,
@@ -46,13 +60,25 @@ export function SubmitDialog({
   onClose,
   onConfirm,
 }: SubmitDialogProps) {
-  const [submissionReference, setSubmissionReference] = useState('');
+  const formId = `submit-${useId().replace(/:/g, '')}`;
+  const { control, handleSubmit, reset, setError } = useForm<SubmitForm>({
+    resolver: zodResolver(submitSchema),
+    defaultValues: { submissionReference: '' },
+  });
 
   useEffect(() => {
-    if (open) setSubmissionReference('');
-  }, [open]);
+    if (!open) return;
+    reset({ submissionReference: '' });
+  }, [open, reset]);
 
-  const entered = submissionReference.trim();
+  useEffect(() => {
+    if (!error) return;
+    setError('submissionReference', { message: error });
+  }, [error, setError]);
+
+  const onSubmit = handleSubmit((values) => {
+    onConfirm(values.submissionReference);
+  });
 
   return (
     <Modal
@@ -66,18 +92,13 @@ export function SubmitDialog({
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
             Back
           </Button>
-          <Button
-            variant="primary"
-            disabled={entered.length === 0}
-            isLoading={isPending}
-            loadingLabel="Recording"
-            onClick={() => onConfirm(entered)}
-          >
+          <Button type="submit" form={formId} variant="primary" isLoading={isPending} loadingLabel="Recording">
             Record it as sent
           </Button>
         </>
       }
     >
+      <form id={formId} onSubmit={onSubmit} noValidate>
       <div className="rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-subtle)] p-[var(--space-4)]">
         <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
           {contentsSummary(invoiceCount, vendorCount)}, coming to
@@ -98,25 +119,25 @@ export function SubmitDialog({
       </p>
 
       <div className="mt-[var(--space-4)]">
-        <Field
+        <HookField
+          control={control}
+          name="submissionReference"
           label="The bank's reference"
           required
           help="Whatever identifies this instruction at the bank: a batch number, a file name, a transfer reference. It is how a payment is traced back to this package months later."
-          error={error}
         >
-          {({ inputId, describedBy, invalid }) => (
+          {({ inputId, describedBy, invalid }, field) => (
             <Input
               id={inputId}
               aria-describedby={describedBy}
               invalid={invalid}
-              value={submissionReference}
               maxLength={120}
               disabled={isPending}
               autoComplete="off"
-              onChange={(event) => setSubmissionReference(event.target.value)}
+              {...field}
             />
           )}
-        </Field>
+        </HookField>
       </div>
 
       {digest ? (
@@ -126,6 +147,7 @@ export function SubmitDialog({
           the package, so the file can be proved later to be the one that was sent.
         </p>
       ) : null}
+      </form>
     </Modal>
   );
 }
