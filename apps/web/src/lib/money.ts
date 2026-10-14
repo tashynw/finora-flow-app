@@ -89,6 +89,19 @@ export function amountInputValue(minorUnits: number | null, currency: string): s
 }
 
 /**
+ * Thousands separators for a major-unit amount while it is being typed.
+ *
+ * The form keeps the digits. The box shows `50000.50` as `50,000.50`. A trailing
+ * decimal point stays, so the next digit can be a cent.
+ */
+export function displayAmountInput(value: string): string {
+  if (!value) return '';
+  const [whole = '', fraction] = value.split('.');
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return value.includes('.') ? `${grouped}.${fraction ?? ''}` : grouped;
+}
+
+/**
  * A typed amount as integer minor units, or null when there is nothing usable.
  *
  * Rounded rather than truncated, because a typed amount with more decimal places

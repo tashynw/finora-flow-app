@@ -4,6 +4,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+import { toast } from 'sonner';
+
 import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
 import { requiredText } from '@/lib/form-schemas';
@@ -16,6 +18,7 @@ import { Input } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
 import { ToneBadge } from '@/components/workflow/status-badge';
+import { ActiveChangeModal } from '@/features/administration/active-change-modal';
 import {
   useCreateDepartment,
   useDepartments,
@@ -69,7 +72,15 @@ function CreateDepartmentModal({ open, onClose }: { open: boolean; onClose: () =
   }
 
   const onSubmit = handleSubmit((values) => {
-    create.mutate(values, { onSuccess: close });
+    create.mutate(values, {
+      onSuccess: () => {
+        toast.success('The department has been added.');
+        close();
+      },
+      onError: (error) => {
+        toast.error(errorMessage(error) ?? 'The department could not be created.');
+      },
+    });
   });
 
   return (
@@ -106,11 +117,22 @@ function EditDepartmentModal({
     if (!department) return;
     reset({ name: department.name, costCentreNumber: department.costCentreNumber });
     update.reset();
-  }, [department, reset, update]);
+  }, [department, reset, update.reset]);
 
   const onSubmit = handleSubmit((values) => {
     if (!department) return;
-    update.mutate({ id: department.id, body: values }, { onSuccess: () => onClose() });
+    update.mutate(
+      { id: department.id, body: values },
+      {
+        onSuccess: () => {
+          toast.success('The department has been saved.');
+          onClose();
+        },
+        onError: (error) => {
+          toast.error(errorMessage(error) ?? 'The department could not be saved.');
+        },
+      },
+    );
   });
 
   return (
@@ -149,6 +171,7 @@ export function DepartmentsCatalogue({
   const departments = useDepartments(includeInactive);
   const setActive = useSetDepartmentActive();
   const [editing, setEditing] = useState<DepartmentOut | null>(null);
+  const [statusTarget, setStatusTarget] = useState<DepartmentOut | null>(null);
 
   const columns: Column<DepartmentOut>[] = [
     {
@@ -191,11 +214,8 @@ export function DepartmentsCatalogue({
             type="button"
             size="sm"
             variant="ghost"
-            disabled={setActive.isPending}
             className={cn(!row.isActive && 'text-[var(--color-success-700)]')}
-            onClick={() =>
-              setActive.mutate({ id: row.id, isActive: !row.isActive })
-            }
+            onClick={() => setStatusTarget(row)}
           >
             {row.isActive ? 'Deactivate' : 'Reactivate'}
           </Button>
@@ -243,6 +263,41 @@ export function DepartmentsCatalogue({
       )}
       <CreateDepartmentModal open={creating} onClose={onCloseCreate} />
       <EditDepartmentModal department={editing} onClose={() => setEditing(null)} />
+      <ActiveChangeModal
+        open={statusTarget !== null}
+        title={statusTarget?.isActive ? 'Deactivate department' : 'Reactivate department'}
+        description={
+          statusTarget
+            ? statusTarget.isActive
+              ? `Are you sure you want to deactivate ${statusTarget.name} (${statusTarget.costCentreNumber})? Accounts cannot be placed in it until it is reactivated.`
+              : `Are you sure you want to reactivate ${statusTarget.name} (${statusTarget.costCentreNumber})? Accounts can be placed in it again.`
+            : undefined
+        }
+        nextActive={statusTarget ? !statusTarget.isActive : false}
+        confirmLabel={statusTarget?.isActive ? 'Deactivate department' : 'Reactivate department'}
+        collectReason={false}
+        pending={setActive.isPending}
+        onClose={() => setStatusTarget(null)}
+        onConfirm={() => {
+          if (!statusTarget) return;
+          setActive.mutate(
+            { id: statusTarget.id, isActive: !statusTarget.isActive },
+            {
+              onSuccess: () => {
+                toast.success(
+                  statusTarget.isActive
+                    ? 'The department has been deactivated.'
+                    : 'The department has been reactivated.',
+                );
+                setStatusTarget(null);
+              },
+              onError: (error) => {
+                toast.error(errorMessage(error) ?? 'The department could not be changed.');
+              },
+            },
+          );
+        }}
+      />
     </>
   );
 }

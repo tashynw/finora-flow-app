@@ -11,7 +11,13 @@ import { IntakeService } from './intake.service.js';
 
 describe('IntakeService', () => {
   const prisma = {
-    inboundMessage: { create: vi.fn(), groupBy: vi.fn(), findFirst: vi.fn() },
+    inboundMessage: {
+      create: vi.fn(),
+      groupBy: vi.fn(),
+      findFirst: vi.fn(),
+      aggregate: vi.fn(),
+    },
+    mailboxCheckpoint: { findMany: vi.fn() },
     s3Document: { findUnique: vi.fn() },
   };
   const documents = { createViewUrl: vi.fn() };
@@ -55,6 +61,31 @@ describe('IntakeService', () => {
         }),
       }),
     );
+  });
+
+  it('reports mailbox checkpoints as a list', async () => {
+    prisma.mailboxCheckpoint.findMany.mockResolvedValue([
+      {
+        folder: 'INBOX',
+        uidValidity: 4n,
+        lastSeenUid: 12n,
+        lastPolledAt: new Date(),
+        lastResetAt: null,
+        lastResetReason: null,
+      },
+    ]);
+    prisma.inboundMessage.groupBy.mockResolvedValue([
+      { status: 'ready', _count: { _all: 2 } },
+    ]);
+    prisma.inboundMessage.aggregate.mockResolvedValue({ _min: { receivedAt: null } });
+
+    const report = await (await service()).operationsSummary();
+
+    expect(Array.isArray(report.checkpoints)).toBe(true);
+    expect(report.checkpoints[0]?.folder).toBe('INBOX');
+    expect(report.backlog.total).toBe(2);
+    expect(report.backlog.failed).toBe(0);
+    expect(report.mailbox).toBeNull();
   });
 
   it('signs a download url from the stored document key', async () => {

@@ -6,6 +6,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+import { toast } from 'sonner';
+
 import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
 import { auditReason, optionalEmail, requiredText } from '@/lib/form-schemas';
@@ -14,13 +16,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { DataTable, type Column } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Input, Textarea } from '@/components/ui/field';
+import { Input, Select, Textarea } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
 import { ViewTabs } from '@/components/ui/view-tabs';
 import { ToneBadge } from '@/components/workflow/status-badge';
 import { EmailText } from '@/features/shared/email-text';
 import { PageHeader } from '@/features/shared/page-header';
+import { ActiveChangeModal } from '@/features/administration/active-change-modal';
 import { DepartmentsCatalogue } from '@/features/administration/departments-panel';
 import { useDepartments } from '@/features/administration/use-departments';
 import {
@@ -50,13 +53,20 @@ const TABS: { id: Catalogue; label: string }[] = [
   { id: 'departments', label: 'Departments' },
 ];
 
-const currencyCode = z.string().trim().length(3, 'Use a three-letter currency code.');
+/** Matches the Prisma `Currency` enum. The vendor column accepts only these. */
+const VENDOR_CURRENCIES = ['JMD', 'USD'] as const;
+
+const vendorCurrency = z.enum(VENDOR_CURRENCIES, { error: 'Choose JMD or USD.' });
+
+function vendorCurrencyValue(value: string): (typeof VENDOR_CURRENCIES)[number] {
+  return (VENDOR_CURRENCIES as readonly string[]).includes(value) ? (value as (typeof VENDOR_CURRENCIES)[number]) : 'JMD';
+}
 
 const createVendorSchema = z.object({
   code: requiredText('A code is required.'),
   name: requiredText('A name is required.'),
   email: optionalEmail,
-  currency: currencyCode,
+  currency: vendorCurrency,
   reason: auditReason,
 });
 
@@ -105,7 +115,15 @@ function CreateVendorModal({
         payment_terms_days: null,
         reason: values.reason,
       },
-      { onSuccess: close },
+      {
+        onSuccess: () => {
+          toast.success('The vendor has been added.');
+          close();
+        },
+        onError: (error) => {
+          toast.error(errorMessage(error) ?? 'The vendor could not be created.');
+        },
+      },
     );
   });
 
@@ -129,17 +147,13 @@ function CreateVendorModal({
         </HookField>
         <HookField control={control} name="currency" label="Currency" required>
           {({ inputId, describedBy, invalid }, field) => (
-            <Input
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              maxLength={3}
-              name={field.name}
-              ref={field.ref}
-              value={field.value}
-              onBlur={field.onBlur}
-              onChange={(event) => field.onChange(event.target.value.toUpperCase())}
-            />
+            <Select id={inputId} aria-describedby={describedBy} invalid={invalid} {...field}>
+              {VENDOR_CURRENCIES.map((currency) => (
+                <option key={currency} value={currency}>
+                  {currency}
+                </option>
+              ))}
+            </Select>
           )}
         </HookField>
         <HookField control={control} name="reason" label="Why" required>
@@ -163,7 +177,7 @@ function CreateVendorModal({
 const editVendorSchema = z.object({
   name: requiredText('A name is required.'),
   email: optionalEmail,
-  currency: currencyCode,
+  currency: vendorCurrency,
   reason: auditReason,
 });
 
@@ -187,11 +201,11 @@ function EditVendorModal({
     reset({
       name: vendor.name,
       email: vendor.email ?? '',
-      currency: vendor.default_currency,
+      currency: vendorCurrencyValue(vendor.default_currency),
       reason: '',
     });
     update.reset();
-  }, [vendor, reset, update]);
+  }, [vendor, reset, update.reset]);
 
   const onSubmit = handleSubmit((values) => {
     if (!vendor) return;
@@ -205,7 +219,15 @@ function EditVendorModal({
           reason: values.reason,
         },
       },
-      { onSuccess: () => onClose() },
+      {
+        onSuccess: () => {
+          toast.success('The vendor has been saved.');
+          onClose();
+        },
+        onError: (error) => {
+          toast.error(errorMessage(error) ?? 'The vendor could not be saved.');
+        },
+      },
     );
   });
 
@@ -230,17 +252,13 @@ function EditVendorModal({
           </HookField>
           <HookField control={control} name="currency" label="Currency" required>
             {({ inputId, describedBy, invalid }, field) => (
-              <Input
-                id={inputId}
-                aria-describedby={describedBy}
-                invalid={invalid}
-                maxLength={3}
-                name={field.name}
-                ref={field.ref}
-                value={field.value}
-                onBlur={field.onBlur}
-                onChange={(event) => field.onChange(event.target.value.toUpperCase())}
-              />
+              <Select id={inputId} aria-describedby={describedBy} invalid={invalid} {...field}>
+                {VENDOR_CURRENCIES.map((currency) => (
+                  <option key={currency} value={currency}>
+                    {currency}
+                  </option>
+                ))}
+              </Select>
             )}
           </HookField>
           <HookField control={control} name="reason" label="Why" required>
@@ -319,7 +337,15 @@ function CreateGlAccountModal({
   }
 
   const onSubmit = handleSubmit((values) => {
-    create.mutate(values, { onSuccess: close });
+    create.mutate(values, {
+      onSuccess: () => {
+        toast.success('The GL account has been added.');
+        close();
+      },
+      onError: (error) => {
+        toast.error(errorMessage(error) ?? 'The GL account could not be created.');
+      },
+    });
   });
 
   return (
@@ -370,11 +396,22 @@ function EditGlAccountModal({
     if (!account) return;
     reset({ name: account.name, reason: '' });
     update.reset();
-  }, [account, reset, update]);
+  }, [account, reset, update.reset]);
 
   const onSubmit = handleSubmit((values) => {
     if (!account) return;
-    update.mutate({ id: account.id, body: values }, { onSuccess: () => onClose() });
+    update.mutate(
+      { id: account.id, body: values },
+      {
+        onSuccess: () => {
+          toast.success('The GL account has been saved.');
+          onClose();
+        },
+        onError: (error) => {
+          toast.error(errorMessage(error) ?? 'The GL account could not be saved.');
+        },
+      },
+    );
   });
 
   return (
@@ -443,7 +480,15 @@ function CreateCostCentreModal({
         department: values.department || null,
         reason: values.reason,
       },
-      { onSuccess: close },
+      {
+        onSuccess: () => {
+          toast.success('The cost centre has been added.');
+          close();
+        },
+        onError: (error) => {
+          toast.error(errorMessage(error) ?? 'The cost centre could not be created.');
+        },
+      },
     );
   });
 
@@ -514,7 +559,7 @@ function EditCostCentreModal({
     if (!centre) return;
     reset({ name: centre.name, department: centre.departmentId ?? '', reason: '' });
     update.reset();
-  }, [centre, reset, update]);
+  }, [centre, reset, update.reset]);
 
   const onSubmit = handleSubmit((values) => {
     if (!centre) return;
@@ -527,7 +572,15 @@ function EditCostCentreModal({
           reason: values.reason,
         },
       },
-      { onSuccess: () => onClose() },
+      {
+        onSuccess: () => {
+          toast.success('The cost centre has been saved.');
+          onClose();
+        },
+        onError: (error) => {
+          toast.error(errorMessage(error) ?? 'The cost centre could not be saved.');
+        },
+      },
     );
   });
 
@@ -591,16 +644,14 @@ interface CatalogueRow {
 
 /** Code, name and status are shared; each catalogue adds its own middle columns. */
 function catalogueColumns<T extends CatalogueRow>({
-  noun,
   extra,
   onEdit,
   onToggle,
   toggling,
 }: {
-  noun: string;
   extra: Column<T>[];
   onEdit: (row: T) => void;
-  onToggle: (row: T, reason: string) => void;
+  onToggle: (row: T) => void;
   toggling: boolean;
 }): Column<T>[] {
   return [
@@ -651,15 +702,7 @@ function catalogueColumns<T extends CatalogueRow>({
             variant="ghost"
             disabled={toggling}
             className={cn(!row.is_active && 'text-[var(--color-success-700)]')}
-            onClick={() => {
-              const reason = window.prompt(
-                row.is_active
-                  ? `Why is this ${noun} being deactivated?`
-                  : `Why is this ${noun} being reactivated?`,
-              );
-              if (!reason || reason.trim().length < 3) return;
-              onToggle(row, reason.trim());
-            }}
+            onClick={() => onToggle(row)}
           >
             {row.is_active ? 'Deactivate' : 'Reactivate'}
           </Button>
@@ -732,6 +775,12 @@ export function ReferenceDataPage() {
   const [editingVendor, setEditingVendor] = useState<AdminVendorOut | null>(null);
   const [editingAccount, setEditingAccount] = useState<AdminGlAccountOut | null>(null);
   const [editingCentre, setEditingCentre] = useState<AdminCostCentreOut | null>(null);
+  const [statusTarget, setStatusTarget] = useState<
+    | { noun: 'vendor'; row: AdminVendorOut }
+    | { noun: 'GL account'; row: AdminGlAccountOut }
+    | { noun: 'cost centre'; row: AdminCostCentreOut }
+    | null
+  >(null);
 
   const vendors = useAdminVendors(includeInactive);
   const accounts = useAdminGlAccounts(includeInactive);
@@ -755,7 +804,6 @@ export function ReferenceDataPage() {
           : 'Add cost centre';
 
   const vendorColumns = catalogueColumns<AdminVendorOut>({
-    noun: 'vendor',
     extra: [
       {
         key: 'email',
@@ -775,22 +823,18 @@ export function ReferenceDataPage() {
       },
     ],
     onEdit: setEditingVendor,
-    onToggle: (row, reason) =>
-      setVendorActive.mutate({ id: row.id, body: { is_active: !row.is_active, reason } }),
+    onToggle: (row) => setStatusTarget({ noun: 'vendor', row }),
     toggling: setVendorActive.isPending,
   });
 
   const accountColumns = catalogueColumns<AdminGlAccountOut>({
-    noun: 'GL account',
     extra: [],
     onEdit: setEditingAccount,
-    onToggle: (row, reason) =>
-      setAccountActive.mutate({ id: row.id, body: { is_active: !row.is_active, reason } }),
+    onToggle: (row) => setStatusTarget({ noun: 'GL account', row }),
     toggling: setAccountActive.isPending,
   });
 
   const centreColumns = catalogueColumns<AdminCostCentreOut>({
-    noun: 'cost centre',
     extra: [
       {
         key: 'department',
@@ -805,8 +849,7 @@ export function ReferenceDataPage() {
       },
     ],
     onEdit: setEditingCentre,
-    onToggle: (row, reason) =>
-      setCentreActive.mutate({ id: row.id, body: { is_active: !row.is_active, reason } }),
+    onToggle: (row) => setStatusTarget({ noun: 'cost centre', row }),
     toggling: setCentreActive.isPending,
   });
 
@@ -905,6 +948,62 @@ export function ReferenceDataPage() {
       <EditCostCentreModal
         centre={editingCentre}
         onClose={() => setEditingCentre(null)}
+      />
+      <ActiveChangeModal
+        open={statusTarget !== null}
+        title={
+          statusTarget
+            ? `${statusTarget.row.is_active ? 'Deactivate' : 'Reactivate'} ${statusTarget.noun}`
+            : 'Deactivate'
+        }
+        description={
+          statusTarget
+            ? statusTarget.row.is_active
+              ? `Are you sure you want to deactivate ${statusTarget.row.name} (${statusTarget.row.code})? Historical documents keep it. New records cannot use it until it is reactivated.`
+              : `Are you sure you want to reactivate ${statusTarget.row.name} (${statusTarget.row.code})? New records can use it again.`
+            : undefined
+        }
+        nextActive={statusTarget ? !statusTarget.row.is_active : false}
+        confirmLabel={
+          statusTarget
+            ? `${statusTarget.row.is_active ? 'Deactivate' : 'Reactivate'} ${statusTarget.noun}`
+            : 'Deactivate'
+        }
+        reasonPlaceholder={
+          statusTarget
+            ? `Enter a reason for ${statusTarget.row.is_active ? 'deactivating' : 'reactivating'} this ${statusTarget.noun}`
+            : undefined
+        }
+        pending={
+          setVendorActive.isPending || setAccountActive.isPending || setCentreActive.isPending
+        }
+        onClose={() => setStatusTarget(null)}
+        onConfirm={(reason) => {
+          if (!statusTarget) return;
+          const body = { is_active: !statusTarget.row.is_active, reason };
+          const done = {
+            onSuccess: () => {
+              toast.success(
+                statusTarget.row.is_active
+                  ? `The ${statusTarget.noun} has been deactivated.`
+                  : `The ${statusTarget.noun} has been reactivated.`,
+              );
+              setStatusTarget(null);
+            },
+            onError: (error: unknown) => {
+              toast.error(
+                errorMessage(error) ?? `The ${statusTarget.noun} could not be changed.`,
+              );
+            },
+          };
+          if (statusTarget.noun === 'vendor') {
+            setVendorActive.mutate({ id: statusTarget.row.id, body }, done);
+          } else if (statusTarget.noun === 'GL account') {
+            setAccountActive.mutate({ id: statusTarget.row.id, body }, done);
+          } else {
+            setCentreActive.mutate({ id: statusTarget.row.id, body }, done);
+          }
+        }}
       />
     </>
   );

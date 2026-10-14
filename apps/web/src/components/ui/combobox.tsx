@@ -23,6 +23,7 @@ export function Combobox({
   clearLabel = 'None',
   describedBy,
   invalid,
+  disabled,
 }: {
   id?: string | undefined;
   value: string;
@@ -33,6 +34,7 @@ export function Combobox({
   clearLabel?: string | undefined;
   describedBy?: string | undefined;
   invalid?: boolean | undefined;
+  disabled?: boolean | undefined;
 }) {
   const listId = useId();
   const [open, setOpen] = useState(false);
@@ -55,6 +57,7 @@ export function Combobox({
           aria-controls={listId}
           aria-autocomplete="list"
           aria-describedby={describedBy}
+          disabled={disabled}
           {...(invalid ? { invalid: true } : {})}
           placeholder={placeholder}
           value={open ? query : (selected?.label ?? '')}

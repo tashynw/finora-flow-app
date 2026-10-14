@@ -8,6 +8,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+import { toast } from 'sonner';
+
 import { errorMessage } from '@/lib/api-client';
 import { auditReason } from '@/lib/form-schemas';
 import { HookField } from '@/components/form/hook-field';
@@ -46,7 +48,7 @@ function KillSwitchModal({
     if (!open) return;
     reset({ reason: '' });
     mutation.reset();
-  }, [open, engage, reset, mutation]);
+  }, [open, engage, reset, mutation.reset]);
 
   function resetAndClose() {
     reset({ reason: '' });
@@ -55,7 +57,22 @@ function KillSwitchModal({
   }
 
   const onSubmit = handleSubmit((values) => {
-    mutation.mutate({ engaged: engage, reason: values.reason }, { onSuccess: resetAndClose });
+    mutation.mutate(
+      { engaged: engage, reason: values.reason },
+      {
+        onSuccess: () => {
+          toast.success(
+            engage
+              ? 'The AI kill switch is engaged.'
+              : 'The AI kill switch has been cleared.',
+          );
+          resetAndClose();
+        },
+        onError: (error) => {
+          toast.error(errorMessage(error) ?? 'The kill switch could not be updated.');
+        },
+      },
+    );
   });
 
   return (

@@ -3,6 +3,8 @@ import { UserRoundCheck } from 'lucide-react';
 
 import type { ApprovalDelegationOut } from '@finora/shared-types';
 
+import { toast } from 'sonner';
+
 import { errorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
@@ -342,7 +344,17 @@ function CoverDialog({
                   delegateToId: clearing ? null : delegateId,
                   outOfOfficeUntil: clearing ? null : endOfDay(until),
                 },
-                { onSuccess: close },
+                {
+                  onSuccess: () => {
+                    toast.success(
+                      clearing ? 'The cover has ended.' : 'The cover has been saved.',
+                    );
+                    close();
+                  },
+                  onError: (error) => {
+                    toast.error(errorMessage(error) ?? 'The cover could not be saved.');
+                  },
+                },
               );
             }}
           >

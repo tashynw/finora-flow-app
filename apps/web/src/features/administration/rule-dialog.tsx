@@ -3,8 +3,10 @@ import { useEffect, useId, useState } from 'react';
 import type { ApprovalLevel, MatrixRuleOut, MatrixRuleRequest } from '@finora/shared-types';
 
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { Field, Input, Select, Textarea } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
+import { useDepartments } from '@/features/administration/use-departments';
 
 /**
  * Writing a rule into the matrix.
@@ -18,6 +20,9 @@ import { Modal } from '@/components/ui/modal';
  * administrator to think in cents is how a band ends up a hundred times too
  * wide.
  */
+/** Matches the Prisma `Currency` enum. A rule accepts only these. */
+const RULE_CURRENCIES = ['JMD', 'USD'] as const;
+
 const LEVELS: { id: ApprovalLevel; label: string }[] = [
   { id: 'unit_head', label: 'Unit Head' },
   { id: 'manager', label: 'Manager' },
@@ -109,6 +114,7 @@ export function RuleDialog({
   const [values, setValues] = useState<RuleFormValues>(blankValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const parallelId = useId();
+  const departments = useDepartments(true, open);
 
   // Reset on open rather than on close, so a refusal from the server leaves what
   // was typed on screen to correct.
@@ -117,6 +123,18 @@ export function RuleDialog({
     setValues(replacing ? valuesFrom(replacing) : blankValues());
     setErrors({});
   }, [open, replacing]);
+
+  useEffect(() => {
+    if (!open || !replacing?.department) return;
+    const named = replacing.department.trim();
+    const match = (departments.data ?? []).find(
+      (row) => row.name.toLowerCase() === named.toLowerCase(),
+    );
+    if (!match) return;
+    setValues((current) =>
+      current.department === named ? { ...current, department: match.costCentreNumber } : current,
+    );
+  }, [open, replacing, departments.data]);
 
   const set = <K extends keyof RuleFormValues>(key: K, value: RuleFormValues[K]) => {
     setValues((current) => ({ ...current, [key]: value }));
@@ -156,11 +174,16 @@ export function RuleDialog({
   // Somebody else already at this step number in this band is what parallelism
   // means, so the box explains itself against what is actually there rather than
   // in the abstract.
+  const selectedDepartment = (departments.data ?? []).find(
+    (row) => row.costCentreNumber === values.department || row.name === values.department,
+  );
+  const departmentName = selectedDepartment?.name ?? values.department.trim();
+
   const alongside = liveRules.filter(
     (rule) =>
       rule.step_order === step &&
       rule.id !== replacing?.id &&
-      (rule.department ?? '') === values.department.trim(),
+      (rule.department ?? '') === departmentName,
   );
 
   return (
@@ -262,14 +285,19 @@ export function RuleDialog({
         <div className="grid gap-[var(--space-4)] sm:grid-cols-3">
           <Field label="Currency" required help="Bands are per currency.">
             {({ inputId, describedBy }) => (
-              <Input
+              <Select
                 id={inputId}
                 aria-describedby={describedBy}
                 value={values.currency}
-                maxLength={3}
                 disabled={isPending}
-                onChange={(event) => set('currency', event.target.value.toUpperCase())}
-              />
+                onChange={(event) => set('currency', event.target.value)}
+              >
+                {RULE_CURRENCIES.map((currency) => (
+                  <option key={currency} value={currency}>
+                    {currency}
+                  </option>
+                ))}
+              </Select>
             )}
           </Field>
 
@@ -311,16 +339,29 @@ export function RuleDialog({
 
         <Field
           label="Department"
-          help="Leave empty to apply everywhere. A rule naming a department applies only to records from it."
+          help="Leave empty to apply everywhere. A rule for one department applies only to records from it."
         >
           {({ inputId, describedBy }) => (
-            <Input
+            <Combobox
               id={inputId}
-              aria-describedby={describedBy}
+              describedBy={describedBy}
               value={values.department}
-              maxLength={200}
               disabled={isPending}
-              onChange={(event) => set('department', event.target.value)}
+              placeholder="All departments"
+              emptyLabel="No department found."
+              clearLabel="All departments"
+              onChange={(value) => set('department', value)}
+              items={(departments.data ?? [])
+                .filter(
+                  (row) =>
+                    row.isActive ||
+                    row.costCentreNumber === values.department ||
+                    row.name.toLowerCase() === (replacing?.department ?? '').trim().toLowerCase(),
+                )
+                .map((row) => ({
+                  value: row.costCentreNumber,
+                  label: `${row.name} · ${row.costCentreNumber}`,
+                }))}
             />
           )}
         </Field>

@@ -24,6 +24,7 @@ import { EmailText } from "@/features/shared/email-text";
 import { PageHeader } from "@/features/shared/page-header";
 import { Combobox } from "@/components/ui/combobox";
 import { useDepartments } from "@/features/administration/use-departments";
+import { ActiveChangeModal } from "@/features/administration/active-change-modal";
 import { useAuth } from "@/features/auth/auth-context";
 import {
   ROLE_OPTIONS,
@@ -304,7 +305,15 @@ function EditRolesModal({
     if (!user) return;
     setRoles.mutate(
       { userId: user.id, body: { roles: values.roles } },
-      { onSuccess: () => onClose() },
+      {
+        onSuccess: () => {
+          toast.success("The roles have been saved.");
+          onClose();
+        },
+        onError: (error) => {
+          toast.error(errorMessage(error) ?? "The roles could not be saved.");
+        },
+      },
     );
   });
 
@@ -356,13 +365,84 @@ function EditRolesModal({
   );
 }
 
+function AccountStatusModal({
+  user,
+  nextActive,
+  onClose,
+}: {
+  user: AdminUserOut | null;
+  nextActive: boolean;
+  onClose: () => void;
+}) {
+  const setActive = useSetUserActive();
+
+  useEffect(() => {
+    if (!user) return;
+    setActive.reset();
+  }, [user, setActive.reset]);
+
+  return (
+    <ActiveChangeModal
+      open={user !== null}
+      title={nextActive ? "Reactivate account" : "Deactivate account"}
+      description={
+        user
+          ? nextActive
+            ? `Are you sure you want to reactivate ${user.display_name} (${user.email})? They will be able to sign in again.`
+            : `Are you sure you want to deactivate ${user.display_name} (${user.email})? They will be signed out and unable to sign in again until reactivated.`
+          : undefined
+      }
+      nextActive={nextActive}
+      confirmLabel={nextActive ? "Reactivate account" : "Deactivate account"}
+      reasonPlaceholder={
+        nextActive
+          ? "Enter a reason for reactivating this account"
+          : "Enter a reason for deactivating this account"
+      }
+      pending={setActive.isPending}
+      onClose={() => {
+        setActive.reset();
+        onClose();
+      }}
+      onConfirm={(reason) => {
+        if (!user) return;
+        setActive.mutate(
+          {
+            userId: user.id,
+            body: { is_active: nextActive, reason },
+          },
+          {
+            onSuccess: () => {
+              toast.success(
+                nextActive
+                  ? "The account has been reactivated and can sign in again."
+                  : "The account has been deactivated and can no longer sign in.",
+              );
+              setActive.reset();
+              onClose();
+            },
+            onError: (error) => {
+              toast.error(
+                errorMessage(error) ?? "The account could not be changed.",
+              );
+            },
+          },
+        );
+      }}
+    />
+  );
+}
+
 export function UsersPage() {
   const { user: me } = useAuth();
   const [includeInactive, setIncludeInactive] = useState(true);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<AdminUserOut | null>(null);
+  const [statusTarget, setStatusTarget] = useState<{
+    user: AdminUserOut;
+    nextActive: boolean;
+  } | null>(null);
   const users = useUsers(includeInactive);
-  const setActive = useSetUserActive();
   const resendInvite = useResendInvite();
 
   const rows = users.data ?? [];
@@ -470,22 +550,11 @@ export function UsersPage() {
             type="button"
             size="sm"
             variant="ghost"
-            disabled={
-              setActive.isPending || (me?.id === row.id && row.is_active)
-            }
+            disabled={me?.id === row.id && row.is_active}
             className={cn(!row.is_active && "text-[var(--color-success-700)]")}
-            onClick={() => {
-              const reason = window.prompt(
-                row.is_active
-                  ? "Why is this account being deactivated?"
-                  : "Why is this account being reactivated?",
-              );
-              if (!reason || reason.trim().length < 3) return;
-              setActive.mutate({
-                userId: row.id,
-                body: { is_active: !row.is_active, reason: reason.trim() },
-              });
-            }}
+            onClick={() =>
+              setStatusTarget({ user: row, nextActive: !row.is_active })
+            }
           >
             {row.is_active ? "Deactivate" : "Reactivate"}
           </Button>
@@ -522,20 +591,6 @@ export function UsersPage() {
           </Button>
         }
       />
-
-      {setActive.isError ? (
-        <Card className="mb-[var(--space-5)] border-[var(--color-danger-600)]">
-          <CardContent>
-            <p
-              role="alert"
-              className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]"
-            >
-              {errorMessage(setActive.error) ??
-                "The account could not be changed."}
-            </p>
-          </CardContent>
-        </Card>
-      ) : null}
 
       {users.isLoading ? (
         <Card>
@@ -574,6 +629,11 @@ export function UsersPage() {
 
       <CreateUserModal open={creating} onClose={() => setCreating(false)} />
       <EditRolesModal user={editing} onClose={() => setEditing(null)} />
+      <AccountStatusModal
+        user={statusTarget?.user ?? null}
+        nextActive={statusTarget?.nextActive ?? false}
+        onClose={() => setStatusTarget(null)}
+      />
     </>
   );
 }

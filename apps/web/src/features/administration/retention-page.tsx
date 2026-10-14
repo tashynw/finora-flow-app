@@ -6,6 +6,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+import { toast } from 'sonner';
+
 import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
 import { auditReason } from '@/lib/form-schemas';
@@ -19,6 +21,7 @@ import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
 import { ViewTabs } from '@/components/ui/view-tabs';
 import { ToneBadge } from '@/components/workflow/status-badge';
+import { ActiveChangeModal } from '@/features/administration/active-change-modal';
 import { PageHeader } from '@/features/shared/page-header';
 import {
   useRetentionPolicies,
@@ -66,7 +69,7 @@ function EditRetentionModal({
     if (!open || !editing) return;
     reset({ days: String(editing.retention_days), reason: '' });
     update.reset();
-  }, [open, editing, reset, update]);
+  }, [open, editing, reset, update.reset]);
 
   function resetAndClose() {
     reset({ days: '', reason: '' });
@@ -84,7 +87,15 @@ function EditRetentionModal({
           reason: values.reason,
         },
       },
-      { onSuccess: resetAndClose },
+      {
+        onSuccess: () => {
+          toast.success('The retention period has been saved.');
+          resetAndClose();
+        },
+        onError: (error) => {
+          toast.error(errorMessage(error) ?? 'The retention policy could not be saved.');
+        },
+      },
     );
   });
 
@@ -127,6 +138,7 @@ function EditRetentionModal({
 export function RetentionPage() {
   const [includeInactive, setIncludeInactive] = useState(true);
   const [editing, setEditing] = useState<RetentionPolicyOut | null>(null);
+  const [statusTarget, setStatusTarget] = useState<RetentionPolicyOut | null>(null);
   const policies = useRetentionPolicies(includeInactive);
   const setActive = useSetRetentionActive();
 
@@ -190,23 +202,8 @@ export function RetentionPage() {
             type="button"
             size="sm"
             variant="ghost"
-            disabled={setActive.isPending}
             className={cn(!row.is_active && 'text-[var(--color-success-700)]')}
-            onClick={() => {
-              const reason = window.prompt(
-                row.is_active
-                  ? 'Why is this retention policy being deactivated?'
-                  : 'Why is this retention policy being reactivated?',
-              );
-              if (!reason || reason.trim().length < 3) return;
-              setActive.mutate({
-                id: row.record_class,
-                body: {
-                  is_active: !row.is_active,
-                  reason: reason.trim(),
-                },
-              });
-            }}
+            onClick={() => setStatusTarget(row)}
           >
             {row.is_active ? 'Deactivate' : 'Reactivate'}
           </Button>
@@ -271,6 +268,54 @@ export function RetentionPage() {
         open={editing !== null}
         editing={editing}
         onClose={() => setEditing(null)}
+      />
+      <ActiveChangeModal
+        open={statusTarget !== null}
+        title={
+          statusTarget?.is_active ? 'Deactivate retention policy' : 'Reactivate retention policy'
+        }
+        description={
+          statusTarget
+            ? statusTarget.is_active
+              ? `Are you sure you want to deactivate the ${formatRecordClass(statusTarget.record_class)} policy? This class of record will no longer follow it until it is reactivated.`
+              : `Are you sure you want to reactivate the ${formatRecordClass(statusTarget.record_class)} policy? This class of record will follow it again.`
+            : undefined
+        }
+        nextActive={statusTarget ? !statusTarget.is_active : false}
+        confirmLabel={
+          statusTarget?.is_active ? 'Deactivate retention policy' : 'Reactivate retention policy'
+        }
+        reasonPlaceholder={
+          statusTarget?.is_active
+            ? 'Enter a reason for deactivating this retention policy'
+            : 'Enter a reason for reactivating this retention policy'
+        }
+        pending={setActive.isPending}
+        onClose={() => setStatusTarget(null)}
+        onConfirm={(reason) => {
+          if (!statusTarget) return;
+          setActive.mutate(
+            {
+              id: statusTarget.record_class,
+              body: { is_active: !statusTarget.is_active, reason },
+            },
+            {
+              onSuccess: () => {
+                toast.success(
+                  statusTarget.is_active
+                    ? 'The retention policy has been deactivated.'
+                    : 'The retention policy has been reactivated.',
+                );
+                setStatusTarget(null);
+              },
+              onError: (error) => {
+                toast.error(
+                  errorMessage(error) ?? 'The retention policy could not be changed.',
+                );
+              },
+            },
+          );
+        }}
       />
     </>
   );

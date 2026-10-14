@@ -3,6 +3,8 @@ import { UserPlus, UsersRound } from 'lucide-react';
 
 import type { ApprovalAssignmentOut, ApprovalLevel } from '@finora/shared-types';
 
+import { toast } from 'sonner';
+
 import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
@@ -230,7 +232,17 @@ export function AssignmentsPage() {
                 if (!removing) return;
                 unassign.mutate(
                   { assignmentId: removing.id },
-                  { onSuccess: () => setRemoving(null) },
+                  {
+                    onSuccess: () => {
+                      toast.success('They have been removed from this level.');
+                      setRemoving(null);
+                    },
+                    onError: (error) => {
+                      toast.error(
+                        errorMessage(error) ?? 'They could not be removed from this level.',
+                      );
+                    },
+                  },
                 );
               }}
             >
@@ -298,9 +310,15 @@ function AssignDialog({
                 { userId, level, department },
                 {
                   onSuccess: () => {
+                    toast.success('They have been added to this level.');
                     setUserId('');
                     setDepartment('');
                     onClose();
+                  },
+                  onError: (error) => {
+                    toast.error(
+                      errorMessage(error) ?? 'They could not be added to this level.',
+                    );
                   },
                 },
               );

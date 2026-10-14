@@ -32,8 +32,8 @@ export class IntakeController {
   }
 
   @Get('operations')
-  async operations() {
-    return serialize(await this.service.operationsSummary());
+  async operations(@Query('probe_mailbox') probeMailbox?: string) {
+    return serialize(await this.service.operationsSummary(probeMailbox === 'true'));
   }
 
   @Post('uploads')

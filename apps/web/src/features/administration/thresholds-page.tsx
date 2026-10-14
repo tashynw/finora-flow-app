@@ -6,20 +6,23 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+import { toast } from 'sonner';
+
 import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
-import { amountInputValue, formatMoney, isKnownCurrency, parseAmount } from '@/lib/money';
+import { amountInputValue, displayAmountInput, formatMoney, parseAmount } from '@/lib/money';
 import { auditReason } from '@/lib/form-schemas';
 import { HookField } from '@/components/form/hook-field';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { DataTable, type Column } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Input, Textarea } from '@/components/ui/field';
+import { Input, Select, Textarea } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
 import { ViewTabs } from '@/components/ui/view-tabs';
 import { ToneBadge } from '@/components/workflow/status-badge';
+import { ActiveChangeModal } from '@/features/administration/active-change-modal';
 import { PageHeader } from '@/features/shared/page-header';
 import {
   useSetThresholdActive,
@@ -28,23 +31,23 @@ import {
   type ThresholdOut,
 } from '@/features/administration/use-thresholds';
 
+/** Matches the Prisma `Currency` enum. A threshold accepts only these. */
+const THRESHOLD_CURRENCIES = ['JMD', 'USD'] as const;
+
+function thresholdCurrency(value: string): (typeof THRESHOLD_CURRENCIES)[number] {
+  return (THRESHOLD_CURRENCIES as readonly string[]).includes(value)
+    ? (value as (typeof THRESHOLD_CURRENCIES)[number])
+    : 'JMD';
+}
+
 const thresholdSchema = z
   .object({
-    currency: z.string().trim().length(3, 'Use a known three-letter currency code.'),
+    currency: z.enum(THRESHOLD_CURRENCIES, { error: 'Choose JMD or USD.' }),
     amount: z.string().trim().min(1, 'Enter an amount in major units.'),
     reason: auditReason,
   })
   .superRefine((values, context) => {
-    const currency = values.currency.toUpperCase();
-    if (!isKnownCurrency(currency)) {
-      context.addIssue({
-        code: 'custom',
-        path: ['currency'],
-        message: 'Use a known three-letter currency code.',
-      });
-      return;
-    }
-    const minorUnits = parseAmount(values.amount, currency);
+    const minorUnits = parseAmount(values.amount, values.currency);
     if (minorUnits === null || minorUnits < 0) {
       context.addIssue({
         code: 'custom',
@@ -74,14 +77,14 @@ function ThresholdFormModal({
   useEffect(() => {
     if (!open) return;
     reset({
-      currency: editing?.currency ?? 'JMD',
+      currency: thresholdCurrency(editing?.currency ?? 'JMD'),
       amount: editing
         ? amountInputValue(editing.applies_above_minor_units, editing.currency)
         : '',
       reason: '',
     });
     upsert.reset();
-  }, [open, editing, reset, upsert]);
+  }, [open, editing, reset, upsert.reset]);
 
   function resetAndClose() {
     reset({ currency: 'JMD', amount: '', reason: '' });
@@ -99,7 +102,17 @@ function ThresholdFormModal({
         applies_above_minor_units: minorUnits,
         reason: values.reason,
       },
-      { onSuccess: resetAndClose },
+      {
+        onSuccess: () => {
+          toast.success(
+            editing ? 'The threshold has been saved.' : 'The threshold has been added.',
+          );
+          resetAndClose();
+        },
+        onError: (error) => {
+          toast.error(errorMessage(error) ?? 'The threshold could not be saved.');
+        },
+      },
     );
   });
 
@@ -116,21 +129,22 @@ function ThresholdFormModal({
           name="currency"
           label="Currency"
           required
-          help="Three-letter ISO code. One threshold per currency."
+          help="One threshold per currency."
         >
           {({ inputId, describedBy, invalid }, field) => (
-            <Input
+            <Select
               id={inputId}
               aria-describedby={describedBy}
               invalid={invalid}
-              maxLength={3}
               disabled={editing !== null}
-              name={field.name}
-              ref={field.ref}
-              value={field.value}
-              onBlur={field.onBlur}
-              onChange={(event) => field.onChange(event.target.value.toUpperCase())}
-            />
+              {...field}
+            >
+              {THRESHOLD_CURRENCIES.map((currency) => (
+                <option key={currency} value={currency}>
+                  {currency}
+                </option>
+              ))}
+            </Select>
           )}
         </HookField>
         <HookField
@@ -138,15 +152,23 @@ function ThresholdFormModal({
           name="amount"
           label="Applies above"
           required
-          help="Enter major units (e.g. 50000.00 for JMD 50,000.00). An invoice for exactly this amount needs no PO."
+          help="Enter major units (e.g. 50,000.00). An invoice for exactly this amount needs no PO."
         >
           {({ inputId, describedBy, invalid }, field) => (
             <Input
               id={inputId}
+              type="text"
               inputMode="decimal"
               aria-describedby={describedBy}
               invalid={invalid}
-              {...field}
+              name={field.name}
+              ref={field.ref}
+              value={displayAmountInput(field.value)}
+              onBlur={field.onBlur}
+              onChange={(event) => {
+                const value = event.target.value.replace(/,/g, '');
+                if (value === '' || /^\d*\.?\d*$/.test(value)) field.onChange(value);
+              }}
             />
           )}
         </HookField>
@@ -172,6 +194,7 @@ export function ThresholdsPage() {
   const [includeInactive, setIncludeInactive] = useState(true);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<ThresholdOut | null>(null);
+  const [statusTarget, setStatusTarget] = useState<ThresholdOut | null>(null);
   const thresholds = useThresholds(includeInactive);
   const setActive = useSetThresholdActive();
 
@@ -234,23 +257,8 @@ export function ThresholdsPage() {
             type="button"
             size="sm"
             variant="ghost"
-            disabled={setActive.isPending}
             className={cn(!row.is_active && 'text-[var(--color-success-700)]')}
-            onClick={() => {
-              const reason = window.prompt(
-                row.is_active
-                  ? 'Why is this threshold being deactivated?'
-                  : 'Why is this threshold being reactivated?',
-              );
-              if (!reason || reason.trim().length < 3) return;
-              setActive.mutate({
-                id: row.id,
-                body: {
-                  is_active: !row.is_active,
-                  reason: reason.trim(),
-                },
-              });
-            }}
+            onClick={() => setStatusTarget(row)}
           >
             {row.is_active ? 'Deactivate' : 'Reactivate'}
           </Button>
@@ -323,6 +331,48 @@ export function ThresholdsPage() {
         onClose={() => {
           setCreating(false);
           setEditing(null);
+        }}
+      />
+      <ActiveChangeModal
+        open={statusTarget !== null}
+        title={statusTarget?.is_active ? 'Deactivate threshold' : 'Reactivate threshold'}
+        description={
+          statusTarget
+            ? statusTarget.is_active
+              ? `Are you sure you want to deactivate the ${statusTarget.currency} threshold? Invoices in this currency will require a purchase order at every amount until it is reactivated.`
+              : `Are you sure you want to reactivate the ${statusTarget.currency} threshold? Invoices at or below this amount need no purchase order again.`
+            : undefined
+        }
+        nextActive={statusTarget ? !statusTarget.is_active : false}
+        confirmLabel={statusTarget?.is_active ? 'Deactivate threshold' : 'Reactivate threshold'}
+        reasonPlaceholder={
+          statusTarget?.is_active
+            ? 'Enter a reason for deactivating this threshold'
+            : 'Enter a reason for reactivating this threshold'
+        }
+        pending={setActive.isPending}
+        onClose={() => setStatusTarget(null)}
+        onConfirm={(reason) => {
+          if (!statusTarget) return;
+          setActive.mutate(
+            {
+              id: statusTarget.id,
+              body: { is_active: !statusTarget.is_active, reason },
+            },
+            {
+              onSuccess: () => {
+                toast.success(
+                  statusTarget.is_active
+                    ? 'The threshold has been deactivated.'
+                    : 'The threshold has been reactivated.',
+                );
+                setStatusTarget(null);
+              },
+              onError: (error) => {
+                toast.error(errorMessage(error) ?? 'The threshold could not be changed.');
+              },
+            },
+          );
         }}
       />
     </>
