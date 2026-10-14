@@ -1,0 +1,103 @@
+Finora Flow end-to-end role walkthrough
+========================================
+
+Use a separate signed-in user for each role, in a private window or after signing out. One record should move from person to person. Accepting a document does not create an estimate or an invoice. Finance types the reading, then someone creates the estimate or invoice from that document. Mailbox polling and reminders need Redis, which this PC cannot reach, so test the manual upload path.
+
+
+0. Administrator sets the stage
+-------------------------------
+
+Sign in as administrator. You should see Dashboard, My work, System health, and the settings screens. Audit is hidden. Inbox, Documents, Invoices, and Credit cards should be absent from the sidebar.
+
+1. Users and roles. Create one user for each role below, each with only that role. Confirm the invite or set-password mail arrives, and that each person can sign in. Deactivate one throwaway user and confirm they cannot sign in. Reactivate them.
+
+2. Reference data. Add a department, a vendor, a GL account, and a cost centre. Edit one and mark one inactive. Inactive rows should stay out of the pickers on estimates and invoices.
+
+3. PO thresholds and Approval matrix. Set a threshold and an approver for an amount band. Who approves what should list that person.
+
+4. Retention and Operational settings. Change a retention class and toggle a setting. Save, reload, and confirm the value stuck.
+
+5. Open System health and Intake health. Redis errors in the server log are expected. The pages themselves should still load.
+
+
+1. The main path
+----------------
+
+Use a real PDF or image, plus this statement CSV:
+
+date,merchant,amount,cardholder,reference
+2026-03-01,Island Grill,"1250.50",Ada Lovelace,REF-1
+2026-03-02,Office Depot,40.00,Ada Lovelace,REF-2
+
+Requester uploads. Inbox at /intake. Upload the file as Invoice. The dialog should close onto the message, the file should be in S3, and the row should appear in the inbox. Upload the same file again and confirm you get a clear refusal or a second message, not a blank error. Open the message and confirm the filename, size, and download link.
+
+Finance reads it. Documents at /documents. Open that file. Set the kind to Invoice. Enter vendor, document number, document date, currency, and total. Mark an optional field as not present. Accept should stay blocked until those five have a value. Accept with a short note. The reading should lock. Read it again should be refused. The inbox message should still open.
+
+Requester raises the estimate. Estimates, Create estimate. Fill vendor, amount, and the cost centre and GL account from step 0. Save, reload, and confirm the draft is still there. Submit it. The requester should not see an Approve button on their own estimate.
+
+Approver decides. Approvals, or the estimate. Approve it. A second approver is only required if the matrix says so. Reject a second estimate with a reason and confirm the requester sees that reason. On Cover while away, set cover to another approver, then confirm a new item is offered to the cover person.
+
+Finance turns the accepted document into an invoice. Invoices, Create invoice, attached to the accepted document. Enter the number, vendor, dates, and total. Submit it. The invoice should show who must sign off.
+
+Requester signs off. Open that invoice and sign off. The requester must not be able to approve it.
+
+Approver approves the invoice. Approve it. Confirm the requester still cannot approve, and that finance cannot approve if finance is not on the matrix.
+
+Payment coordinator packages it. Payment packages. Build a package that includes the approved invoice and submit it. Vendor confirmations: send a check-in if that action is on the package. Open the supplier link while signed out. The page should work from the link alone. Submit an answer, then sign back in as the coordinator and review it.
+
+Finance pays it. Open the same package and mark it paid. The invoice should show paid. The coordinator should not have a Mark paid action.
+
+Finance codes the card. Credit cards. Register a card if none exists (label, last four, cardholder, JMD). Import the CSV with a period start, end, and statement date. Both lines should appear with amounts JMD 1,250.50 and JMD 40.00. Code one line to a GL account and cost centre. Waive the receipt on the other with a reason. Import the same file again: it should be refused as already imported. Close the period with a reason. If you coded a line, Close should be hidden for you. Sign in as a second finance user who did not code it, and close it. A closed period should refuse further coding.
+
+Auditor checks the trail. Audit trail. Filter by the invoice or the user. The upload, the field corrections, the acceptance, the submit, the approval, and the payment should be there in order. Run the chain check. It should report the chain is intact.
+
+
+2. What each role should and should not see
+--------------------------------------------
+
+Walk the sidebar for every user after the story above. A hidden link is not enough: paste the URL too.
+
+Requester
+  Must succeed: Inbox upload, estimate draft and submit, invoice sign-off, dashboard, My work.
+  Must be refused: /documents, /approvals, /payments, /credit-cards, /settings/users.
+
+Finance
+  Must succeed: Inbox upload, document review and accept, create and submit invoice, purchase orders, mark paid, credit cards, accruals, reports.
+  Must be refused: Approving their own coding by closing that period. Approving an invoice unless they are also the matrix approver.
+
+Approver
+  Must succeed: Approve or reject, delegate cover, open estimates, invoices, and purchase orders.
+  Must be refused: /intake, /documents, /payments, settings other than Cover.
+
+Payment coordinator
+  Must succeed: Build and submit a package, review a vendor answer, open invoices and purchase orders.
+  Must be refused: Mark paid, /intake, /documents, /credit-cards.
+
+Operations
+  Must succeed: Inbox list, Intake health, System health. Retry only if a failed intake row exists.
+  Must be refused: Upload is not their job. /documents, /invoices, /settings/users.
+
+Auditor
+  Must succeed: Open inbox, invoices, approvals, payments, credit cards, accruals, reports, and the audit trail, all read-only.
+  Must be refused: Upload, accept a document, approve, mark paid, edit users.
+
+Administrator
+  Must succeed: Users, reference data, thresholds, matrix, retention, operational settings, system health.
+  Must be refused: /intake, /invoices, /documents.
+
+
+3. Break it on purpose
+----------------------
+
+- Submit an estimate with no vendor and no amount. The form should name the field and save nothing.
+- Accept a document while the kind is still "Not identified", or while Total is empty. Accept stays blocked and the message lists what is missing.
+- Import a CSV missing the merchant column, and one with a date of 03/01/2026. Neither should create a period.
+- Two people: requester submits, then tries to approve. The decision should be refused.
+- Edit a user's roles as administrator, sign in as that user, and confirm the sidebar matches the new role immediately.
+- Reload every screen you changed. Dashboard, My work, the register, and the detail page should agree on status.
+
+
+4. How to read a failure
+------------------------
+
+A blank error or "Cannot read properties of undefined" means the page and Nest are still speaking different field names. A 403 on upload is the browser being blocked from reading the S3 response. A statement that never appears means the CSV was refused or the period list is filtered to Open or Closed. Redis ETIMEDOUT lines do not fail these tests. They only mean mailbox intake and scheduled reminders are not running.
