@@ -35,7 +35,8 @@ function RootLayout() {
   const supplier = location.pathname.startsWith('/payment-check-in/');
   const signingIn = location.pathname === '/sign-in';
   const resettingPassword = location.pathname === '/reset-password';
-  const publicPage = supplier || signingIn || resettingPassword;
+  const forgotPassword = location.pathname === '/forgot-password';
+  const publicPage = supplier || signingIn || resettingPassword || forgotPassword;
 
   if (!publicPage && isLoading) return <CheckingSession />;
 

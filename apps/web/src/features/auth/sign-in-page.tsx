@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { FinoraMark } from "@/components/brand/finora-mark";
 import { useAuth } from "@/features/auth/auth-context";
+import { Link } from "@/lib/app-link";
 import { WorkflowSpiral, WorkflowStrip } from "@/features/auth/workflow-flow";
 import scene from "@/assets/scene/signin-scene.jpg";
 import flowVideo from "@/assets/scene/signin-flow.mp4";
@@ -314,6 +315,14 @@ export function SignInPage() {
                   Sign in
                   <ArrowRight aria-hidden="true" className="size-4" />
                 </Button>
+                <p className="m-0 text-center text-[14px]">
+                  <Link
+                    to="/forgot-password"
+                    className="font-medium text-[#2f6bf2] hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </p>
               </form>
             </div>
 

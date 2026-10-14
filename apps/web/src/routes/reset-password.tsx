@@ -1,36 +1,39 @@
-import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { createFileRoute } from '@tanstack/react-router';
-import { Eye, EyeOff } from 'lucide-react';
-import { toast } from 'sonner';
-import { z } from 'zod';
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createFileRoute } from "@tanstack/react-router";
+import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
+import { z } from "zod";
 
-import { FinoraMark } from '@/components/brand/finora-mark';
-import { Button } from '@/components/ui/button';
-import { Field, Input } from '@/components/ui/field';
-import { useNavigate } from '@/lib/app-link';
-import { authClient } from '@/lib/auth-client';
+import { FinoraMark } from "@/components/brand/finora-mark";
+import { Button } from "@/components/ui/button";
+import { Field, Input } from "@/components/ui/field";
+import { useNavigate } from "@/lib/app-link";
+import { authClient } from "@/lib/auth-client";
 
 const resetPasswordSchema = z
   .object({
     newPassword: z
       .string()
-      .min(8, 'Password must be at least 8 characters')
-      .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
+      .min(8, "Password must be at least 8 characters")
+      .regex(
+        /[^A-Za-z0-9]/,
+        "Password must contain at least one special character",
+      ),
     confirmNewPassword: z.string(),
   })
   .refine((values) => values.newPassword === values.confirmNewPassword, {
-    message: 'Passwords do not match.',
-    path: ['confirmNewPassword'],
+    message: "Passwords do not match.",
+    path: ["confirmNewPassword"],
   });
 
 type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
 
-export const Route = createFileRoute('/reset-password')({
+export const Route = createFileRoute("/reset-password")({
   validateSearch: (search: Record<string, unknown>) => ({
-    token: typeof search.token === 'string' ? search.token : '',
-    error: typeof search.error === 'string' ? search.error : '',
+    token: typeof search.token === "string" ? search.token : "",
+    error: typeof search.error === "string" ? search.error : "",
   }),
   component: ResetPasswordPage,
 });
@@ -43,12 +46,12 @@ function ResetPasswordPage() {
   const [submitting, setSubmitting] = useState(false);
   const { control, handleSubmit } = useForm<ResetPasswordValues>({
     resolver: zodResolver(resetPasswordSchema),
-    defaultValues: { newPassword: '', confirmNewPassword: '' },
+    defaultValues: { newPassword: "", confirmNewPassword: "" },
   });
 
   const onSubmit = handleSubmit(async (values) => {
     if (!token) {
-      toast.error('This invitation link is missing its token.');
+      toast.error("This invitation link is missing its token.");
       return;
     }
     setSubmitting(true);
@@ -58,11 +61,11 @@ function ResetPasswordPage() {
         token,
       });
       if (result.error) {
-        toast.error(result.error.message ?? 'The password could not be saved.');
+        toast.error(result.error.message ?? "The password could not be saved.");
         return;
       }
-      toast.success('Password has been reset successfully!');
-      navigate('/sign-in');
+      toast.success("Password has been reset successfully!");
+      navigate("/sign-in");
     } finally {
       setSubmitting(false);
     }
@@ -76,14 +79,22 @@ function ResetPasswordPage() {
           Choose a password
         </h1>
         <p className="mt-2 text-[14px] text-[#5b6a92]">
-          This finishes your invitation. Afterward, sign in with this password.
+          Choose a new password. Afterward, sign in with it.
         </p>
         {error ? (
-          <p role="alert" className="mt-4 text-[14px] text-[var(--color-danger-700)]">
-            This invitation link is no longer valid. Ask an administrator to send it again.
+          <p
+            role="alert"
+            className="mt-4 text-[14px] text-[var(--color-danger-700)]"
+          >
+            This invitation link is no longer valid. Ask an administrator to
+            send it again.
           </p>
         ) : null}
-        <form onSubmit={onSubmit} noValidate className="mt-7 flex flex-col gap-5">
+        <form
+          onSubmit={onSubmit}
+          noValidate
+          className="mt-7 flex flex-col gap-5"
+        >
           <PasswordField
             control={control}
             name="newPassword"
@@ -124,7 +135,7 @@ function PasswordField({
   onToggle,
   autoComplete,
 }: {
-  control: ReturnType<typeof useForm<ResetPasswordValues>>['control'];
+  control: ReturnType<typeof useForm<ResetPasswordValues>>["control"];
   name: keyof ResetPasswordValues;
   label: string;
   shown: boolean;
@@ -144,20 +155,23 @@ function PasswordField({
                 id={inputId}
                 aria-describedby={describedBy}
                 invalid={invalid}
-                type={shown ? 'text' : 'password'}
+                type={shown ? "text" : "password"}
                 autoComplete={autoComplete}
                 className="h-12 rounded-[12px] pr-11"
               />
               <button
                 type="button"
                 onClick={onToggle}
-                aria-label={shown ? 'Hide password' : 'Show password'}
+                aria-label={shown ? "Hide password" : "Show password"}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5b6a92]"
               >
                 {shown ? (
-                  <EyeOff aria-hidden="true" className="size-5" />
+                  <EyeOff
+                    aria-hidden="true"
+                    className="size-5 cursor-pointer"
+                  />
                 ) : (
-                  <Eye aria-hidden="true" className="size-5" />
+                  <Eye aria-hidden="true" className="size-5 cursor-pointer" />
                 )}
               </button>
             </span>
