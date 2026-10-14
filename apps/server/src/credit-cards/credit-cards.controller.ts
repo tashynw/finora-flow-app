@@ -7,11 +7,16 @@ import {
   Param,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard, Session, type UserSession } from '@thallesp/nestjs-better-auth';
+import { DomainException } from '../common/errors.js';
 import { serialize } from '../common/serialize.js';
 import { CreditCardsService } from './credit-cards.service.js';
+import { decodeStatement } from './statement-csv.js';
 
 @Controller('credit-cards')
 @UseGuards(AuthGuard)
@@ -42,36 +47,49 @@ export class CreditCardsController {
 
   @Post('cards/:cardId/statements')
   @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FileInterceptor('file'))
   async importStatement(
     @Session() session: UserSession,
     @Param('cardId') cardId: string,
+    @UploadedFile() file: { buffer: Buffer; originalname?: string } | undefined,
     @Body()
     body: {
-      periodStart: string;
-      periodEnd: string;
-      statementDate: string;
-      sourceFilename: string;
-      transactions: {
-        postedOn: string;
-        merchant: string;
-        cardholder: string;
-        description?: string;
-        amountMinorUnits: string | number;
-        externalReference?: string;
-      }[];
+      period_start?: string;
+      period_end?: string;
+      statement_date?: string;
+      periodStart?: string;
+      periodEnd?: string;
+      statementDate?: string;
     },
   ) {
-    return serialize(await this.service.importStatement(session, cardId, body));
+    if (!file?.buffer?.length) {
+      throw new DomainException('Choose a statement CSV.');
+    }
+    const periodStart = body.period_start ?? body.periodStart;
+    const periodEnd = body.period_end ?? body.periodEnd;
+    const statementDate = body.statement_date ?? body.statementDate;
+    if (!periodStart || !periodEnd || !statementDate) {
+      throw new DomainException('Enter the period start, period end, and statement date.');
+    }
+    return serialize(
+      await this.service.importStatement(session, cardId, {
+        csvText: decodeStatement(file.buffer),
+        filename: file.originalname || 'statement.csv',
+        periodStart,
+        periodEnd,
+        statementDate,
+      }),
+    );
   }
 
   @Get('periods')
-  async listPeriods() {
-    return serialize(await this.service.listPeriods());
+  async listPeriods(@Query('standing') standing?: string) {
+    return serialize(await this.service.listPeriods(standing));
   }
 
   @Get('periods/:id')
-  async getPeriod(@Param('id') id: string) {
-    return serialize(await this.service.getPeriod(id));
+  async getPeriod(@Session() session: UserSession, @Param('id') id: string) {
+    return serialize(await this.service.getPeriod(id, session.user.id));
   }
 
   @Post('transactions/:id/code')

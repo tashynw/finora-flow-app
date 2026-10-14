@@ -36,6 +36,13 @@ type DeleteBody = {
   bucket?: string;
 };
 
+function actor(session: UserSession) {
+  return {
+    id: session.user.id,
+    name: session.user.name || session.user.email,
+  };
+}
+
 @Controller('documents')
 @UseGuards(AuthGuard)
 export class DocumentsController {
@@ -77,13 +84,17 @@ export class DocumentsController {
   }
 
   @Post(':id/kind')
-  async setKind(@Param('id') id: string, @Body() body: { kind: string }) {
-    return serialize(await this.records.setKind(id, body.kind));
+  async setKind(
+    @Session() session: UserSession,
+    @Param('id') id: string,
+    @Body() body: { kind: string },
+  ) {
+    return serialize(await this.records.setKind(id, body.kind, actor(session)));
   }
 
   @Post(':id/read')
-  async reread(@Param('id') id: string) {
-    return serialize(await this.records.reread(id));
+  async reread(@Session() session: UserSession, @Param('id') id: string) {
+    return serialize(await this.records.reread(id, actor(session)));
   }
 
   @Patch(':id/fields/:name')
@@ -94,10 +105,7 @@ export class DocumentsController {
     @Body() body: { text: string; reason?: string | null },
   ) {
     return serialize(
-      await this.records.correctField(id, name, body, {
-        id: session.user.id,
-        name: session.user.name,
-      }),
+      await this.records.correctField(id, name, body, actor(session)),
     );
   }
 
@@ -109,16 +117,17 @@ export class DocumentsController {
     @Body() body: { review: string },
   ) {
     return serialize(
-      await this.records.reviewField(id, name, body.review, {
-        id: session.user.id,
-        name: session.user.name,
-      }),
+      await this.records.reviewField(id, name, body.review, actor(session)),
     );
   }
 
   @Post(':id/acknowledge')
-  async acknowledge(@Param('id') id: string, @Body() body: { signal: string }) {
-    return serialize(await this.records.acknowledge(id, body.signal));
+  async acknowledge(
+    @Session() session: UserSession,
+    @Param('id') id: string,
+    @Body() body: { signal: string },
+  ) {
+    return serialize(await this.records.acknowledge(id, body.signal, actor(session)));
   }
 
   @Post(':id/accept')
@@ -128,10 +137,7 @@ export class DocumentsController {
     @Body() body: { note?: string | null },
   ) {
     return serialize(
-      await this.records.accept(id, body.note ?? null, {
-        id: session.user.id,
-        name: session.user.name,
-      }),
+      await this.records.accept(id, body.note ?? null, actor(session)),
     );
   }
 
