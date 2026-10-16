@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { Check, X } from 'lucide-react';
+import { useState } from "react";
+import { Check, X } from "lucide-react";
 
-import type { ApprovalOutcome, StepOut } from '@finora/shared-types';
+import type { ApprovalOutcome, StepOut } from "@finora/shared-types";
 
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Field, Textarea } from '@/components/ui/field';
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Field, Textarea } from "@/components/ui/field";
 
 /**
  * Where an approver decides one step.
@@ -28,7 +28,10 @@ import { Field, Textarea } from '@/components/ui/field';
 export interface DecisionPanelProps {
   step: StepOut;
   amountFormatted: string;
-  onDecide: (decision: { outcome: ApprovalOutcome; comment: string | undefined }) => void;
+  onDecide: (decision: {
+    outcome: ApprovalOutcome;
+    comment: string | undefined;
+  }) => void;
   isPending: boolean;
   error?: string | undefined;
 }
@@ -41,33 +44,41 @@ export function DecisionPanel({
   error,
 }: DecisionPanelProps) {
   const [outcome, setOutcome] = useState<ApprovalOutcome | null>(null);
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
 
-  const rejecting = outcome === 'rejected';
+  const rejecting = outcome === "rejected";
   const reasonMissing = rejecting && comment.trim().length === 0;
 
   return (
     <div
       className={cn(
-        'mt-[var(--space-4)] rounded-[var(--radius-md)] border p-[var(--space-4)]',
-        'border-[var(--color-primary-200)] bg-[var(--color-primary-50)]',
+        "mt-[var(--space-4)] rounded-[var(--radius-md)] border p-[var(--space-4)]",
+        "border-[var(--color-primary-200)] bg-[var(--color-primary-50)]",
       )}
     >
       <p className="m-0 font-semibold text-[var(--color-text-strong)]">
         Your decision as {step.level_label}
       </p>
       <p className="mt-[var(--space-1)] m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
-        You are deciding {amountFormatted}. Your name and the time are recorded against this step
-        and cannot be removed.
+        You are deciding {amountFormatted}. Your name and the time are recorded
+        against this step and cannot be removed.
       </p>
 
       {outcome === null ? (
         <div className="mt-[var(--space-4)] flex flex-wrap gap-[var(--space-3)]">
-          <Button variant="primary" onClick={() => setOutcome('approved')}>
+          <Button
+            className="cursor-pointer"
+            variant="primary"
+            onClick={() => setOutcome("approved")}
+          >
             <Check aria-hidden="true" className="size-4" />
             Approve
           </Button>
-          <Button variant="danger" onClick={() => setOutcome('rejected')}>
+          <Button
+            className="cursor-pointer"
+            variant="danger"
+            onClick={() => setOutcome("rejected")}
+          >
             <X aria-hidden="true" className="size-4" />
             Reject
           </Button>
@@ -75,13 +86,13 @@ export function DecisionPanel({
       ) : (
         <div className="mt-[var(--space-4)] flex flex-col gap-[var(--space-4)]">
           <Field
-            label={rejecting ? 'Why you are rejecting this' : 'Anything to add'}
+            label={rejecting ? "Why you are rejecting this" : "Anything to add"}
             required={rejecting}
             error={error}
             help={
               rejecting
-                ? 'The requester reads this. Say what would have to change for it to be approved.'
-                : 'Optional. Anything a later reader should know about why this was right.'
+                ? "The requester reads this. Say what would have to change for it to be approved."
+                : "Optional. Anything a later reader should know about why this was right."
             }
           >
             {({ inputId, describedBy, invalid }) => (
@@ -100,7 +111,8 @@ export function DecisionPanel({
 
           <div className="flex flex-wrap items-center gap-[var(--space-3)]">
             <Button
-              variant={rejecting ? 'danger' : 'primary'}
+              variant={rejecting ? "danger" : "primary"}
+              className="cursor-pointer"
               disabled={reasonMissing}
               isLoading={isPending}
               loadingLabel="Recording"
@@ -108,14 +120,15 @@ export function DecisionPanel({
                 onDecide({ outcome, comment: comment.trim() || undefined })
               }
             >
-              {rejecting ? 'Record the rejection' : 'Record the approval'}
+              {rejecting ? "Record the rejection" : "Record the approval"}
             </Button>
             <Button
               variant="ghost"
               disabled={isPending}
+              className="cursor-pointer"
               onClick={() => {
                 setOutcome(null);
-                setComment('');
+                setComment("");
               }}
             >
               Back

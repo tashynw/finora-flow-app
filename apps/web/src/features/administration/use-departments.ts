@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { nestApi, toQuery } from '@/lib/api-client';
 
@@ -18,6 +18,21 @@ export const departmentKeys = {
   all: ['departments'] as const,
   list: (includeInactive: boolean) => ['departments', includeInactive] as const,
 };
+
+/** A short page of active departments. An empty query is the first 10. */
+export function useDepartmentSearch(query: string, enabled: boolean) {
+  const q = query.trim();
+  return useQuery({
+    queryKey: ['departments', 'search', q],
+    queryFn: () =>
+      nestApi.get<DepartmentOut[]>(
+        `/departments${toQuery({ includeInactive: false, q, limit: q ? 20 : 10 })}`,
+      ),
+    enabled,
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
+  });
+}
 
 export function useDepartments(includeInactive: boolean, enabled = true) {
   return useQuery({

@@ -81,8 +81,8 @@ export class AdminApprovalsController {
   }
 
   @Get('people')
-  listPeople() {
-    return this.adminApprovalsService.listPeople();
+  listPeople(@Query('q') q?: string, @Query('limit') limit?: string) {
+    return this.adminApprovalsService.listPeople(q, parseSearchLimit(limit));
   }
 
   @Get('assignments')
@@ -118,4 +118,10 @@ export class AdminApprovalsController {
   ) {
     return this.adminApprovalsService.updateDelegation(userId, body, session);
   }
+}
+
+function parseSearchLimit(value: string | undefined) {
+  if (!value) return undefined;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : undefined;
 }

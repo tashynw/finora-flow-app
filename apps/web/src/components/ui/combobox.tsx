@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { ChevronsUpDown } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -24,6 +24,9 @@ export function Combobox({
   describedBy,
   invalid,
   disabled,
+  onSearch,
+  searching = false,
+  idleLabel = 'Type to search',
 }: {
   id?: string | undefined;
   value: string;
@@ -35,17 +38,42 @@ export function Combobox({
   describedBy?: string | undefined;
   invalid?: boolean | undefined;
   disabled?: boolean | undefined;
+  /** Called with the typed text. When set, the list is not filtered in the browser. */
+  onSearch?: ((query: string) => void) | undefined;
+  searching?: boolean | undefined;
+  /** Shown while the box is open and nothing has been typed yet. */
+  idleLabel?: string | undefined;
 }) {
   const listId = useId();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const selected = items.find((item) => item.value === value) ?? null;
+  const [chosen, setChosen] = useState<ComboboxItem | null>(null);
+  const remote = onSearch !== undefined;
+  const fromList = items.find((item) => item.value === value) ?? null;
+  const selected =
+    fromList ?? (chosen?.value === value ? chosen : null);
+
+  useEffect(() => {
+    if (!onSearch) return;
+    const handle = window.setTimeout(() => onSearch(query), 250);
+    return () => window.clearTimeout(handle);
+  }, [query, onSearch]);
 
   const shown = useMemo(() => {
+    if (remote) return items;
     const needle = query.trim().toLowerCase();
     if (!needle) return items;
     return items.filter((item) => item.label.toLowerCase().includes(needle));
-  }, [items, query]);
+  }, [items, query, remote]);
+
+  const status =
+    shown.length > 0
+      ? null
+      : searching
+        ? 'Searching…'
+        : remote && !query.trim()
+          ? idleLabel
+          : emptyLabel;
 
   return (
     <div className="relative">
@@ -95,6 +123,7 @@ export function Combobox({
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => {
                 onChange('');
+                setChosen(null);
                 setQuery('');
                 setOpen(false);
               }}
@@ -102,9 +131,9 @@ export function Combobox({
               {clearLabel}
             </button>
           </li>
-          {shown.length === 0 ? (
+          {status ? (
             <li className="px-3 py-2 text-[length:var(--text-body-sm)] text-[var(--color-text-subtle)]">
-              {emptyLabel}
+              {status}
             </li>
           ) : (
             shown.map((item) => (
@@ -121,6 +150,7 @@ export function Combobox({
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => {
                     onChange(item.value);
+                    setChosen(item);
                     setQuery('');
                     setOpen(false);
                   }}

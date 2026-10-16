@@ -29,7 +29,7 @@ export const sendEmail = async (emailRequest: SendEmailRequest) => {
     html: `
       <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
         <div style="text-align: center; margin-bottom: 20px;">
-          <p style="font-size: 20px; font-weight: 700; color: #1B3A4B; margin: 0;">Finora Flow</p>
+          <img src="https://altruhomes-dev-images.s3.us-east-2.amazonaws.com/finora-mark.png" alt="Finora Flow" style="max-width: 72px; height: auto;">
         </div>
         <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee;">
           ${

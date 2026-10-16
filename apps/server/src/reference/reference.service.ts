@@ -46,8 +46,8 @@ export class ReferenceService {
 
     return {
       vendors,
-      costCentres,
-      glAccounts,
+      cost_centres: costCentres,
+      gl_accounts: glAccounts,
       departments: departmentRefs,
       currencies: [Currency.JMD, Currency.USD],
     };

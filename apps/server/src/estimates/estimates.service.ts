@@ -38,7 +38,13 @@ const detailInclude = {
   requester: { select: { id: true, name: true, email: true } },
   approvalRequests: {
     orderBy: { attempt: 'asc' as const },
-    include: { steps: { orderBy: [{ stepOrder: 'asc' }, { level: 'asc' }] } },
+    include: {
+      department: true,
+      steps: {
+        orderBy: [{ stepOrder: 'asc' as const }, { level: 'asc' as const }],
+        include: { onBehalfOf: { select: { name: true } } },
+      },
+    },
   },
 } satisfies Prisma.EstimateInclude;
 

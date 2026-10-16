@@ -46,10 +46,27 @@ export class DepartmentsService {
     private readonly audit: AuditService,
   ) {}
 
-  async list(includeInactive: boolean) {
+  async list(includeInactive: boolean, query?: string, limit?: number) {
+    const q = query?.trim();
     const rows = await this.prisma.department.findMany({
-      where: includeInactive ? undefined : { isActive: true },
+      where: {
+        ...(includeInactive ? {} : { isActive: true }),
+        ...(q
+          ? {
+              OR: [
+                { name: { contains: q, mode: 'insensitive' as const } },
+                {
+                  costCentreNumber: {
+                    contains: q,
+                    mode: 'insensitive' as const,
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
       orderBy: { costCentreNumber: 'asc' },
+      ...(q || limit != null ? { take: searchLimit(limit) } : {}),
     });
     return rows.map(toDepartmentOut);
   }
@@ -180,4 +197,9 @@ export class DepartmentsService {
 
     return toDepartmentOut(updated);
   }
+}
+
+function searchLimit(limit: number | undefined) {
+  if (limit == null || !Number.isFinite(limit) || limit < 1) return 20;
+  return Math.min(Math.floor(limit), 50);
 }

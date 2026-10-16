@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { DomainException } from '../common/errors.js';
 import { DocumentsService } from '../documents/documents.service.js';
 import {
   auditMock,
@@ -20,7 +21,7 @@ describe('IntakeService', () => {
     mailboxCheckpoint: { findMany: vi.fn() },
     s3Document: { findUnique: vi.fn() },
   };
-  const documents = { createViewUrl: vi.fn() };
+  const documents = { createViewUrl: vi.fn(), deleteObject: vi.fn() };
 
   beforeEach(() => vi.clearAllMocks());
 
@@ -33,6 +34,7 @@ describe('IntakeService', () => {
   }
 
   it('records a manual upload as a ready message and document', async () => {
+    prisma.inboundMessage.findFirst.mockResolvedValue(null);
     prisma.inboundMessage.create.mockResolvedValue({
       id: 'msg-1',
       documents: [{ id: 'doc-1' }],
@@ -52,15 +54,38 @@ describe('IntakeService', () => {
         data: expect.objectContaining({
           source: 'manual_upload',
           status: 'ready',
+          idempotencyKey: 'manual:abc:user-1',
           documents: {
             create: expect.objectContaining({
-              kind: 'manual_upload',
+              kind: 'unknown',
               key: 'docs/quote.pdf',
             }),
           },
         }),
       }),
     );
+  });
+
+  it('refuses a second upload of the same file by the same person', async () => {
+    prisma.inboundMessage.findFirst.mockResolvedValue({ id: 'msg-1' });
+    documents.deleteObject.mockResolvedValue({ deleted: true });
+
+    await expect(
+      (await service()).manualUpload(session, {
+        filename: 'quote.pdf',
+        contentType: 'application/pdf',
+        sizeBytes: 10,
+        sha256: 'abc',
+        key: 'Other/new.pdf',
+        bucket: 'finora-docs',
+      }),
+    ).rejects.toBeInstanceOf(DomainException);
+
+    expect(prisma.inboundMessage.create).not.toHaveBeenCalled();
+    expect(documents.deleteObject).toHaveBeenCalledWith({
+      key: 'Other/new.pdf',
+      bucket: 'finora-docs',
+    });
   });
 
   it('reports mailbox checkpoints as a list', async () => {

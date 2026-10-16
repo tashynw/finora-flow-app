@@ -187,6 +187,64 @@ export class AdminUsersService {
     return serialize(this.toOut(row));
   }
 
+  async update(
+    id: string,
+    body: {
+      display_name: string;
+      department_id?: string | null;
+      job_title?: string | null;
+      reason: string;
+    },
+    session: UserSession,
+  ) {
+    this.requireReason(body.reason);
+    const displayName = body.display_name?.trim();
+    if (!displayName) {
+      throw new DomainException('A display name is required.');
+    }
+
+    const before = await this.prisma.user.findUnique({
+      where: { id },
+      include: userInclude,
+    });
+    if (!before) throw notFound('User', id);
+
+    const departmentId = await this.resolveProfileDepartment(
+      body.department_id,
+      before.departmentId,
+    );
+    const jobTitle = body.job_title?.trim() ? body.job_title.trim() : null;
+
+    const row = await this.prisma.user.update({
+      where: { id },
+      data: { name: displayName, departmentId, jobTitle },
+      include: userInclude,
+    });
+
+    await this.audit.append({
+      action: 'user.profile_updated',
+      actorId: session.user.id,
+      actorLabel: session.user.name ?? session.user.email,
+      subjectType: 'user',
+      subjectId: row.id,
+      detail: {
+        reason: body.reason.trim(),
+        before: {
+          display_name: before.name,
+          department_id: before.departmentId,
+          job_title: before.jobTitle,
+        },
+        after: {
+          display_name: displayName,
+          department_id: departmentId,
+          job_title: jobTitle,
+        },
+      },
+    });
+
+    return serialize(this.toOut(row));
+  }
+
   async setActive(
     id: string,
     body: { is_active: boolean; reason: string },
@@ -235,7 +293,8 @@ export class AdminUsersService {
     emailVerified: boolean;
     archivedAt: Date | null;
     banned: boolean | null;
-    department: { name: string } | null;
+    department: { id: string; name: string } | null;
+    jobTitle?: string | null;
   }) {
     const roles = parseRoleField(row.role);
     return {
@@ -243,6 +302,8 @@ export class AdminUsersService {
       email: row.email,
       display_name: row.name,
       department: row.department?.name ?? null,
+      department_id: row.department?.id ?? null,
+      job_title: row.jobTitle ?? null,
       is_active: row.archivedAt === null && row.banned !== true,
       email_verified: row.emailVerified,
       roles,
@@ -271,6 +332,20 @@ export class AdminUsersService {
       return row.id;
     }
     return this.resolveDepartmentId(body.department);
+  }
+
+  private async resolveProfileDepartment(
+    departmentId: string | null | undefined,
+    currentId: string | null,
+  ): Promise<string | null> {
+    const id = departmentId?.trim() ?? '';
+    if (!id) return null;
+    if (id === currentId) return currentId;
+    const row = await this.prisma.department.findUnique({ where: { id } });
+    if (!row || !row.isActive) {
+      throw new DomainException('That department is not available.');
+    }
+    return row.id;
   }
 
   private async resolveDepartmentId(

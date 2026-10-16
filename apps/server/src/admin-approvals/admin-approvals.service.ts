@@ -192,14 +192,28 @@ export class AdminApprovalsService {
     });
   }
 
-  async listPeople() {
+  async listPeople(query?: string, limit?: number) {
+    const q = query?.trim();
     const rows = await this.prisma.user.findMany({
       where: {
         archivedAt: null,
-        OR: [{ banned: false }, { banned: null }],
+        AND: [
+          { OR: [{ banned: false }, { banned: null }] },
+          ...(q
+            ? [
+                {
+                  OR: [
+                    { name: { contains: q, mode: 'insensitive' as const } },
+                    { email: { contains: q, mode: 'insensitive' as const } },
+                  ],
+                },
+              ]
+            : []),
+        ],
       },
       include: { department: true },
       orderBy: { name: 'asc' },
+      ...(q || limit != null ? { take: searchLimit(limit) } : {}),
     });
 
     return serialize(
@@ -466,4 +480,9 @@ export class AdminApprovalsService {
     }
     return row.id;
   }
+}
+
+function searchLimit(limit: number | undefined) {
+  if (limit == null || !Number.isFinite(limit) || limit < 1) return 20;
+  return Math.min(Math.floor(limit), 50);
 }

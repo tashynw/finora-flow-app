@@ -3,7 +3,7 @@ import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { ImapFlow } from 'imapflow';
 import { actorLabel } from '../common/invoice-status.js';
 import { AuditService } from '../common/audit.service.js';
-import { notFound } from '../common/errors.js';
+import { conflict, notFound } from '../common/errors.js';
 import { resolvePage, type PageQuery } from '../common/pagination.js';
 import { DocumentsService } from '../documents/documents.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -138,51 +138,61 @@ export class IntakeService {
     },
   ) {
     const now = new Date();
-    const idempotencyKey = `manual:${body.sha256}:${body.key}`;
+    const idempotencyKey = `manual:${body.sha256}:${session.user.id}`;
+    const duplicate = await this.findManualDuplicate(body.sha256, session.user.id);
+    if (duplicate) {
+      await this.refuseDuplicate(session, duplicate.id, body, idempotencyKey);
+    }
 
-    const message = await this.prisma.inboundMessage.create({
-      data: {
-        source: 'manual_upload',
-        status: 'ready',
-        idempotencyKey,
-        rawSha256: body.sha256,
-        rawObjectKey: body.key,
-        rawSizeBytes: BigInt(body.sizeBytes),
-        subject: body.subject?.trim() || body.filename,
-        receivedAt: now,
-        bodyText: body.note?.trim() || '',
-        toAddresses: [],
-        ccAddresses: [],
-        deliveredToAddresses: [],
-        references: [],
-        parseWarnings: body.note ? [{ note: body.note }] : [],
-        uploadedById: session.user.id,
-        documents: {
-          create: {
-            filename: body.filename,
-            contentType: body.contentType,
-            sizeBytes: BigInt(body.sizeBytes),
-            sha256: body.sha256,
-            key: body.key,
-            bucket: body.bucket,
-            kind: body.kind && body.kind !== 'manual_upload' ? body.kind : 'unknown',
-            status: 'ready',
+    try {
+      const message = await this.prisma.inboundMessage.create({
+        data: {
+          source: 'manual_upload',
+          status: 'ready',
+          idempotencyKey,
+          rawSha256: body.sha256,
+          rawObjectKey: body.key,
+          rawSizeBytes: BigInt(body.sizeBytes),
+          subject: body.subject?.trim() || body.filename,
+          receivedAt: now,
+          bodyText: body.note?.trim() || '',
+          toAddresses: [],
+          ccAddresses: [],
+          deliveredToAddresses: [],
+          references: [],
+          parseWarnings: body.note ? [{ note: body.note }] : [],
+          uploadedById: session.user.id,
+          documents: {
+            create: {
+              filename: body.filename,
+              contentType: body.contentType,
+              sizeBytes: BigInt(body.sizeBytes),
+              sha256: body.sha256,
+              key: body.key,
+              bucket: body.bucket,
+              kind: body.kind && body.kind !== 'manual_upload' ? body.kind : 'unknown',
+              status: 'ready',
+            },
           },
         },
-      },
-      include: { documents: true },
-    });
+        include: { documents: true },
+      });
 
-    await this.audit.append({
-      action: 'intake_manual_upload',
-      actorId: session.user.id,
-      actorLabel: actorLabel(session),
-      subjectType: 'inbound_message',
-      subjectId: message.id,
-      detail: { filename: body.filename, key: body.key },
-    });
+      await this.audit.append({
+        action: 'intake_manual_upload',
+        actorId: session.user.id,
+        actorLabel: actorLabel(session),
+        subjectType: 'inbound_message',
+        subjectId: message.id,
+        detail: { filename: body.filename, key: body.key },
+      });
 
-    return message;
+      return message;
+    } catch (error) {
+      const winner = await this.findManualDuplicate(body.sha256, session.user.id);
+      if (!winner) throw error;
+      await this.refuseDuplicate(session, winner.id, body, idempotencyKey);
+    }
   }
 
   async attachmentDownloadUrl(documentId: string) {
@@ -197,6 +207,36 @@ export class IntakeService {
     });
 
     return { documentId, ...view };
+  }
+
+  private findManualDuplicate(sha256: string, userId: string) {
+    return this.prisma.inboundMessage.findFirst({
+      where: { source: 'manual_upload', rawSha256: sha256, uploadedById: userId },
+      select: { id: true },
+    });
+  }
+
+  /** A second copy of the same bytes from the same person is the first message, not a new one. */
+  private async refuseDuplicate(
+    session: UserSession,
+    existingId: string,
+    body: { sha256: string; key: string; bucket: string },
+    idempotencyKey: string,
+  ): Promise<never> {
+    await this.documents
+      .deleteObject({ key: body.key, bucket: body.bucket })
+      .catch(() => undefined);
+    await this.audit.append({
+      action: 'message_duplicate_detected',
+      actorId: session.user.id,
+      actorLabel: actorLabel(session),
+      subjectType: 'inbound_message',
+      subjectId: existingId,
+      detail: { sha256: body.sha256, idempotency_key: idempotencyKey },
+    });
+    throw conflict(
+      `You have already uploaded this exact file. It is already in the workspace as message ${existingId}.`,
+    );
   }
 
   private concerns(

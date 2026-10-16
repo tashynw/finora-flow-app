@@ -12,6 +12,7 @@ import { AdminApprovalsService } from './admin-approvals.service.js';
 describe('AdminApprovalsService', () => {
   const prisma = {
     approvalRule: { findUnique: vi.fn(), update: vi.fn(), findMany: vi.fn() },
+    user: { findMany: vi.fn() },
   };
 
   beforeEach(() => vi.clearAllMocks());
@@ -56,5 +57,33 @@ describe('AdminApprovalsService', () => {
     await expect(
       service.retireRule('rule-1', 'Again', session),
     ).rejects.toBeInstanceOf(DomainException);
+  });
+
+  it('searches open accounts by name or email and caps the page', async () => {
+    prisma.user.findMany.mockResolvedValue([]);
+    const service = await compile(AdminApprovalsService, [
+      providePrisma(prisma),
+      provideAudit(auditMock()),
+    ]);
+
+    await service.listPeople('ada', 500);
+
+    expect(prisma.user.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 50 }),
+    );
+  });
+
+  it('returns the first page of people when nothing has been typed', async () => {
+    prisma.user.findMany.mockResolvedValue([]);
+    const service = await compile(AdminApprovalsService, [
+      providePrisma(prisma),
+      provideAudit(auditMock()),
+    ]);
+
+    await service.listPeople('  ', 10);
+
+    expect(prisma.user.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 10, orderBy: { name: 'asc' } }),
+    );
   });
 });

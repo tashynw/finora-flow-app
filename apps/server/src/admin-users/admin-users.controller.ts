@@ -54,6 +54,21 @@ export class AdminUsersController {
     return this.adminUsersService.create(body, session);
   }
 
+  @Put(':id')
+  update(
+    @Param('id') id: string,
+    @Body()
+    body: {
+      display_name: string;
+      department_id?: string | null;
+      job_title?: string | null;
+      reason: string;
+    },
+    @Session() session: UserSession,
+  ) {
+    return this.adminUsersService.update(id, body, session);
+  }
+
   @Put(':id/roles')
   setRoles(
     @Param('id') id: string,

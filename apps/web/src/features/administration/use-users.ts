@@ -8,6 +8,8 @@ export type AdminUserOut = {
   email: string;
   display_name: string;
   department: string | null;
+  department_id: string | null;
+  job_title: string | null;
   is_active: boolean;
   email_verified: boolean;
   roles: string[];
@@ -20,6 +22,13 @@ export type UserCreateBody = {
   department: string | null;
   department_id?: string | null;
   roles: string[];
+  reason: string;
+};
+
+export type UserProfileBody = {
+  display_name: string;
+  department_id: string | null;
+  job_title: string | null;
   reason: string;
 };
 
@@ -91,6 +100,18 @@ export function useCreateUser() {
   return useMutation({
     mutationFn: (body: UserCreateBody) =>
       nestApi.post<AdminUserOut>("/admin/users", body),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: userAdminKeys.all });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "people"] });
+    },
+  });
+}
+
+export function useUpdateUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, body }: { userId: string; body: UserProfileBody }) =>
+      nestApi.put<AdminUserOut>(`/admin/users/${userId}`, body),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: userAdminKeys.all });
       void queryClient.invalidateQueries({ queryKey: ["admin", "people"] });

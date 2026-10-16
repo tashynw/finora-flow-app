@@ -8,9 +8,12 @@ import { serialize, toBigInt } from '../common/serialize.js';
 import { toWorkflowState } from '../common/workflow-state.js';
 import { TransitionsService } from '../common/transitions.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { withReadyStates } from '../approvals/approval-domain.js';
 import { approvalLevelFromApi } from '../approvals/approval-levels.js';
+import { mapStepsForApi } from '../approvals/approvals.service.js';
 import { ApprovalsEngineService } from '../approvals/approvals-engine.service.js';
 import { RECORD_TYPES } from '../approvals/record-types.js';
+import { parseRoleField } from '../common/roles.js';
 import { sendEmail } from '../mail/email.js';
 import { LinksService } from '../links/links.service.js';
 
@@ -52,15 +55,37 @@ const detailInclude = {
   costCentre: true,
   glAccount: true,
   department: true,
-  estimate: true,
-  purchaseOrder: true,
+  estimate: { include: { vendor: true } },
+  purchaseOrder: { include: { vendor: true } },
   requester: { select: { id: true, name: true, email: true } },
   createdBy: { select: { id: true, name: true } },
+  signedOffBy: { select: { id: true, name: true } },
   approvalRequests: {
     orderBy: { attempt: 'asc' as const },
-    include: { steps: true },
+    include: {
+      department: true,
+      steps: {
+        orderBy: [{ stepOrder: 'asc' as const }, { level: 'asc' as const }],
+        include: { onBehalfOf: { select: { name: true } } },
+      },
+    },
   },
 } satisfies Prisma.InvoiceInclude;
+
+type InvoiceDetailRow = Prisma.InvoiceGetPayload<{ include: typeof detailInclude }>;
+
+function dateOnly(value: Date | null) {
+  return value ? value.toISOString().slice(0, 10) : null;
+}
+
+function stateLabel(status: string) {
+  return status.toLowerCase().replaceAll('_', ' ');
+}
+
+function money(minor: bigint | null, currency: string | null) {
+  if (minor == null || !currency) return null;
+  return formatMoney(Number(minor), currency);
+}
 
 @Injectable()
 export class InvoicesService {
@@ -264,23 +289,7 @@ export class InvoicesService {
       include: detailInclude,
     });
     if (!invoice) throw notFound('Invoice', id);
-    return serialize({
-      id: invoice.id,
-      reference: invoice.reference,
-      state: toWorkflowState(invoice.status),
-      invoice_number: invoice.invoiceNumber,
-      vendor_id: invoice.vendorId,
-      estimate_id: invoice.estimateId,
-      purchase_order_id: invoice.purchaseOrderId,
-      requester_id: invoice.requesterId,
-      description: invoice.description,
-      total_minor_units:
-        invoice.totalMinorUnits != null
-          ? Number(invoice.totalMinorUnits)
-          : null,
-      currency: invoice.currency,
-      actions: this.computeActions(invoice, user),
-    });
+    return serialize(await this.presentDetail(invoice, user));
   }
 
   async create(user: User, body: { documentId?: string | null }) {
@@ -363,23 +372,33 @@ export class InvoicesService {
     return this.getById(id, user);
   }
 
-  async requestSignOff(id: string, user: User, body: { requesterId: string }) {
+  async requestSignOff(
+    id: string,
+    user: User,
+    body: { requesterId?: string } = {},
+  ) {
     const invoice = await this.requireInvoice(id);
     if (invoice.status !== 'DRAFT') {
       throw new DomainException('Only drafts can request sign-off');
+    }
+    const requesterId = body.requesterId ?? invoice.requesterId;
+    if (!requesterId) {
+      throw new DomainException(
+        'Choose who should confirm receipt before asking',
+      );
     }
     this.assertReady(invoice);
     await this.prisma.invoice.update({
       where: { id },
       data: {
-        requesterId: body.requesterId,
+        requesterId,
         submittedAt: new Date(),
         submittedById: user.id,
       },
     });
     await this.moveStatus(invoice, 'PENDING_SIGN_OFF', user, null);
     const requester = await this.prisma.user.findUnique({
-      where: { id: body.requesterId },
+      where: { id: requesterId },
     });
     if (requester) {
       const link = await this.links.issue({
@@ -445,7 +464,9 @@ export class InvoicesService {
       throw new DomainException('Only the requester may decline sign-off');
     }
     if (!reason?.trim()) throw new DomainException('Give a reason');
-    await this.moveStatus(invoice, 'EXCEPTION', user, reason.trim());
+    const declined = reason.trim();
+    await this.moveStatus(invoice, 'EXCEPTION', user, declined);
+    await this.notifyCreatorOfDecline(invoice, user, declined);
     return this.getById(id, user);
   }
 
@@ -506,6 +527,7 @@ export class InvoicesService {
         where: { id },
         data: { status: 'APPROVED', decidedAt: new Date() },
       });
+      await this.notifyApproved(invoice);
     } else if (routeState === 'REJECTED') {
       await this.prisma.invoice.update({
         where: { id },
@@ -513,6 +535,202 @@ export class InvoicesService {
       });
     }
     return this.getById(id, user);
+  }
+
+  private async presentDetail(invoice: InvoiceDetailRow, user: User) {
+    const requests = invoice.approvalRequests ?? [];
+    const open = requests.find((request) => request.status === 'OPEN');
+    const requesterId = open?.requesterId ?? invoice.requesterId ?? '';
+    const route = open
+      ? await this.buildRouteView(open, user, requesterId)
+      : null;
+    const currency = invoice.currency;
+    const total = invoice.totalMinorUnits;
+    const estimateBilled = await this.billedMinor(
+      invoice.estimateId ? { estimateId: invoice.estimateId } : null,
+    );
+    const orderBilledByOthers = await this.billedMinor(
+      invoice.purchaseOrderId
+        ? { purchaseOrderId: invoice.purchaseOrderId, id: { not: invoice.id } }
+        : null,
+    );
+    const estimate = invoice.estimate;
+    const order = invoice.purchaseOrder;
+    const estimateRemaining =
+      estimate?.totalMinorUnits != null
+        ? estimate.totalMinorUnits - estimateBilled
+        : null;
+    const orderRemaining =
+      order?.totalMinorUnits != null
+        ? order.totalMinorUnits - orderBilledByOthers - (total ?? 0n)
+        : null;
+
+    return {
+      id: invoice.id,
+      reference: invoice.reference,
+      state: toWorkflowState(invoice.status),
+      state_label: stateLabel(invoice.status),
+      invoice_number: invoice.invoiceNumber,
+      invoice_date: dateOnly(invoice.invoiceDate),
+      due_date: dateOnly(invoice.dueDate),
+      days_until_due: daysUntil(invoice.dueDate),
+      vendor_id: invoice.vendorId,
+      vendor_name: invoice.vendor?.name ?? '',
+      estimate_id: invoice.estimateId,
+      purchase_order_id: invoice.purchaseOrderId,
+      requester_id: invoice.requesterId,
+      requester_label: invoice.requester?.name ?? null,
+      suggested_requester_id: null,
+      description: invoice.description,
+      total_minor_units: total != null ? Number(total) : null,
+      total_formatted: money(total, currency),
+      currency,
+      document_id: invoice.documentId,
+      department: invoice.department?.name ?? null,
+      cost_centre: invoice.costCentre
+        ? {
+            id: invoice.costCentre.id,
+            code: invoice.costCentre.code,
+            name: invoice.costCentre.name,
+          }
+        : null,
+      gl_account: invoice.glAccount
+        ? {
+            id: invoice.glAccount.id,
+            code: invoice.glAccount.code,
+            name: invoice.glAccount.name,
+          }
+        : null,
+      created_at: invoice.createdAt.toISOString(),
+      created_by_label: invoice.createdBy.name,
+      submitted_at: invoice.submittedAt?.toISOString() ?? null,
+      decided_at: invoice.decidedAt?.toISOString() ?? null,
+      signed_off_at: invoice.signedOffAt?.toISOString() ?? null,
+      reminders_sent: 0,
+      awaiting_labels: route
+        ? route.steps
+            .filter((step) => step.state === 'ready')
+            .map((step) => step.level_label)
+        : [],
+      awaiting_me: route?.steps.some((step) => step.is_mine_to_decide) ?? false,
+      awaiting_my_sign_off:
+        invoice.status === 'PENDING_SIGN_OFF' && invoice.requesterId === user.id,
+      problem_count: 0,
+      blocker_count: 0,
+      problems: [],
+      transitions: [],
+      route,
+      route_history: requests
+        .filter((request) => request.status !== 'OPEN')
+        .map((request) =>
+          mapStepsForApi(
+            request,
+            user.id,
+            request.requesterId,
+            () => false,
+          ),
+        ),
+      route_summary: route?.summary ?? null,
+      planned_route: null,
+      planned_route_problem: null,
+      sign_off: {
+        escalation_level: 0,
+        is_mine_to_sign:
+          invoice.status === 'PENDING_SIGN_OFF' && invoice.requesterId === user.id,
+        next_reminder_at: null,
+        note: invoice.signOffNote,
+        reminders_sent: 0,
+        requested_at: invoice.submittedAt?.toISOString() ?? null,
+        requester_email: invoice.requester?.email ?? null,
+        requester_id: invoice.requesterId,
+        requester_label: invoice.requester?.name ?? null,
+        signed_off_at: invoice.signedOffAt?.toISOString() ?? null,
+        signed_off_by_label: invoice.signedOffBy?.name ?? null,
+      },
+      estimate: estimate
+        ? {
+            id: estimate.id,
+            reference: estimate.reference,
+            state: toWorkflowState(estimate.status),
+            state_label: stateLabel(estimate.status),
+            vendor_name: estimate.vendor?.name ?? '',
+            currency: estimate.currency,
+            approved_total_minor_units:
+              estimate.totalMinorUnits != null
+                ? Number(estimate.totalMinorUnits)
+                : null,
+            approved_total_formatted: money(
+              estimate.totalMinorUnits,
+              estimate.currency,
+            ),
+            remaining_minor_units:
+              estimateRemaining != null ? Number(estimateRemaining) : null,
+            remaining_formatted: money(estimateRemaining, estimate.currency),
+          }
+        : null,
+      purchase_order: order
+        ? {
+            id: order.id,
+            number: order.number,
+            currency: order.currency ?? currency ?? 'JMD',
+            is_open: order.status === 'APPROVED',
+            state_label: stateLabel(order.status),
+            vendor_name: order.vendor?.name ?? '',
+            total_minor_units: Number(order.totalMinorUnits ?? 0n),
+            total_formatted:
+              money(order.totalMinorUnits, order.currency) ?? '—',
+            billed_by_others_minor_units: Number(orderBilledByOthers),
+            billed_by_others_formatted:
+              money(orderBilledByOthers, order.currency) ?? '—',
+            remaining_minor_units: Number(orderRemaining ?? 0n),
+            remaining_formatted:
+              money(orderRemaining, order.currency) ?? '—',
+          }
+        : null,
+      actions: {
+        ...this.computeActions(invoice, user),
+        may_decide: route?.steps.some((step) => step.is_mine_to_decide) ?? false,
+      },
+    };
+  }
+
+  private async billedMinor(
+    where: Prisma.InvoiceWhereInput | null,
+  ): Promise<bigint> {
+    if (!where) return 0n;
+    const sum = await this.prisma.invoice.aggregate({
+      where: {
+        ...where,
+        archivedAt: null,
+        status: { notIn: ['CANCELLED', 'REJECTED'] },
+      },
+      _sum: { totalMinorUnits: true },
+    });
+    return sum._sum.totalMinorUnits ?? 0n;
+  }
+
+  private async buildRouteView(
+    open: InvoiceDetailRow['approvalRequests'][number],
+    user: User,
+    requesterId: string,
+  ) {
+    const decidable = new Set<string>();
+    const ready = withReadyStates(
+      this.approvals.progressFromRequest(open),
+    ).filter((step) => step.status === 'READY');
+    for (const step of ready) {
+      const standing = await this.approvals.standing(
+        open.departmentId,
+        step.level,
+        user,
+      );
+      if (standing.mayDecide && user.id !== requesterId) {
+        decidable.add(step.level);
+      }
+    }
+    return mapStepsForApi(open, user.id, requesterId, (level) =>
+      decidable.has(level),
+    );
   }
 
   private computeActions(invoice: Invoice, user: User) {
@@ -543,6 +761,70 @@ export class InvoicesService {
     ) {
       throw new DomainException('Invoice is incomplete');
     }
+  }
+
+  private async notifyApproved(invoice: Invoice) {
+    const people = await this.prisma.user.findMany({
+      where: { archivedAt: null, banned: { not: true } },
+      select: { id: true, name: true, email: true, role: true },
+    });
+    const finance = people.filter(
+      (person) => person.email && parseRoleField(person.role).includes('finance'),
+    );
+    const requester = people.find(
+      (person) => person.id === invoice.requesterId && person.email,
+    );
+    const origin = (
+      process.env.WEB_ORIGIN ??
+      process.env.WEB_APP_URL ??
+      'http://localhost:5173'
+    ).replace(/\/$/, '');
+    const link = `${origin}/invoices/${invoice.id}`;
+    const amount =
+      invoice.totalMinorUnits != null && invoice.currency
+        ? `${invoice.currency} ${(Number(invoice.totalMinorUnits) / 100).toFixed(2)}`
+        : null;
+    const amountLine = amount ? `\n\nAmount: ${amount}` : '';
+    const sent = new Set<string>();
+
+    for (const person of finance) {
+      sent.add(person.email);
+      await sendEmail({
+        to: person.email,
+        subject: `Invoice ${invoice.reference} is approved`,
+        text: `Hi ${person.name},\n\nInvoice ${invoice.reference} is approved and can go on a payment package.${amountLine}\n\nOpen it: ${link}`,
+      }).catch(() => undefined);
+    }
+
+    if (requester && !sent.has(requester.email)) {
+      await sendEmail({
+        to: requester.email,
+        subject: `Invoice ${invoice.reference} is approved`,
+        text: `Hi ${requester.name},\n\nInvoice ${invoice.reference} for what you requested is now approved.${amountLine}\n\nOpen it: ${link}`,
+      }).catch(() => undefined);
+    }
+  }
+
+  private async notifyCreatorOfDecline(
+    invoice: Invoice,
+    requester: User,
+    reason: string,
+  ) {
+    const creator = await this.prisma.user.findUnique({
+      where: { id: invoice.createdById },
+      select: { name: true, email: true },
+    });
+    if (!creator?.email) return;
+    const origin = (
+      process.env.WEB_ORIGIN ??
+      process.env.WEB_APP_URL ??
+      'http://localhost:5173'
+    ).replace(/\/$/, '');
+    await sendEmail({
+      to: creator.email,
+      subject: `Receipt declined for ${invoice.reference}`,
+      text: `Hi ${creator.name},\n\n${requester.name} said the goods or services on ${invoice.reference} did not arrive as billed.\n\n${reason}\n\nOpen the invoice: ${origin}/invoices/${invoice.id}`,
+    }).catch(() => undefined);
   }
 
   private async requireInvoice(id: string) {

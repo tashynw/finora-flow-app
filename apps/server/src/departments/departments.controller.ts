@@ -14,6 +14,12 @@ import { AuthGuard, Session, type UserSession } from '@thallesp/nestjs-better-au
 import { serialize } from '../common/serialize.js';
 import { DepartmentsService } from './departments.service.js';
 
+function parseSearchLimit(value: string | undefined) {
+  if (!value) return undefined;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
 function parseIncludeInactive(value: string | undefined) {
   if (value === undefined || value === '') {
     return true;
@@ -27,9 +33,17 @@ export class DepartmentsController {
   constructor(private readonly departmentsService: DepartmentsService) {}
 
   @Get()
-  async list(@Query('includeInactive') includeInactive?: string) {
+  async list(
+    @Query('includeInactive') includeInactive?: string,
+    @Query('q') q?: string,
+    @Query('limit') limit?: string,
+  ) {
     return serialize(
-      await this.departmentsService.list(parseIncludeInactive(includeInactive)),
+      await this.departmentsService.list(
+        parseIncludeInactive(includeInactive),
+        q,
+        parseSearchLimit(limit),
+      ),
     );
   }
 

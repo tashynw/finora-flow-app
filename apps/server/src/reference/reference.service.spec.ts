@@ -20,5 +20,7 @@ describe('ReferenceService', () => {
     );
     expect(data.currencies).toEqual(['JMD', 'USD']);
     expect(data.vendors).toEqual([{ id: 'v', code: 'A', name: 'Acme' }]);
+    expect(data.cost_centres).toEqual([]);
+    expect(data.gl_accounts).toEqual([]);
   });
 });

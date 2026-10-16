@@ -153,12 +153,24 @@ function formatMoney(
   return `${currency} ${major.toFixed(2)}`;
 }
 
+const ROUTE_STATE_LABELS: Record<string, string> = {
+  open: 'Awaiting approval',
+  approved: 'Approved',
+  rejected: 'Rejected',
+  withdrawn: 'Withdrawn',
+};
+
 export function mapStepsForApi(
   request: {
     id: string;
     status: string;
     attempt: number;
     currentStepOrder: number | null;
+    amountMinorUnits: bigint;
+    currency: string;
+    openedAt: Date;
+    closedAt: Date | null;
+    department?: { name: string } | null;
     steps: Array<{
       stepOrder: number;
       level: string;
@@ -166,6 +178,7 @@ export function mapStepsForApi(
       decidedAt: Date | null;
       decidedByLabel: string | null;
       comment: string | null;
+      onBehalfOf?: { name: string } | null;
     }>;
   },
   userId: string,
@@ -179,28 +192,59 @@ export function mapStepsForApi(
       status: s.status as never,
     })),
   );
+  const state = request.status.toLowerCase();
 
   return {
     id: request.id,
-    status: request.status.toLowerCase(),
     attempt: request.attempt,
-    current_step_order: request.currentStepOrder,
+    state,
+    state_label: ROUTE_STATE_LABELS[state] ?? state,
+    summary: summariseRoute(progress),
+    amount_minor_units: Number(request.amountMinorUnits),
+    currency: request.currency,
+    amount_formatted:
+      formatMoney(request.amountMinorUnits, request.currency) ?? '',
+    department: request.department?.name ?? null,
+    opened_at: request.openedAt.toISOString(),
+    closed_at: request.closedAt?.toISOString() ?? null,
     steps: progress.map((s) => {
       const row = request.steps.find(
         (r) => r.stepOrder === s.stepOrder && r.level === s.level,
       )!;
+      const mine =
+        s.status === 'READY' &&
+        requesterId !== userId &&
+        mayDecideChecker(s.level);
       return {
         step_order: s.stepOrder,
         level: approvalLevelToApi(s.level),
-        status: s.status.toLowerCase(),
+        level_label: LEVEL_LABELS[s.level],
+        state: s.status.toLowerCase(),
         decided_at: row.decidedAt?.toISOString() ?? null,
         decided_by_label: row.decidedByLabel,
         comment: row.comment,
-        is_mine_to_decide:
-          s.status === 'READY' &&
-          requesterId !== userId &&
-          mayDecideChecker(s.level),
+        on_behalf_of_label: row.onBehalfOf?.name ?? null,
+        is_mine_to_decide: mine,
+        would_act_for: null,
       };
     }),
   };
+}
+
+function summariseRoute(
+  steps: Array<{ level: keyof typeof LEVEL_LABELS; status: string }>,
+): string {
+  if (steps.every((step) => step.status === 'APPROVED')) return 'Fully approved.';
+  const rejected = steps.find((step) => step.status === 'REJECTED');
+  if (rejected) return `Rejected by ${LEVEL_LABELS[rejected.level]}.`;
+  if (steps.some((step) => step.status === 'WITHDRAWN')) {
+    return 'Withdrawn before a decision.';
+  }
+  const waiting = steps
+    .filter((step) => step.status === 'READY')
+    .map((step) => LEVEL_LABELS[step.level])
+    .sort();
+  const done = steps.filter((step) => step.status === 'APPROVED').length;
+  const who = waiting.length > 0 ? waiting.join(' and ') : 'an approver';
+  return `Waiting on ${who}. ${done} of ${steps.length} approvals given.`;
 }

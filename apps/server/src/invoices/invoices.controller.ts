@@ -90,14 +90,15 @@ export class InvoicesController {
   async requestSignOff(
     @Session() session: UserSession,
     @Param('id') id: string,
-    @Body() body: { requesterId?: string; requester_id?: string },
+    @Body() body?: { requesterId?: string; requester_id?: string },
   ) {
     const user = await this.sessionUser(session);
-    const requesterId = body.requesterId ?? body.requester_id;
-    if (!requesterId) {
-      throw notFound('Requester');
-    }
-    return this.service.requestSignOff(id, user, { requesterId });
+    const requesterId = body?.requesterId ?? body?.requester_id;
+    return this.service.requestSignOff(
+      id,
+      user,
+      requesterId ? { requesterId } : {},
+    );
   }
 
   @Post(':id/sign-off')

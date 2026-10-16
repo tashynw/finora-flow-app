@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Input, Textarea } from "@/components/ui/field";
+import { Field, Input, Textarea } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { SkeletonText } from "@/components/ui/skeleton";
 import { ViewTabs } from "@/components/ui/view-tabs";
@@ -32,6 +32,7 @@ import {
   useResendInvite,
   useSetUserActive,
   useSetUserRoles,
+  useUpdateUser,
   useUsers,
   type AdminUserOut,
 } from "@/features/administration/use-users";
@@ -276,6 +277,188 @@ function CreateUserModal({
   );
 }
 
+const profileSchema = z.object({
+  displayName: requiredText("A display name is required."),
+  departmentId: z.string(),
+  jobTitle: z.string(),
+  reason: auditReason,
+});
+
+type ProfileForm = z.infer<typeof profileSchema>;
+
+function EditUserModal({
+  user,
+  onClose,
+}: {
+  user: AdminUserOut | null;
+  onClose: () => void;
+}) {
+  const update = useUpdateUser();
+  const departments = useDepartments(true, user !== null);
+  const { control, handleSubmit, reset } = useForm<ProfileForm>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      displayName: "",
+      departmentId: "",
+      jobTitle: "",
+      reason: "",
+    },
+  });
+
+  useEffect(() => {
+    if (!user) return;
+    reset({
+      displayName: user.display_name,
+      departmentId: user.department_id ?? "",
+      jobTitle: user.job_title ?? "",
+      reason: "",
+    });
+    update.reset();
+  }, [user, reset, update.reset]);
+
+  const onSubmit = handleSubmit((values) => {
+    if (!user) return;
+    update.mutate(
+      {
+        userId: user.id,
+        body: {
+          display_name: values.displayName,
+          department_id: values.departmentId || null,
+          job_title: values.jobTitle.trim() || null,
+          reason: values.reason,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("The user details have been saved.");
+          onClose();
+        },
+        onError: (error) => {
+          toast.error(
+            errorMessage(error) ?? "The user details could not be saved.",
+          );
+        },
+      },
+    );
+  });
+
+  const departmentItems = (departments.data ?? [])
+    .filter(
+      (department) =>
+        department.isActive || department.id === user?.department_id,
+    )
+    .map((department) => ({
+      value: department.id,
+      label: `${department.name} · ${department.costCentreNumber}`,
+    }));
+
+  return (
+    <Modal
+      open={user !== null}
+      onClose={onClose}
+      title={user ? `Edit ${user.display_name}` : "Edit user"}
+      description="Name, department, and job title. The email address stays with the account."
+    >
+      {user ? (
+        <form
+          className="flex flex-col gap-[var(--space-4)]"
+          onSubmit={onSubmit}
+          noValidate
+        >
+          <Field
+            label="Email"
+            help="The email address cannot be changed."
+          >
+            {({ inputId, describedBy }) => (
+              <Input
+                id={inputId}
+                type="email"
+                value={user.email}
+                disabled
+                readOnly
+                aria-describedby={describedBy}
+              />
+            )}
+          </Field>
+          <HookField
+            control={control}
+            name="displayName"
+            label="Display name"
+            required
+          >
+            {({ inputId, describedBy, invalid }, field) => (
+              <Input
+                id={inputId}
+                aria-describedby={describedBy}
+                invalid={invalid}
+                {...field}
+              />
+            )}
+          </HookField>
+          <HookField
+            control={control}
+            name="departmentId"
+            label="Department"
+            help={
+              departments.data?.length
+                ? "Optional. Choose one that already exists."
+                : "Optional. Add departments under Reference data first."
+            }
+          >
+            {({ inputId, describedBy, invalid }, field) => (
+              <Combobox
+                id={inputId}
+                describedBy={describedBy}
+                invalid={invalid}
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="Select a department"
+                emptyLabel="No department found."
+                clearLabel="No department"
+                items={departmentItems}
+              />
+            )}
+          </HookField>
+          <HookField control={control} name="jobTitle" label="Job title">
+            {({ inputId, describedBy, invalid }, field) => (
+              <Input
+                id={inputId}
+                aria-describedby={describedBy}
+                invalid={invalid}
+                {...field}
+              />
+            )}
+          </HookField>
+          <HookField control={control} name="reason" label="Why" required>
+            {({ inputId, describedBy, invalid }, field) => (
+              <Textarea
+                id={inputId}
+                aria-describedby={describedBy}
+                invalid={invalid}
+                rows={3}
+                {...field}
+              />
+            )}
+          </HookField>
+          {update.isError ? (
+            <p role="alert" className="m-0 text-[var(--color-danger-700)]">
+              {errorMessage(update.error) ??
+                "The user details could not be saved."}
+            </p>
+          ) : null}
+          <Button
+            type="submit"
+            isLoading={update.isPending}
+            loadingLabel="Saving"
+          >
+            Save details
+          </Button>
+        </form>
+      ) : null}
+    </Modal>
+  );
+}
+
 const rolesSchema = z.object({
   roles: z.array(z.string()).min(1, "Choose at least one role."),
 });
@@ -438,6 +621,7 @@ export function UsersPage() {
   const [includeInactive, setIncludeInactive] = useState(true);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<AdminUserOut | null>(null);
+  const [profile, setProfile] = useState<AdminUserOut | null>(null);
   const [statusTarget, setStatusTarget] = useState<{
     user: AdminUserOut;
     nextActive: boolean;
@@ -462,6 +646,11 @@ export function UsersPage() {
           )}
         >
           {row.display_name}
+          {row.job_title ? (
+            <span className="mt-0.5 block text-[length:var(--text-caption)] font-normal text-[var(--color-text-muted)]">
+              {row.job_title}
+            </span>
+          ) : null}
         </span>
       ),
     },
@@ -513,6 +702,14 @@ export function UsersPage() {
       align: "right",
       cell: (row) => (
         <span className="inline-flex flex-wrap justify-end gap-1">
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() => setProfile(row)}
+          >
+            Edit
+          </Button>
           <Button
             type="button"
             size="sm"
@@ -628,6 +825,7 @@ export function UsersPage() {
       )}
 
       <CreateUserModal open={creating} onClose={() => setCreating(false)} />
+      <EditUserModal user={profile} onClose={() => setProfile(null)} />
       <EditRolesModal user={editing} onClose={() => setEditing(null)} />
       <AccountStatusModal
         user={statusTarget?.user ?? null}
