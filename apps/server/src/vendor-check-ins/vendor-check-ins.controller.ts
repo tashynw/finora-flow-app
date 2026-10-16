@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard, Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { DomainException } from '../common/errors.js';
-import { resolvePage, type PageQuery } from '../common/pagination.js';
+import { type PageQuery } from '../common/pagination.js';
 import { serialize } from '../common/serialize.js';
 import { VendorCheckInsService } from './vendor-check-ins.service.js';
 
@@ -21,14 +21,20 @@ export class VendorCheckInsController {
   constructor(private readonly service: VendorCheckInsService) {}
 
   @Get()
-  async list(@Query() query: PageQuery) {
-    const page = resolvePage(query);
+  async list(
+    @Query()
+    query: PageQuery & {
+      standing?: string | string[];
+      search?: string;
+      page_size?: string;
+    },
+  ) {
     const result = await this.service.list(query);
     return serialize({
       rows: result.rows,
       total: result.total,
-      page: page.page ?? 1,
-      pageSize: page.pageSize ?? page.take,
+      page: result.page,
+      page_size: result.pageSize,
     });
   }
 
@@ -55,13 +61,14 @@ export class VendorCheckInsController {
   }
 
   @Get(':id')
-  async getOne(@Param('id') id: string) {
-    return serialize(await this.service.getById(id));
+  async getOne(@Session() session: UserSession, @Param('id') id: string) {
+    return serialize(await this.service.present(session, id));
   }
 
   @Post(':id/send')
   async send(@Session() session: UserSession, @Param('id') id: string) {
-    return serialize(await this.service.send(session, id));
+    await this.service.send(session, id);
+    return serialize(await this.service.present(session, id));
   }
 
   @Post(':id/answer')
@@ -76,18 +83,18 @@ export class VendorCheckInsController {
       note?: string;
     },
   ) {
-    return serialize(
-      await this.service.answer(
-        id,
-        {
-          claim: body.claim,
-          respondentName: body.respondentName ?? body.respondent_name ?? '',
-          note: body.note,
-        },
-        {
+    await this.service.answer(
+      id,
+      {
+        claim: body.claim,
+        respondentName: body.respondentName ?? body.respondent_name ?? '',
+        note: body.note,
+      },
+      {
         actorLabel: session.user.name ?? session.user.id,
-      }),
+      },
     );
+    return serialize(await this.service.present(session, id));
   }
 
   @Post(':id/review')
@@ -96,6 +103,7 @@ export class VendorCheckInsController {
     @Param('id') id: string,
     @Body() body: { outcome: 'paid' | 'outstanding'; note?: string },
   ) {
-    return serialize(await this.service.review(session, id, body));
+    await this.service.review(session, id, body);
+    return serialize(await this.service.present(session, id));
   }
 }

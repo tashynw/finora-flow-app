@@ -51,6 +51,8 @@ export class AuditController {
 
   @Get('entries')
   async listEntries(
+    @Query('take') take?: string,
+    @Query('skip') skip?: string,
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
     @Query('action') action?: string,
@@ -58,8 +60,8 @@ export class AuditController {
     @Query('subject_type') subjectTypeSnake?: string,
   ) {
     const result = await this.audit.list({
-      limit: limit ? Number(limit) : undefined,
-      offset: offset ? Number(offset) : undefined,
+      take: take ? Number(take) : limit ? Number(limit) : undefined,
+      skip: skip ? Number(skip) : offset ? Number(offset) : undefined,
       action,
       subjectType: subjectType ?? subjectTypeSnake,
     });

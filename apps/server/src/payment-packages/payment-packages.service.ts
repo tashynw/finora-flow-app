@@ -6,10 +6,12 @@ import { DomainException, notFound } from '../common/errors.js';
 import { nextReference } from '../common/ids.js';
 import { resolvePage, type PageQuery } from '../common/pagination.js';
 import { TransitionsService } from '../common/transitions.service.js';
+import { toWorkflowState } from '../common/workflow-state.js';
 import {
   InvoiceStatus,
   PaymentPackageStatus,
   type PaymentPackage,
+  type Prisma,
 } from '../generated/prisma/index.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
@@ -19,6 +21,79 @@ import {
 } from './payment-manifest.js';
 
 const PACKAGE_SUBJECT = 'payment_package';
+
+const detailInclude = {
+  lines: {
+    include: { vendor: true, invoice: true },
+    orderBy: { createdAt: 'asc' as const },
+  },
+  createdBy: { select: { id: true, name: true, email: true } },
+  submittedBy: { select: { id: true, name: true, email: true } },
+  cancelledBy: { select: { id: true, name: true, email: true } },
+} satisfies Prisma.PaymentPackageInclude;
+
+type PackageRow = Prisma.PaymentPackageGetPayload<{ include: typeof detailInclude }>;
+
+const METHOD_LABELS: Record<string, string> = {
+  bank_transfer: 'Bank transfer',
+  cheque: 'Cheque',
+  wire: 'Wire',
+  direct_debit: 'Direct debit',
+};
+
+const STANDING_LABELS = {
+  open: 'Open',
+  submitted: 'Submitted',
+  cancelled: 'Abandoned',
+} as const;
+
+const STANDING_DESCRIPTIONS = {
+  open: 'Still being put together. Nothing has left the account.',
+  submitted: 'Sent to the bank. What it contained can no longer change.',
+  cancelled: 'Abandoned. Everything in it went back to being approved and unpaid.',
+} as const;
+
+const PROBLEM_COPY: Record<
+  string,
+  { field: string; explanation: string; blocking: boolean }
+> = {
+  nothing_in_it: {
+    field: 'lines',
+    explanation:
+      'There is nothing in this package. Add the approved invoices it is meant to pay.',
+    blocking: false,
+  },
+  payment_method_missing: {
+    field: 'payment_method',
+    explanation:
+      'Say how the money leaves. The bank needs it, and it decides what the manifest carries.',
+    blocking: false,
+  },
+  payment_date_missing: {
+    field: 'intended_payment_date',
+    explanation:
+      'Give the date the money is meant to leave, so a supplier chasing payment can be told when rather than soon.',
+    blocking: false,
+  },
+  payment_date_in_the_past: {
+    field: 'intended_payment_date',
+    explanation:
+      'The intended payment date has gone by. Move it forward, or this package goes to the bank already saying it is late.',
+    blocking: false,
+  },
+  line_no_longer_payable: {
+    field: 'lines',
+    explanation:
+      'Something in this package is no longer payable. It was approved when it was added and has moved on since, so it has to come out before the rest can go.',
+    blocking: true,
+  },
+  repeated_invoice_number: {
+    field: 'lines',
+    explanation:
+      'The same supplier appears twice with the same invoice number. That is how one invoice gets paid twice, so it needs looking at even if both are right.',
+    blocking: true,
+  },
+};
 
 type ManifestLineSource = {
   invoiceId: string;
@@ -41,7 +116,7 @@ export class PaymentPackagesService {
   ) {}
 
   async eligibleInvoices(limit = 200) {
-    return this.prisma.invoice.findMany({
+    const rows = await this.prisma.invoice.findMany({
       where: {
         status: InvoiceStatus.APPROVED,
         archivedAt: null,
@@ -51,24 +126,50 @@ export class PaymentPackagesService {
       },
       orderBy: [{ dueDate: 'asc' }, { reference: 'asc' }],
       take: Math.min(limit, 200),
-      include: { vendor: true },
+      include: { vendor: true, department: true },
     });
+    return rows.map((invoice) => ({
+      id: invoice.id,
+      reference: invoice.reference,
+      invoice_number: invoice.invoiceNumber,
+      vendor_name: invoice.vendor?.name ?? '',
+      amount: moneyOut(invoice.totalMinorUnits ?? 0n, invoice.currency ?? 'JMD'),
+      due_date: dateOnly(invoice.dueDate),
+      department: invoice.department?.name ?? null,
+    }));
   }
 
-  async list(query: PageQuery) {
-    const page = resolvePage(query);
+  async list(
+    query: PageQuery & {
+      standing?: string | string[];
+      search?: string;
+      page_size?: string | number;
+    },
+  ) {
+    const page = resolvePage({
+      ...query,
+      page: query.page != null ? Number(query.page) : undefined,
+      pageSize:
+        query.pageSize ??
+        (query.page_size != null ? Number(query.page_size) : undefined),
+    });
+    const where = packageWhere(query.standing, query.search);
     const [rows, total] = await Promise.all([
       this.prisma.paymentPackage.findMany({
+        where,
         orderBy: { createdAt: 'desc' },
         take: page.take,
         skip: page.skip,
-        include: {
-          lines: { include: { invoice: true, vendor: true } },
-        },
+        include: detailInclude,
       }),
-      this.prisma.paymentPackage.count(),
+      this.prisma.paymentPackage.count({ where }),
     ]);
-    return { rows, total, ...page };
+    return {
+      rows: rows.map((row) => this.toSummary(row)),
+      total,
+      page: page.page ?? 1,
+      pageSize: page.pageSize ?? page.take,
+    };
   }
 
   async create(
@@ -101,21 +202,13 @@ export class PaymentPackagesService {
       detail: { reference: row.reference },
     });
 
-    return row;
+    return this.getById(row.id);
   }
 
   async getById(id: string) {
     const row = await this.prisma.paymentPackage.findUnique({
       where: { id },
-      include: {
-        lines: {
-          include: { vendor: true, invoice: true },
-          orderBy: { createdAt: 'asc' },
-        },
-        createdBy: { select: { id: true, name: true, email: true } },
-        submittedBy: { select: { id: true, name: true, email: true } },
-        cancelledBy: { select: { id: true, name: true, email: true } },
-      },
+      include: detailInclude,
     });
     if (!row) throw notFound('Payment package', id);
     return row;
@@ -509,6 +602,75 @@ export class PaymentPackagesService {
     return this.getById(id);
   }
 
+  toSummary(row: PackageRow) {
+    const standing = standingOf(row.status);
+    const problems = packageProblems(row);
+    const vendors = new Set(
+      row.lines.map((line) => line.vendor?.name ?? 'Unknown supplier'),
+    );
+    return {
+      id: row.id,
+      reference: row.reference,
+      description: row.description || '',
+      standing,
+      standing_label: STANDING_LABELS[standing],
+      payment_method: row.paymentMethod,
+      payment_method_label: row.paymentMethod
+        ? (METHOD_LABELS[row.paymentMethod] ?? row.paymentMethod)
+        : null,
+      intended_payment_date: dateOnly(row.intendedPaymentDate),
+      invoice_count: row.lines.length,
+      vendor_count: vendors.size,
+      totals: totalsOut(row.lines),
+      submitted_at: row.submittedAt?.toISOString() ?? null,
+      submission_reference: row.submissionReference,
+      created_at: row.createdAt.toISOString(),
+      blocker_count: problems.filter((problem) => problem.is_blocking).length,
+    };
+  }
+
+  toDetail(row: PackageRow) {
+    const standing = standingOf(row.status);
+    const problems = packageProblems(row);
+    const open = standing === 'open';
+    const vendors = new Set(
+      row.lines.map((line) => line.vendor?.name ?? 'Unknown supplier'),
+    );
+    return {
+      ...this.toSummary(row),
+      version: row.version,
+      standing_description: STANDING_DESCRIPTIONS[standing],
+      lines: row.lines.map((line) => {
+        const payable =
+          line.invoice.status === InvoiceStatus.READY_FOR_SUBMISSION ||
+          line.invoice.status === InvoiceStatus.SUBMITTED;
+        return {
+          invoice_id: line.invoiceId,
+          invoice_reference: line.invoiceReference,
+          invoice_number: line.invoiceNumber,
+          vendor_name: line.vendor?.name ?? 'Unknown supplier',
+          amount: moneyOut(line.amountMinorUnits, line.currency),
+          due_date: dateOnly(line.dueDate),
+          invoice_state: toWorkflowState(line.invoice.status),
+          invoice_state_label: stateLabel(line.invoice.status),
+          is_still_payable: payable,
+        };
+      }),
+      problems,
+      blockers: problems.filter((problem) => problem.is_blocking),
+      created_by_label: row.createdBy?.name ?? '',
+      submitted_by_label: row.submittedBy?.name ?? null,
+      manifest_sha256: row.manifestSha256,
+      manifest_line_count: row.manifestLineCount,
+      cancelled_at: row.cancelledAt?.toISOString() ?? null,
+      cancelled_reason: row.cancelledReason,
+      can_edit: open,
+      can_submit: open && problems.length === 0,
+      can_cancel: open,
+      vendor_count: vendors.size,
+    };
+  }
+
   private assertOpen(pkg: PaymentPackage) {
     if (pkg.status === PaymentPackageStatus.OPEN) return;
     const message =
@@ -519,4 +681,125 @@ export class PaymentPackagesService {
           : 'This package was cancelled.';
     throw new DomainException(message, HttpStatus.CONFLICT);
   }
+}
+
+function standingOf(
+  status: PaymentPackageStatus,
+): keyof typeof STANDING_LABELS {
+  if (
+    status === PaymentPackageStatus.SUBMITTED ||
+    status === PaymentPackageStatus.COMPLETED
+  ) {
+    return 'submitted';
+  }
+  if (status === PaymentPackageStatus.CANCELLED) return 'cancelled';
+  return 'open';
+}
+
+function packageWhere(
+  standing: string | string[] | undefined,
+  search: string | undefined,
+): Prisma.PaymentPackageWhereInput {
+  const where: Prisma.PaymentPackageWhereInput = {};
+  const wanted = (Array.isArray(standing) ? standing : standing ? [standing] : [])
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean);
+  if (wanted.length) {
+    const statuses: PaymentPackageStatus[] = [];
+    if (wanted.includes('open')) statuses.push(PaymentPackageStatus.OPEN);
+    if (wanted.includes('submitted')) {
+      statuses.push(
+        PaymentPackageStatus.SUBMITTED,
+        PaymentPackageStatus.COMPLETED,
+      );
+    }
+    if (wanted.includes('cancelled')) statuses.push(PaymentPackageStatus.CANCELLED);
+    if (statuses.length) where.status = { in: statuses };
+  }
+  const term = search?.trim();
+  if (term) {
+    where.OR = [
+      { reference: { contains: term, mode: 'insensitive' } },
+      { description: { contains: term, mode: 'insensitive' } },
+      { submissionReference: { contains: term, mode: 'insensitive' } },
+    ];
+  }
+  return where;
+}
+
+function packageProblems(row: PackageRow) {
+  if (standingOf(row.status) !== 'open') return [];
+  const found: string[] = [];
+  if (row.lines.length === 0) found.push('nothing_in_it');
+  if (!row.paymentMethod) found.push('payment_method_missing');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (!row.intendedPaymentDate) {
+    found.push('payment_date_missing');
+  } else if (row.intendedPaymentDate < today) {
+    found.push('payment_date_in_the_past');
+  }
+  if (
+    row.lines.some(
+      (line) => line.invoice.status !== InvoiceStatus.READY_FOR_SUBMISSION,
+    )
+  ) {
+    found.push('line_no_longer_payable');
+  }
+  const seen = new Set<string>();
+  for (const line of row.lines) {
+    const number = (line.invoiceNumber ?? '').trim().toUpperCase();
+    if (!number || !line.vendorId) continue;
+    const key = `${line.vendorId}:${number}`;
+    if (seen.has(key)) {
+      found.push('repeated_invoice_number');
+      break;
+    }
+    seen.add(key);
+  }
+  return found.map((problem) => {
+    const copy = PROBLEM_COPY[problem]!;
+    return {
+      problem,
+      field: copy.field,
+      explanation: copy.explanation,
+      is_blocking: copy.blocking,
+    };
+  });
+}
+
+function totalsOut(
+  lines: Array<{ amountMinorUnits: bigint; currency: string }>,
+) {
+  const totals = new Map<string, bigint>();
+  for (const line of lines) {
+    totals.set(
+      line.currency,
+      (totals.get(line.currency) ?? 0n) + line.amountMinorUnits,
+    );
+  }
+  return [...totals.keys()]
+    .sort()
+    .map((currency) => moneyOut(totals.get(currency) ?? 0n, currency));
+}
+
+function moneyOut(minor: bigint, currency: string) {
+  return {
+    currency,
+    minor_units: Number(minor),
+    formatted: new Intl.NumberFormat('en-JM', {
+      style: 'currency',
+      currency,
+      currencyDisplay: 'code',
+    }).format(Number(minor) / 100),
+  };
+}
+
+function dateOnly(value: Date | null) {
+  return value ? value.toISOString().slice(0, 10) : null;
+}
+
+function stateLabel(status: string) {
+  const label = status.toLowerCase().replaceAll('_', ' ');
+  return label.charAt(0).toUpperCase() + label.slice(1);
 }

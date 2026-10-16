@@ -27,6 +27,7 @@ describe('VendorCheckInsService', () => {
       update: vi.fn(),
     },
     vendor: { findMany: vi.fn() },
+    user: { findUnique: vi.fn() },
     invoice: { findUnique: vi.fn(), update: vi.fn() },
   };
   const audit = auditMock();
@@ -120,6 +121,7 @@ describe('VendorCheckInsService', () => {
     });
     prisma.paymentPackageLine.count.mockResolvedValue(0);
     prisma.paymentPackage.update.mockResolvedValue({});
+    prisma.user.findUnique.mockResolvedValue({ id: 'user-1', role: 'finance' });
 
     await (await service()).review(session, 'chk-1', { outcome: 'paid' });
 
@@ -136,4 +138,108 @@ describe('VendorCheckInsService', () => {
       }),
     );
   });
+
+  it('lets staff write down an answer once, and not again', async () => {
+    const waiting = answeredCheckIn();
+    waiting.answeredAt = null;
+    waiting.claim = null;
+    const recorded = answeredCheckIn();
+    const svc = await service();
+
+    expect(
+      svc.toDetail(waiting, { id: 'pay-1', role: 'payment_coordinator' })
+        .can_record_answer,
+    ).toBe(true);
+    expect(
+      svc.toDetail(recorded, { id: 'pay-1', role: 'payment_coordinator' })
+        .can_record_answer,
+    ).toBe(false);
+
+    prisma.vendorCheckIn.findUnique.mockResolvedValue({
+      id: 'chk-1',
+      answeredAt: new Date(),
+      reviewedAt: null,
+    });
+    await expect(
+      svc.answer('chk-1', { claim: 'received', respondentName: 'Ada' }),
+    ).rejects.toBeInstanceOf(DomainException);
+    expect(prisma.vendorCheckIn.update).not.toHaveBeenCalled();
+  });
+
+  it('lets finance conclude and hides the action from a payment coordinator', async () => {
+    const checkIn = answeredCheckIn();
+    const svc = await service();
+
+    expect(
+      svc.toDetail(checkIn, { id: 'finance-1', role: 'finance' }).can_review,
+    ).toBe(true);
+    expect(
+      svc.toDetail(checkIn, { id: 'pay-1', role: 'payment_coordinator' })
+        .can_review,
+    ).toBe(false);
+  });
+
+  it('refuses a payment coordinator who tries to conclude', async () => {
+    prisma.vendorCheckIn.findUnique.mockResolvedValue({
+      id: 'chk-1',
+      sentAt: new Date(),
+      answeredAt: new Date(),
+      reviewedAt: null,
+      package: { submittedById: 'someone-else' },
+    });
+    prisma.paymentPackageLine.findMany.mockResolvedValue([]);
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'user-1',
+      role: 'payment_coordinator',
+    });
+
+    await expect(
+      (await service()).review(session, 'chk-1', { outcome: 'paid' }),
+    ).rejects.toBeInstanceOf(DomainException);
+    expect(prisma.vendorCheckIn.update).not.toHaveBeenCalled();
+  });
+
+  it('refuses the person who sent the package even when they hold finance', async () => {
+    prisma.vendorCheckIn.findUnique.mockResolvedValue({
+      id: 'chk-1',
+      sentAt: new Date(),
+      answeredAt: new Date(),
+      reviewedAt: null,
+      package: { submittedById: 'user-1' },
+    });
+    prisma.paymentPackageLine.findMany.mockResolvedValue([]);
+    prisma.user.findUnique.mockResolvedValue({ id: 'user-1', role: 'finance' });
+
+    await expect(
+      (await service()).review(session, 'chk-1', { outcome: 'outstanding' }),
+    ).rejects.toBeInstanceOf(DomainException);
+    expect(prisma.vendorCheckIn.update).not.toHaveBeenCalled();
+  });
 });
+
+function answeredCheckIn() {
+  return {
+    id: 'chk-1',
+    reference: 'VCI-1',
+    version: 1,
+    packageId: 'pkg-1',
+    sentAt: new Date(),
+    answeredAt: new Date(),
+    reviewedAt: null,
+    claim: 'received',
+    claimChannel: null,
+    respondentName: null,
+    respondentNote: null,
+    reviewOutcome: null,
+    reviewNote: null,
+    reviewedBy: null,
+    package: {
+      reference: 'PAY-1',
+      submittedAt: new Date(),
+      submissionReference: 'BANK-1',
+      submittedById: 'coordinator-1',
+    },
+    vendor: { name: 'Acme', email: 'ap@acme.test' },
+    lines: [],
+  } as unknown as Parameters<VendorCheckInsService['toDetail']>[0];
+}

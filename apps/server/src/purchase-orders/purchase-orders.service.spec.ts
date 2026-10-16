@@ -37,6 +37,7 @@ describe('PurchaseOrdersService', () => {
       create: vi.fn(),
     },
     estimate: { findUnique: vi.fn() },
+    stateTransition: { findMany: vi.fn().mockResolvedValue([]) },
   };
   const approvals = { submitForApproval: vi.fn() };
   const transitions = transitionsMock();
@@ -51,6 +52,31 @@ describe('PurchaseOrdersService', () => {
       { provide: ApprovalsEngineService, useValue: approvals },
     ]);
   }
+
+  it('returns the missing fields a new draft still has to fill in', async () => {
+    prisma.purchaseOrder.findFirst.mockResolvedValue({
+      ...order,
+      vendorId: null,
+      estimateId: null,
+      description: '',
+      totalMinorUnits: null,
+      currency: null,
+      costCentre: null,
+      version: 1,
+    });
+
+    const detail = await (await service()).getById('po-1');
+
+    expect(detail.problems.map((problem) => problem.problem)).toEqual([
+      'vendor_missing',
+      'description_missing',
+      'amount_missing',
+      'cost_centre_missing',
+    ]);
+    expect(detail.blockers).toEqual([]);
+    expect(detail.can_edit).toBe(true);
+    expect(detail.transitions).toEqual([]);
+  });
 
   it('commits immediately when an approved estimate already covers the order', async () => {
     prisma.purchaseOrder.findFirst.mockResolvedValue(order);

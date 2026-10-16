@@ -3,6 +3,7 @@ import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { actorLabel, moveInvoiceStatus } from '../common/invoice-status.js';
 import { AuditService } from '../common/audit.service.js';
 import { DomainException, notFound } from '../common/errors.js';
+import { parseRoleField, permissionsForRoles } from '../common/roles.js';
 import { nextReference } from '../common/ids.js';
 import { sendEmail } from '../mail/email.js';
 import { resolvePage, type PageQuery } from '../common/pagination.js';
@@ -10,11 +11,13 @@ import { TransitionsService } from '../common/transitions.service.js';
 import {
   InvoiceStatus,
   PaymentPackageStatus,
+  type Prisma,
 } from '../generated/prisma/index.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
   deriveCheckInStanding,
   newCorrelationTag,
+  type CheckInStanding,
 } from './vendor-check-ins.helpers.js';
 
 const SUBJECT = 'vendor_check_in';
@@ -29,29 +32,64 @@ export class VendorCheckInsService {
     private readonly transitions: TransitionsService,
   ) {}
 
-  async list(query: PageQuery) {
-    const page = resolvePage(query);
+  async list(
+    query: PageQuery & {
+      standing?: string | string[];
+      search?: string;
+      page_size?: string | number;
+    },
+  ) {
+    const page = resolvePage({
+      ...query,
+      page: query.page != null ? Number(query.page) : undefined,
+      pageSize:
+        query.pageSize ??
+        (query.page_size != null ? Number(query.page_size) : undefined),
+    });
+    const where = checkInWhere(query.standing, query.search);
     const [rows, total] = await Promise.all([
       this.prisma.vendorCheckIn.findMany({
+        where,
         orderBy: { createdAt: 'desc' },
         take: page.take,
         skip: page.skip,
         include: {
-          package: { select: { reference: true, submittedAt: true } },
-          vendor: { select: { id: true, name: true, email: true } },
+          package: { select: { reference: true } },
+          vendor: { select: { name: true, email: true } },
         },
       }),
-      this.prisma.vendorCheckIn.count(),
+      this.prisma.vendorCheckIn.count({ where }),
     ]);
+    const lines = rows.length
+      ? await this.prisma.paymentPackageLine.findMany({
+          where: {
+            OR: rows.map((row) => ({
+              packageId: row.packageId,
+              vendorId: row.vendorId,
+            })),
+          },
+          select: {
+            packageId: true,
+            vendorId: true,
+            amountMinorUnits: true,
+            currency: true,
+          },
+        })
+      : [];
 
     return {
-      rows: rows.map((row) => ({
-        ...row,
-        standing: deriveCheckInStanding(row),
-        vendorName: row.vendor?.name ?? 'Unknown supplier',
-      })),
+      rows: rows.map((row) =>
+        toSummary(
+          row,
+          lines.filter(
+            (line) =>
+              line.packageId === row.packageId && line.vendorId === row.vendorId,
+          ),
+        ),
+      ),
       total,
-      ...page,
+      page: page.page ?? 1,
+      pageSize: page.pageSize ?? page.take,
     };
   }
 
@@ -83,6 +121,69 @@ export class VendorCheckInsService {
       standing: deriveCheckInStanding(row),
       vendorName: row.vendor?.name ?? 'Unknown supplier',
       lines,
+    };
+  }
+
+  async present(session: UserSession, id: string) {
+    const row = await this.getById(id);
+    const viewer = await this.viewer(session);
+    return this.toDetail(row, viewer);
+  }
+
+  toDetail(
+    row: Awaited<ReturnType<VendorCheckInsService['getById']>>,
+    viewer: { id: string; role: string | null } | null,
+  ) {
+    const standing = deriveCheckInStanding(row);
+    const lines = row.lines.map((line) => ({
+      invoice_reference: line.invoiceReference,
+      invoice_number: line.invoiceNumber,
+      amount: moneyOut(line.amountMinorUnits, line.currency),
+      due_date: dateOnly(line.dueDate),
+      invoice_state: line.invoice.status.toLowerCase(),
+      invoice_state_label: stateLabel(line.invoice.status),
+    }));
+    const claim = row.claim;
+    const outcome = row.reviewOutcome;
+    return {
+      id: row.id,
+      reference: row.reference,
+      version: row.version,
+      package_id: row.packageId,
+      package_reference: row.package.reference,
+      package_submitted_at: row.package.submittedAt?.toISOString() ?? null,
+      submission_reference: row.package.submissionReference,
+      vendor_name: row.vendor?.name ?? 'Unknown supplier',
+      vendor_email: row.vendor?.email ?? null,
+      standing,
+      standing_label: STANDING_LABELS[standing],
+      standing_description: STANDING_DESCRIPTIONS[standing],
+      lines,
+      totals: totalsOut(row.lines),
+      sent_at: row.sentAt?.toISOString() ?? null,
+      answered_at: row.answeredAt?.toISOString() ?? null,
+      claim,
+      claim_label: claim ? (CLAIM_LABELS[claim] ?? claim) : null,
+      claim_description: claim ? (CLAIM_DESCRIPTIONS[claim] ?? null) : null,
+      claim_channel: row.claimChannel,
+      claim_channel_label: row.claimChannel
+        ? (CHANNEL_LABELS[row.claimChannel] ?? row.claimChannel)
+        : null,
+      respondent_name: row.respondentName,
+      respondent_note: row.respondentNote,
+      reviewed_at: row.reviewedAt?.toISOString() ?? null,
+      reviewed_by_label: row.reviewedBy?.name ?? null,
+      review_outcome: outcome,
+      review_outcome_label: outcome ? (REVIEW_LABELS[outcome] ?? outcome) : null,
+      review_note: row.reviewNote,
+      suggestion: suggest(claim, row.lines),
+      confirmed_paid:
+        row.lines.length > 0 &&
+        row.lines.every((line) => line.invoice.status === InvoiceStatus.PAID),
+      can_send: standing === 'not_sent' && Boolean(row.vendor?.email),
+      can_record_answer:
+        standing === 'not_sent' || standing === 'awaiting_vendor',
+      can_review: this.mayConclude(viewer, row.package.submittedById, standing),
     };
   }
 
@@ -178,7 +279,7 @@ export class VendorCheckInsService {
       raised.push(checkIn);
     }
 
-    return { raised, alreadyRaised };
+    return { raised, already_raised: alreadyRaised };
   }
 
   async send(session: UserSession, id: string) {
@@ -249,6 +350,11 @@ export class VendorCheckInsService {
     const row = await this.prisma.vendorCheckIn.findUnique({ where: { id } });
     if (!row) throw notFound('Vendor check-in', id);
 
+    if (row.answeredAt) {
+      throw new DomainException(
+        'What the supplier said has already been written down.',
+      );
+    }
     const standing = deriveCheckInStanding(row);
     if (standing === 'reviewed') {
       throw new DomainException(
@@ -292,6 +398,18 @@ export class VendorCheckInsService {
     body: { outcome: 'paid' | 'outstanding'; note?: string },
   ) {
     const row = await this.getById(id);
+    const viewer = await this.viewer(session);
+    if (
+      !this.mayConclude(
+        viewer,
+        row.package.submittedById,
+        deriveCheckInStanding(row),
+      )
+    ) {
+      throw new DomainException(
+        'Only finance can conclude whether this payment arrived, and not the person who sent it.',
+      );
+    }
     if (!row.sentAt && !row.answeredAt) {
       throw new DomainException(
         'Record what the supplier said before concluding.',
@@ -372,6 +490,28 @@ export class VendorCheckInsService {
     return this.getById(id);
   }
 
+  private async viewer(session: UserSession) {
+    return this.prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, role: true },
+    });
+  }
+
+  private mayConclude(
+    viewer: { id: string; role: string | null } | null,
+    submittedById: string | null | undefined,
+    standing: CheckInStanding,
+  ) {
+    if (!viewer) return false;
+    if (submittedById && submittedById === viewer.id) return false;
+    if (standing !== 'vendor_answered' && standing !== 'awaiting_vendor') {
+      return false;
+    }
+    return permissionsForRoles(parseRoleField(viewer.role)).includes(
+      'payment:mark_paid',
+    );
+  }
+
   /** End of the payment flow: every invoice on the package has been marked paid. */
   private async completePackageIfSettled(session: UserSession, packageId: string) {
     const pkg = await this.prisma.paymentPackage.findUnique({
@@ -440,7 +580,7 @@ export class VendorCheckInsService {
       packageReference: row.package.reference,
       lines,
       answeredAt: row.answeredAt,
-      canAnswer: !row.reviewedAt,
+      canAnswer: row.answeredAt === null && row.reviewedAt === null,
     };
   }
 
@@ -457,4 +597,200 @@ export class VendorCheckInsService {
       actorLabel: body.respondentName?.trim() || 'Supplier',
     });
   }
+}
+
+const STANDING_LABELS: Record<CheckInStanding, string> = {
+  not_sent: 'Not asked yet',
+  awaiting_vendor: 'Waiting on the supplier',
+  vendor_answered: 'Needs review',
+  reviewed: 'Reviewed',
+};
+
+const STANDING_DESCRIPTIONS: Record<CheckInStanding, string> = {
+  not_sent: 'Nobody has asked this supplier whether the money reached them.',
+  awaiting_vendor: 'We have asked and are chasing. Nothing has come back yet.',
+  vendor_answered:
+    'The supplier has answered. Somebody here has to decide what it means before anything is recorded as paid.',
+  reviewed: 'Someone here has weighed the evidence and recorded a conclusion.',
+};
+
+const CLAIM_LABELS: Record<string, string> = {
+  received: 'Says the money arrived',
+  partly_received: 'Says only part of it arrived',
+  not_received: 'Says nothing arrived',
+};
+
+const CLAIM_DESCRIPTIONS: Record<string, string> = {
+  received:
+    'The supplier says the payment reached their account. Their word, not a bank statement, and not yet a decision by anybody here.',
+  partly_received:
+    'The supplier says something arrived but not all of it. Which part is missing needs the remittance advice and a person.',
+  not_received:
+    'The supplier says nothing has reached them. Worth checking against the bank before assuming the instruction failed.',
+};
+
+const CHANNEL_LABELS: Record<string, string> = {
+  signed_link: 'Answered the link we emailed',
+  email_reply: 'Replied to our email',
+  recorded_by_staff: 'Told us, and we wrote it down',
+  manual: 'Told us, and we wrote it down',
+  web_form: 'Answered the link we emailed',
+};
+
+const REVIEW_LABELS: Record<string, string> = {
+  paid: 'Paid',
+  outstanding: 'Outstanding',
+};
+
+function checkInWhere(
+  standing: string | string[] | undefined,
+  search: string | undefined,
+): Prisma.VendorCheckInWhereInput {
+  const where: Prisma.VendorCheckInWhereInput = {};
+  const wanted = (Array.isArray(standing) ? standing : standing ? [standing] : [])
+    .map((value) => value.trim())
+    .filter(Boolean);
+  if (wanted.length) {
+    where.OR = wanted.map(standingClause);
+  }
+  const term = search?.trim();
+  if (term) {
+    const searchClause: Prisma.VendorCheckInWhereInput = {
+      OR: [
+        { reference: { contains: term, mode: 'insensitive' } },
+        { vendor: { name: { contains: term, mode: 'insensitive' } } },
+      ],
+    };
+    where.AND = searchClause;
+  }
+  return where;
+}
+
+function standingClause(standing: string): Prisma.VendorCheckInWhereInput {
+  if (standing === 'reviewed') return { reviewedAt: { not: null } };
+  if (standing === 'vendor_answered') {
+    return { reviewedAt: null, answeredAt: { not: null } };
+  }
+  if (standing === 'awaiting_vendor') {
+    return { reviewedAt: null, answeredAt: null, sentAt: { not: null } };
+  }
+  if (standing === 'not_sent') {
+    return { reviewedAt: null, answeredAt: null, sentAt: null };
+  }
+  return {};
+}
+
+function toSummary(
+  row: {
+    id: string;
+    reference: string;
+    sentAt: Date | null;
+    answeredAt: Date | null;
+    reviewedAt: Date | null;
+    claim: string | null;
+    reviewOutcome: string | null;
+    package: { reference: string };
+    vendor: { name: string; email: string | null } | null;
+  },
+  lines: Array<{ amountMinorUnits: bigint; currency: string }>,
+) {
+  const standing = deriveCheckInStanding(row);
+  return {
+    id: row.id,
+    reference: row.reference,
+    package_reference: row.package.reference,
+    vendor_name: row.vendor?.name ?? 'Unknown supplier',
+    vendor_email: row.vendor?.email ?? null,
+    standing,
+    standing_label: STANDING_LABELS[standing],
+    invoice_count: lines.length,
+    totals: totalsOut(lines),
+    sent_at: row.sentAt?.toISOString() ?? null,
+    answered_at: row.answeredAt?.toISOString() ?? null,
+    claim: row.claim,
+    claim_label: row.claim ? (CLAIM_LABELS[row.claim] ?? row.claim) : null,
+    reviewed_at: row.reviewedAt?.toISOString() ?? null,
+    review_outcome: row.reviewOutcome,
+    review_outcome_label: row.reviewOutcome
+      ? (REVIEW_LABELS[row.reviewOutcome] ?? row.reviewOutcome)
+      : null,
+  };
+}
+
+function suggest(
+  claim: string | null,
+  lines: Array<{ invoice: { status: InvoiceStatus } }>,
+) {
+  const stillSubmitted = lines.every(
+    (line) => line.invoice.status === InvoiceStatus.SUBMITTED,
+  );
+  if (lines.length > 0 && !stillSubmitted) {
+    return {
+      outcome: null,
+      outcome_label: null,
+      because:
+        'One of these invoices has been moved since the package was sent, so this check-in and the record no longer describe the same thing. Work out what happened to it before concluding anything.',
+    };
+  }
+  if (claim === 'received') {
+    return {
+      outcome: 'paid',
+      outcome_label: REVIEW_LABELS.paid,
+      because:
+        'The supplier says the money reached them. That is their claim rather than a bank statement, so it is worth a glance at the account before you agree with it.',
+    };
+  }
+  if (claim === 'partly_received') {
+    return {
+      outcome: 'outstanding',
+      outcome_label: REVIEW_LABELS.outstanding,
+      because:
+        'The supplier says only part of it arrived. Until it is known which part, none of this is settled.',
+    };
+  }
+  if (claim === 'not_received') {
+    return {
+      outcome: 'outstanding',
+      outcome_label: REVIEW_LABELS.outstanding,
+      because:
+        'The supplier says nothing arrived. Either the instruction did not go through or it went somewhere else, and both need chasing at the bank.',
+    };
+  }
+  return {
+    outcome: null,
+    outcome_label: null,
+    because:
+      'Nothing has come back from the supplier yet, and the chasing has not run out. There is no evidence here to draw a conclusion from.',
+  };
+}
+
+function totalsOut(lines: Array<{ amountMinorUnits: bigint; currency: string }>) {
+  const totals = new Map<string, bigint>();
+  for (const line of lines) {
+    totals.set(line.currency, (totals.get(line.currency) ?? 0n) + line.amountMinorUnits);
+  }
+  return [...totals.keys()]
+    .sort()
+    .map((currency) => moneyOut(totals.get(currency) ?? 0n, currency));
+}
+
+function moneyOut(minor: bigint, currency: string) {
+  return {
+    currency,
+    minor_units: Number(minor),
+    formatted: new Intl.NumberFormat('en-JM', {
+      style: 'currency',
+      currency,
+      currencyDisplay: 'code',
+    }).format(Number(minor) / 100),
+  };
+}
+
+function dateOnly(value: Date | null) {
+  return value ? value.toISOString().slice(0, 10) : null;
+}
+
+function stateLabel(status: string) {
+  const label = status.toLowerCase().replaceAll('_', ' ');
+  return label.charAt(0).toUpperCase() + label.slice(1);
 }

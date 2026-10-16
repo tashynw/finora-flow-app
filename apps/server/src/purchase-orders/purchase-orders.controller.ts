@@ -45,6 +45,7 @@ export class PurchaseOrdersController {
     @Query('status') status?: string | string[],
     @Query('search') search?: string,
     @Query('mine') mine?: string,
+    @Query('open_only') openOnly?: string,
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
   ) {
@@ -53,6 +54,7 @@ export class PurchaseOrdersController {
       status: parseWorkflowStates(status),
       search,
       mine: mine === 'true' || mine === '1',
+      openOnly: openOnly === 'true' || openOnly === '1',
       limit: limit ? Number(limit) : undefined,
       offset: offset ? Number(offset) : undefined,
     });

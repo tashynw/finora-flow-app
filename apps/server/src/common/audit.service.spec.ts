@@ -29,6 +29,31 @@ describe('AuditService', () => {
     expect(entry.entryHash).toHaveLength(64);
   });
 
+  it('returns one page of the trail and the full count', async () => {
+    const prisma = {
+      auditEntry: {
+        findMany: vi.fn().mockResolvedValue([]),
+        count: vi.fn().mockResolvedValue(45),
+      },
+    };
+    const service = await compile(AuditService, [providePrisma(prisma)]);
+
+    const page = await service.list({ take: 20, skip: 20, action: 'export' });
+
+    expect(prisma.auditEntry.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        take: 20,
+        skip: 20,
+        where: { action: { contains: 'export', mode: 'insensitive' } },
+        orderBy: { sequence: 'asc' },
+      }),
+    );
+    expect(prisma.auditEntry.count).toHaveBeenCalled();
+    expect(page.total).toBe(45);
+    expect(page.take).toBe(20);
+    expect(page.skip).toBe(20);
+  });
+
   it('reports a broken chain', async () => {
     const occurredAt = new Date('2026-10-01T00:00:00.000Z');
     const prisma = {

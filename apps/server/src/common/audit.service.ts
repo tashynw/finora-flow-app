@@ -70,15 +70,19 @@ export class AuditService {
   async list(filters: {
     action?: string;
     subjectType?: string;
+    /** ARC list queries page with take and skip. limit and offset are the same pair. */
+    take?: number;
+    skip?: number;
     limit?: number;
     offset?: number;
   }) {
     const where: Prisma.AuditEntryWhereInput = {};
-    if (filters.action) where.action = filters.action;
+    const action = filters.action?.trim();
+    if (action) where.action = { contains: action, mode: 'insensitive' };
     if (filters.subjectType) where.subjectType = filters.subjectType;
 
-    const take = Math.min(Math.max(filters.limit ?? 50, 1), 200);
-    const skip = Math.max(filters.offset ?? 0, 0);
+    const take = Math.min(Math.max(filters.take ?? filters.limit ?? 20, 1), 200);
+    const skip = Math.max(filters.skip ?? filters.offset ?? 0, 0);
 
     const [items, total] = await Promise.all([
       this.prisma.auditEntry.findMany({
@@ -90,7 +94,7 @@ export class AuditService {
       this.prisma.auditEntry.count({ where }),
     ]);
 
-    return { items, total, limit: take, offset: skip };
+    return { items, total, take, skip, limit: take, offset: skip };
   }
 
   async getBySequence(sequence: bigint) {

@@ -35,6 +35,7 @@ const detailInclude = {
   department: true,
   estimate: true,
   raisedBy: { select: { id: true, name: true } },
+  closedBy: { select: { id: true, name: true } },
   approvalRequests: {
     orderBy: { attempt: 'asc' as const },
     include: { steps: true },
@@ -101,12 +102,17 @@ export class PurchaseOrdersService {
       status?: string[];
       search?: string;
       mine?: boolean;
+      openOnly?: boolean;
       limit?: number;
       offset?: number;
     },
   ) {
     const page = resolvePage(query);
     const where: Prisma.PurchaseOrderWhereInput = { archivedAt: null };
+    if (query.openOnly) {
+      where.status = 'APPROVED';
+      where.closedAt = null;
+    }
     if (query.status?.length) {
       where.status = {
         in: query.status.map((s) => s.toUpperCase() as PurchaseOrderStatus),
@@ -133,19 +139,7 @@ export class PurchaseOrdersService {
     ]);
 
     return serialize({
-      items: items.map((row) => ({
-        id: row.id,
-        number: row.number,
-        state: toWorkflowState(row.status),
-        vendor_name: row.vendor?.name ?? '',
-        description: row.description,
-        total_minor_units:
-          row.totalMinorUnits != null ? Number(row.totalMinorUnits) : null,
-        currency: row.currency,
-        closed_at: row.closedAt?.toISOString() ?? null,
-        raised_by_label: row.raisedBy.name,
-        created_at: row.createdAt.toISOString(),
-      })),
+      rows: items.map((row) => toSummary(row)),
       total,
       limit: page.limit ?? page.take,
       offset: page.offset ?? page.skip,
@@ -158,33 +152,11 @@ export class PurchaseOrdersService {
       include: detailInclude,
     });
     if (!order) throw notFound('Purchase order', id);
-    return serialize({
-      id: order.id,
-      number: order.number,
-      state: toWorkflowState(order.status),
-      vendor_id: order.vendorId,
-      estimate_id: order.estimateId,
-      description: order.description,
-      total_minor_units:
-        order.totalMinorUnits != null ? Number(order.totalMinorUnits) : null,
-      currency: order.currency,
-      cost_centre: ref(order.costCentre),
-      gl_account: ref(order.glAccount),
-      closed_at: order.closedAt?.toISOString() ?? null,
-      closed_reason: order.closedReason,
-      opened_at: order.openedAt?.toISOString() ?? null,
-      actions: {
-        may_edit: order.status === 'DRAFT' || order.status === 'REJECTED',
-        may_submit: order.status === 'DRAFT' || order.status === 'REJECTED',
-        may_withdraw: order.status === 'PENDING_APPROVAL',
-        may_cancel:
-          order.status === 'DRAFT' ||
-          order.status === 'PENDING_APPROVAL' ||
-          order.status === 'REJECTED',
-        may_close: order.status === 'APPROVED' && order.closedAt == null,
-        may_amend: order.status === 'APPROVED' && order.closedAt == null,
-      },
+    const transitions = await this.prisma.stateTransition.findMany({
+      where: { recordType: RECORD_TYPE, recordId: id },
+      orderBy: { occurredAt: 'asc' },
     });
+    return serialize(toDetail(order, transitions));
   }
 
   async create(user: User, body: { estimateId?: string | null }) {
@@ -490,7 +462,264 @@ export class PurchaseOrdersService {
   }
 }
 
-function ref(row: { id: string; code: string; name: string } | null) {
+function ref(row: { id: string; code: string; name: string } | null | undefined) {
   if (!row) return null;
   return { id: row.id, code: row.code, name: row.name };
+}
+
+const STATE_LABELS: Record<string, string> = {
+  draft: 'Draft',
+  pending_approval: 'Pending approval',
+  approved: 'Approved',
+  rejected: 'Rejected',
+  cancelled: 'Cancelled',
+};
+
+const MIN_DESCRIPTION_LENGTH = 10;
+
+const PROBLEM_EXPLANATIONS: Record<string, string> = {
+  vendor_missing:
+    'Name the supplier this order goes to. An order is an instruction to a particular company, and payment only ever goes to a recorded one.',
+  description_missing:
+    'Say what is being ordered, in a line the approver can judge without opening anything else.',
+  amount_missing: 'Enter the value being committed, and its currency.',
+  amount_not_positive: 'The value must be more than zero. An order for nothing commits nothing.',
+  cost_centre_missing:
+    'Choose the cost centre this commitment belongs to. It decides who has to approve it.',
+  below_what_is_billed:
+    'Suppliers have already invoiced more against this order than the new figure. The commitment cannot shrink below what has already been billed.',
+  estimate_not_approved: 'The estimate this order draws on is not approved.',
+  estimate_vendor_mismatch:
+    'This order names a different supplier from the estimate it draws on.',
+  estimate_currency_mismatch:
+    'This order is in a different currency from the estimate it draws on.',
+  exceeds_estimate:
+    'This order commits more than the approved estimate covers.',
+};
+
+const PROBLEM_FIELDS: Record<string, string> = {
+  vendor_missing: 'vendor_id',
+  description_missing: 'description',
+  amount_missing: 'total',
+  amount_not_positive: 'total',
+  cost_centre_missing: 'cost_centre_id',
+  below_what_is_billed: 'total',
+  estimate_not_approved: 'estimate_id',
+  estimate_vendor_mismatch: 'estimate_id',
+  estimate_currency_mismatch: 'estimate_id',
+  exceeds_estimate: 'total',
+};
+
+const BLOCKING = new Set([
+  'below_what_is_billed',
+  'estimate_not_approved',
+  'estimate_vendor_mismatch',
+  'estimate_currency_mismatch',
+  'exceeds_estimate',
+]);
+
+function orderStateLabel(status: string, closedAt: Date | null) {
+  const state = toWorkflowState(status);
+  if (state === 'approved') return closedAt ? 'Closed' : 'Open';
+  return STATE_LABELS[state] ?? state;
+}
+
+function formatOrderMoney(minor: bigint | number | null | undefined, currency: string | null) {
+  if (minor == null || !currency) return null;
+  const major = Number(minor) / 100;
+  return `${currency} ${major.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function toSummary(row: {
+  id: string;
+  number: string;
+  status: string;
+  description: string | null;
+  totalMinorUnits: bigint | null;
+  currency: string | null;
+  closedAt: Date | null;
+  createdAt: Date;
+  vendor?: { name: string } | null;
+  raisedBy?: { name: string } | null;
+}) {
+  const state = toWorkflowState(row.status);
+  const total =
+    row.totalMinorUnits != null ? Number(row.totalMinorUnits) : null;
+  return {
+    id: row.id,
+    number: row.number,
+    state,
+    state_label: orderStateLabel(row.status, row.closedAt),
+    is_open: state === 'approved' && row.closedAt == null,
+    vendor_name: row.vendor?.name ?? null,
+    description: row.description ?? '',
+    total_minor_units: total,
+    currency: row.currency,
+    total_formatted: formatOrderMoney(row.totalMinorUnits, row.currency),
+    billed_formatted: null,
+    remaining_minor_units: total,
+    remaining_formatted: formatOrderMoney(row.totalMinorUnits, row.currency),
+    department: null,
+    raised_by_label: row.raisedBy?.name ?? '',
+    created_at: row.createdAt.toISOString(),
+    awaiting: [] as string[],
+    is_awaiting_me: false,
+    blocker_count: 0,
+  };
+}
+
+function orderProblems(order: {
+  vendorId: string | null;
+  description: string | null;
+  totalMinorUnits: bigint | null;
+  currency: string | null;
+  costCentreId?: string | null;
+  costCentre?: { id: string } | null;
+  estimateId: string | null;
+  estimate?: {
+    status: string;
+    vendorId: string | null;
+    currency: string | null;
+    totalMinorUnits: bigint | null;
+  } | null;
+}) {
+  const found: string[] = [];
+  if (!order.vendorId) found.push('vendor_missing');
+  if ((order.description ?? '').trim().length < MIN_DESCRIPTION_LENGTH) {
+    found.push('description_missing');
+  }
+  if (order.totalMinorUnits == null || !order.currency) found.push('amount_missing');
+  else if (order.totalMinorUnits <= 0n) found.push('amount_not_positive');
+  if (!order.costCentre && !order.costCentreId) found.push('cost_centre_missing');
+
+  const estimate = order.estimate;
+  if (order.estimateId && estimate) {
+    if (estimate.status !== 'APPROVED') found.push('estimate_not_approved');
+    if (
+      estimate.vendorId &&
+      order.vendorId &&
+      estimate.vendorId !== order.vendorId
+    ) {
+      found.push('estimate_vendor_mismatch');
+    }
+    if (
+      estimate.currency &&
+      order.currency &&
+      estimate.totalMinorUnits != null &&
+      order.totalMinorUnits != null
+    ) {
+      if (estimate.currency !== order.currency) found.push('estimate_currency_mismatch');
+      else if (order.totalMinorUnits > estimate.totalMinorUnits) {
+        found.push('exceeds_estimate');
+      }
+    }
+  }
+  return found.map((problem) => ({
+    problem,
+    field: PROBLEM_FIELDS[problem] ?? problem,
+    explanation: PROBLEM_EXPLANATIONS[problem] ?? problem,
+    is_blocking: BLOCKING.has(problem),
+  }));
+}
+
+function toDetail(
+  order: {
+    id: string;
+    number: string;
+    status: string;
+    version?: number;
+    vendorId: string | null;
+    vendor?: { id: string; code: string; name: string } | null;
+    estimateId: string | null;
+    estimate?: {
+      reference: string;
+      status: string;
+      vendorId: string | null;
+      currency: string | null;
+      totalMinorUnits: bigint | null;
+    } | null;
+    description: string | null;
+    totalMinorUnits: bigint | null;
+    currency: string | null;
+    costCentreId?: string | null;
+    costCentre?: { id: string; code: string; name: string } | null;
+    glAccount?: { id: string; code: string; name: string } | null;
+    department?: { name: string } | null;
+    closedAt: Date | null;
+    closedReason: string | null;
+    closedBy?: { name: string } | null;
+    openedAt: Date | null;
+    submittedAt?: Date | null;
+    raisedBy?: { name: string } | null;
+  },
+  transitions: {
+    fromState: string;
+    toState: string;
+    actorLabel: string | null;
+    reason: string | null;
+    occurredAt: Date;
+  }[],
+) {
+  const state = toWorkflowState(order.status);
+  const problems = orderProblems(order);
+  const editable = state === 'draft' || state === 'rejected';
+  const open = state === 'approved' && order.closedAt == null;
+  const covered =
+    order.estimate?.status === 'APPROVED' &&
+    order.estimate.vendorId === order.vendorId &&
+    order.estimate.currency === order.currency &&
+    (order.estimate.totalMinorUnits == null ||
+      order.totalMinorUnits == null ||
+      order.totalMinorUnits <= order.estimate.totalMinorUnits);
+  return {
+    id: order.id,
+    number: order.number,
+    state,
+    state_label: orderStateLabel(order.status, order.closedAt),
+    is_open: open,
+    version: order.version ?? 1,
+    vendor: ref(order.vendor),
+    description: order.description ?? '',
+    total_minor_units:
+      order.totalMinorUnits != null ? Number(order.totalMinorUnits) : null,
+    currency: order.currency,
+    total_formatted: formatOrderMoney(order.totalMinorUnits, order.currency),
+    cost_centre: ref(order.costCentre),
+    gl_account: ref(order.glAccount),
+    department: order.department?.name ?? null,
+    estimate_id: order.estimateId,
+    estimate_reference: order.estimate?.reference ?? null,
+    billed_minor_units: null,
+    billed_formatted: null,
+    remaining_minor_units:
+      order.totalMinorUnits != null ? Number(order.totalMinorUnits) : null,
+    remaining_formatted: formatOrderMoney(order.totalMinorUnits, order.currency),
+    raised_by_label: order.raisedBy?.name ?? '',
+    submitted_at: order.submittedAt?.toISOString() ?? null,
+    opened_at: order.openedAt?.toISOString() ?? null,
+    closed_at: order.closedAt?.toISOString() ?? null,
+    closed_by_label: order.closedBy?.name ?? null,
+    closed_reason: order.closedReason,
+    problems,
+    blockers: problems.filter((problem) => problem.is_blocking),
+    planned_route: [],
+    route_unavailable: null,
+    needs_approval: !covered,
+    route: null,
+    transitions: transitions.map((entry) => ({
+      from_state: toWorkflowState(entry.fromState),
+      to_state: toWorkflowState(entry.toState),
+      to_state_label: orderStateLabel(entry.toState, null),
+      actor_label: entry.actorLabel,
+      reason: entry.reason,
+      occurred_at: entry.occurredAt.toISOString(),
+    })),
+    can_edit: editable,
+    can_submit: editable && problems.length === 0,
+    can_withdraw: state === 'pending_approval',
+    can_amend: open,
+    can_close: open,
+    can_cancel: state !== 'cancelled' && state !== 'rejected',
+    can_decide: false,
+  };
 }

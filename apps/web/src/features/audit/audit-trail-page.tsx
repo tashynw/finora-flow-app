@@ -214,6 +214,8 @@ export function AuditTrailPage() {
   const items = data?.items ?? [];
   const total = data?.total ?? 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const showingFrom = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
+  const showingTo = (page - 1) * PAGE_SIZE + items.length;
 
   return (
     <>
@@ -298,44 +300,49 @@ export function AuditTrailPage() {
           </CardContent>
         </Card>
       ) : (
-        <DataTable
-          ariaLabel="Audit entries"
-          columns={entryColumns(setOpenEntry)}
-          rows={items}
-          getRowKey={(entry) => String(entry.sequence)}
-        />
+        <>
+          <DataTable
+            ariaLabel="Audit entries"
+            columns={entryColumns(setOpenEntry)}
+            rows={items}
+            getRowKey={(entry) => String(entry.sequence)}
+          />
+          <nav
+            aria-label="Pagination"
+            className="mt-[var(--space-4)] flex flex-wrap items-center justify-end gap-[var(--space-3)]"
+          >
+            <p
+              aria-live="polite"
+              className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]"
+            >
+              Showing {showingFrom} to {showingTo} of {total}
+            </p>
+            <div className="flex items-center gap-[var(--space-2)]">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={page <= 1 || isLoading}
+                onClick={() => setPage(page - 1)}
+              >
+                Previous
+              </Button>
+              <span className="text-[length:var(--text-body-sm)]">
+                Page <strong>{page} of {pages}</strong>
+              </span>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={page >= pages || isLoading}
+                onClick={() => setPage(page + 1)}
+              >
+                Next
+              </Button>
+            </div>
+          </nav>
+        </>
       )}
-
-      {total > PAGE_SIZE ? (
-        <nav
-          aria-label="Pagination"
-          className="mt-[var(--space-4)] flex items-center justify-between gap-[var(--space-3)]"
-        >
-          <p className="m-0 text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]">
-            {total} entries · page {page} of {pages}
-          </p>
-          <div className="flex gap-[var(--space-2)]">
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              disabled={page <= 1}
-              onClick={() => setPage((current) => current - 1)}
-            >
-              Previous
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              disabled={page >= pages}
-              onClick={() => setPage((current) => current + 1)}
-            >
-              Next
-            </Button>
-          </div>
-        </nav>
-      ) : null}
 
       <Modal
         open={openEntry !== null}
