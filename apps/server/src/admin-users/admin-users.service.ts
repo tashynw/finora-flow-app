@@ -376,7 +376,7 @@ export class AdminUsersService {
   }
 
   private async sendInvite(email: string) {
-    const origin = (process.env.WEB_ORIGIN ?? 'http://localhost:5173').replace(
+    const origin = (process.env.WEB_APP_URL ?? 'http://localhost:5173').replace(
       /\/$/,
       '',
     );
