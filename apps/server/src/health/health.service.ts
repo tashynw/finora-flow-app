@@ -15,7 +15,7 @@ export type ReadinessResult = {
 
 @Injectable()
 export class HealthService {
-  readonly version = '0.0.1';
+  readonly version = '0.0.2';
 
   constructor(private readonly prisma: PrismaService) {}
 
