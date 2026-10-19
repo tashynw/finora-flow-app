@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { ArrowLeft, Link2Off } from 'lucide-react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from '@/lib/app-link';
 
 import { errorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';

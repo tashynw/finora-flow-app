@@ -2,7 +2,7 @@
 #
 # Every dependency the platform needs runs here as a Linux container, so the
 # host operating system is never part of the contract. Bring the stack up with
-# `pnpm stack:up` from the repository root.
+# `yarn stack:up` from the repository root.
 #
 # This file is for development and pilot only. It uses well-known local
 # credentials supplied through env/dev.env and must never be used to run a
@@ -49,7 +49,12 @@ services:
 
   # S3-compatible object storage for immutable raw messages and documents.
   minio:
-    image: minio/minio:latest
+    # MinIO removed minio/minio and minio/mc from Docker Hub, and Quay now
+    # refuses anonymous pulls. This image is the public replacement.
+    image: cgr.dev/chainguard/minio:latest
+    # The previous image ran as root. This one defaults to an unprivileged
+    # user, which cannot write a volume created by the old image.
+    user: "0:0"
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
@@ -69,15 +74,24 @@ services:
     volumes:
       - minio-data:/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      # The image no longer preconfigures an mc alias named "local", so the
+      # check records one and then asks the server whether it is ready.
+      test:
+        [
+          "CMD-SHELL",
+          'mc alias set local http://127.0.0.1:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD" && mc ready local',
+        ]
       interval: 5s
       timeout: 5s
       retries: 20
 
   # Creates the buckets and enables object locking plus versioning, so
   # originals are immutable and cannot be silently overwritten.
+  # The client image has no shell. This server image ships both `mc` and a
+  # shell, which is what the bucket script below needs.
   minio-init:
-    image: minio/mc:latest
+    image: cgr.dev/chainguard/minio:latest
+    user: "0:0"
     depends_on:
       minio:
         condition: service_healthy

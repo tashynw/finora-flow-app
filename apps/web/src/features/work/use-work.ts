@@ -59,7 +59,7 @@ export function useWorkQueue(kinds: readonly string[], page = 1) {
 export function useWorkDashboard(limit = 5) {
   return useQuery({
     queryKey: workKeys.dashboard,
-    queryFn: () => api.get<WorkQueueOut>(`/work/dashboard${toQuery({ limit })}`),
+    queryFn: () => api.get<WorkQueueOut>(`/work/dashboard${toQuery({ top: limit })}`),
     refetchOnWindowFocus: true,
     staleTime: 15_000,
   });

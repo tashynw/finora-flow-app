@@ -50,12 +50,12 @@ export function usePurchaseOrders(filters: OrderFilters, page = 1) {
     queryFn: () =>
       api.get<PurchaseOrderPage>(
         `/purchase-orders${toQuery({
-          state: filters.state.length ? filters.state : undefined,
+          status: filters.state.length ? filters.state : undefined,
           open_only: filters.openOnly ? true : undefined,
           awaiting_me_only: filters.awaitingMeOnly ? true : undefined,
           search: filters.search.trim() || undefined,
-          page,
-          page_size: PAGE_SIZE,
+          limit: PAGE_SIZE,
+          offset: (page - 1) * PAGE_SIZE,
         })}`,
       ),
     staleTime: 10_000,

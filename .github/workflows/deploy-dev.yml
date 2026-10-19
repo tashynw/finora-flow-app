@@ -1,0 +1,80 @@
+name: Deploy dev
+
+on:
+  push:
+    branches: [dev]
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-2
+  AWS_ROLE_ARN: arn:aws:iam::916657620522:role/github-finora-deploy
+  ECR_REPOSITORY: finora-flow-backend
+  ECS_CLUSTER: finora-flow-backend
+  ECS_SERVICE: finora-flow-backend-task-dev-service-6jr3lmxm
+  ECS_TASK_DEFINITION: finora-flow-backend-task-dev
+  ECS_CONTAINER: finora-flow-backend-container-dev
+
+jobs:
+  deploy:
+    name: Build, migrate, deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Assume deploy role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push
+        env:
+          IMAGE: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
+          SHA: ${{ github.sha }}
+        run: |
+          docker build \
+            --tag "$IMAGE:dev" \
+            --tag "$IMAGE:dev-${SHA::7}" \
+            apps/server
+          docker push "$IMAGE:dev"
+          docker push "$IMAGE:dev-${SHA::7}"
+
+      - name: Migrate and seed
+        run: |
+          RESULT=$(aws ecs run-task \
+            --cluster "$ECS_CLUSTER" \
+            --task-definition "$ECS_TASK_DEFINITION" \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[subnet-0a496b8f61a57f8a4,subnet-0a1b53c7b19aff3a2,subnet-0cb8d2b58dd6ec4a1],securityGroups=[sg-0fa20f3e4071c2a62],assignPublicIp=ENABLED}" \
+            --overrides "{\"containerOverrides\":[{\"name\":\"$ECS_CONTAINER\",\"command\":[\"sh\",\"-c\",\"npx prisma migrate deploy && npx prisma db seed\"]}]}")
+          TASK_ARN=$(echo "$RESULT" | jq -r '.tasks[0].taskArn // empty')
+          if [ -z "$TASK_ARN" ]; then
+            echo "$RESULT" | jq .
+            exit 1
+          fi
+          aws ecs wait tasks-stopped --cluster "$ECS_CLUSTER" --tasks "$TASK_ARN"
+          EXIT=$(aws ecs describe-tasks \
+            --cluster "$ECS_CLUSTER" \
+            --tasks "$TASK_ARN" \
+            --query "tasks[0].containers[0].exitCode" \
+            --output text)
+          echo "Migration task exited $EXIT"
+          test "$EXIT" = "0"
+
+      - name: Deploy service
+        run: |
+          aws ecs update-service \
+            --cluster "$ECS_CLUSTER" \
+            --service "$ECS_SERVICE" \
+            --force-new-deployment

@@ -45,7 +45,7 @@ export const operationalSettingsKeys = {
 export function useOperationalSettings() {
   return useQuery({
     queryKey: operationalSettingsKeys.snapshot(),
-    queryFn: () => api.get<OperationalSettingsSnapshot>('/admin/operational-settings'),
+    queryFn: () => api.get<OperationalSettingsSnapshot>('/admin/settings/operational'),
   });
 }
 
@@ -53,7 +53,7 @@ export function useSetAiKillSwitch() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: KillSwitchBody) =>
-      api.post<KillSwitchResult>('/admin/operational-settings/ai-kill-switch', body),
+      api.post<KillSwitchResult>('/admin/settings/operational/ai-kill-switch', body),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: operationalSettingsKeys.all });
     },

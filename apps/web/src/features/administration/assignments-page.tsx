@@ -1,19 +1,23 @@
 import { useMemo, useState } from 'react';
 import { UserPlus, UsersRound } from 'lucide-react';
 
-import type { ApprovalAssignmentOut, ApprovalLevel } from '@finora/shared-types';
+import type { ApprovalAssignmentOut, ApprovalLevel, ApprovalPersonOut } from '@finora/shared-types';
+
+import { toast } from 'sonner';
 
 import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Field, Input, Select } from '@/components/ui/field';
+import { Combobox } from '@/components/ui/combobox';
+import { Field } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
 import { ToneBadge } from '@/components/workflow/status-badge';
 import { PageHeader } from '@/features/shared/page-header';
-import { usePeople } from '@/features/administration/use-people';
+import { useDepartmentSearch } from '@/features/administration/use-departments';
+import { usePeopleSearch } from '@/features/administration/use-people';
 import {
   useAssignLevel,
   useAssignments,
@@ -230,7 +234,17 @@ export function AssignmentsPage() {
                 if (!removing) return;
                 unassign.mutate(
                   { assignmentId: removing.id },
-                  { onSuccess: () => setRemoving(null) },
+                  {
+                    onSuccess: () => {
+                      toast.success('They have been removed from this level.');
+                      setRemoving(null);
+                    },
+                    onError: (error) => {
+                      toast.error(
+                        errorMessage(error) ?? 'They could not be removed from this level.',
+                      );
+                    },
+                  },
                 );
               }}
             >
@@ -257,20 +271,32 @@ function AssignDialog({
   onClose: () => void;
 }) {
   const [userId, setUserId] = useState('');
+  const [chosen, setChosen] = useState<ApprovalPersonOut | null>(null);
   const [department, setDepartment] = useState('');
+  const [whoQuery, setWhoQuery] = useState('');
+  const [departmentQuery, setDepartmentQuery] = useState('');
+  const [whoError, setWhoError] = useState('');
 
-  const { data: people } = usePeople();
+  const people = usePeopleSearch(whoQuery, level !== null);
+  const departments = useDepartmentSearch(departmentQuery, level !== null);
   const assign = useAssignLevel();
 
   const label = LEVELS.find((option) => option.id === level)?.label ?? '';
-  const chosen = people?.find((person) => person.id === userId);
+
+  function resetForm() {
+    setUserId('');
+    setChosen(null);
+    setDepartment('');
+    setWhoQuery('');
+    setDepartmentQuery('');
+    setWhoError('');
+  }
 
   return (
     <Modal
       open={level !== null}
       onClose={() => {
-        setUserId('');
-        setDepartment('');
+        resetForm();
         assign.reset();
         onClose();
       }}
@@ -284,18 +310,27 @@ function AssignDialog({
           </Button>
           <Button
             variant="primary"
-            disabled={!userId || !level}
             isLoading={assign.isPending}
             loadingLabel="Adding"
             onClick={() => {
-              if (!level || !userId) return;
+              if (!level || !userId) {
+                setWhoError('Choose somebody.');
+                return;
+              }
+              if (chosen && !chosen.may_decide) return;
+              setWhoError('');
               assign.mutate(
                 { userId, level, department },
                 {
                   onSuccess: () => {
-                    setUserId('');
-                    setDepartment('');
+                    toast.success('They have been added to this level.');
+                    resetForm();
                     onClose();
+                  },
+                  onError: (error) => {
+                    toast.error(
+                      errorMessage(error) ?? 'They could not be added to this level.',
+                    );
                   },
                 },
               );
@@ -316,45 +351,64 @@ function AssignDialog({
         <Field
           label="Who"
           required
-          help="Only people with an open account are listed."
+          help="Type a name or email. Only open accounts are searched."
           error={
-            chosen && !chosen.may_decide
-              ? 'This person cannot record an approval decision, so putting them at a level would leave the level unstaffed in practice. Give them an approver role first.'
-              : undefined
+            whoError
+              ? whoError
+              : chosen && !chosen.may_decide
+                ? 'This person cannot record an approval decision, so putting them at a level would leave the level unstaffed in practice. Give them an approver role first.'
+                : undefined
           }
         >
           {({ inputId, describedBy, invalid }) => (
-            <Select
+            <Combobox
+              key={`who-${level ?? 'closed'}`}
               id={inputId}
-              aria-describedby={describedBy}
+              describedBy={describedBy}
               invalid={invalid}
               value={userId}
               disabled={assign.isPending}
-              onChange={(event) => setUserId(event.target.value)}
-            >
-              <option value="">Choose somebody</option>
-              {(people ?? []).map((person) => (
-                <option key={person.id} value={person.id}>
-                  {person.name} — {person.email}
-                  {person.may_decide ? '' : ' (cannot approve)'}
-                </option>
-              ))}
-            </Select>
+              placeholder="Search by name or email"
+              emptyLabel="No one matches that."
+              clearLabel="Clear"
+              idleLabel="No open accounts yet"
+              searching={people.isFetching}
+              onSearch={setWhoQuery}
+              onChange={(id) => {
+                setUserId(id);
+                setWhoError('');
+                setChosen(people.data?.find((person) => person.id === id) ?? null);
+              }}
+              items={(people.data ?? []).map((person) => ({
+                value: person.id,
+                label: `${person.name} — ${person.email}${person.may_decide ? '' : ' (cannot approve)'}`,
+              }))}
+            />
           )}
         </Field>
 
         <Field
           label="Department"
-          help="Leave empty and they hold this level everywhere. Naming one limits them to records from it."
+          help="All departments means they hold this level everywhere. Type to limit them to one."
         >
           {({ inputId, describedBy }) => (
-            <Input
+            <Combobox
+              key={`department-${level ?? 'closed'}`}
               id={inputId}
-              aria-describedby={describedBy}
+              describedBy={describedBy}
               value={department}
-              maxLength={200}
               disabled={assign.isPending}
-              onChange={(event) => setDepartment(event.target.value)}
+              placeholder="All departments"
+              emptyLabel="No department matches that."
+              clearLabel="All departments"
+              idleLabel="No departments yet"
+              searching={departments.isFetching}
+              onSearch={setDepartmentQuery}
+              onChange={setDepartment}
+              items={(departments.data ?? []).map((row) => ({
+                value: row.costCentreNumber,
+                label: `${row.name} · ${row.costCentreNumber}`,
+              }))}
             />
           )}
         </Field>

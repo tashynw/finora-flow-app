@@ -32,7 +32,8 @@ export type AuditVerifyResult = {
   reason: string | null;
 };
 
-export const PAGE_SIZE = 50;
+/** Same page length ARC uses for a server-paged register. */
+export const PAGE_SIZE = 20;
 
 export type AuditFilters = {
   action?: string | undefined;
@@ -53,8 +54,8 @@ export function useAuditEntries(filters: AuditFilters, page = 1) {
         `/audit/entries${toQuery({
           action: filters.action || undefined,
           subject_type: filters.subject_type || undefined,
-          limit: PAGE_SIZE,
-          offset: (page - 1) * PAGE_SIZE,
+          take: PAGE_SIZE,
+          skip: (page - 1) * PAGE_SIZE,
         })}`,
       ),
   });

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ClipboardList, Plus, Search } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/app-link';
 
 import type { PurchaseOrderSummary } from '@finora/shared-types';
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from '@/lib/app-link';
 import { CheckCircle2, ShieldQuestion } from 'lucide-react';
 
 import type { ClaimOutcome, VendorQuestionOut } from '@finora/shared-types';

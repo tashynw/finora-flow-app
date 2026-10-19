@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
 import { CreditCard, Plus, Upload } from 'lucide-react';
+import { toast } from 'sonner';
 
 import type { CreditCardPeriodSummary, CreditCardStanding } from '@finora/shared-types';
 
+import { errorMessage } from '@/lib/api-client';
 import { formatDate } from '@/lib/dates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -297,6 +299,11 @@ export function CreditCardRegisterPage() {
                       setShowImport(false);
                       form.reset();
                     },
+                    onError: (error) => {
+                      toast.error(
+                        errorMessage(error) ?? 'The statement could not be imported.',
+                      );
+                    },
                   },
                 );
               }}
@@ -350,6 +357,15 @@ export function CreditCardRegisterPage() {
                   />
                 )}
               </Field>
+              {importForCard.isError ? (
+                <p
+                  role="alert"
+                  className="m-0 rounded-[var(--radius-md)] border border-[var(--color-danger-600)] bg-[var(--color-danger-50)] p-[var(--space-3)] text-[length:var(--text-body-sm)] text-[var(--color-danger-700)] sm:col-span-3"
+                >
+                  {errorMessage(importForCard.error) ??
+                    'The statement could not be imported.'}
+                </p>
+              ) : null}
               <div className="sm:col-span-3">
                 <Button type="submit" disabled={!activeCardId || importForCard.isPending}>
                   Import

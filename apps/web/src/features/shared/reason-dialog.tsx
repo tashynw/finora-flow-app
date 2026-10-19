@@ -1,8 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
-import { Field, Textarea } from '@/components/ui/field';
+import { Textarea } from '@/components/ui/field';
+import { HookField } from '@/components/form/hook-field';
 import { Modal } from '@/components/ui/modal';
+import { requiredText } from '@/lib/form-schemas';
 
 /**
  * A confirmation that will not proceed without a written reason.
@@ -17,6 +22,12 @@ import { Modal } from '@/components/ui/modal';
  * refusal from the server leaves the typed reason on screen to correct rather
  * than making the person write it again.
  */
+const reasonSchema = z.object({
+  reason: requiredText('A reason is required.').max(1000, 'Keep the reason under 1000 characters.'),
+});
+
+type ReasonForm = z.infer<typeof reasonSchema>;
+
 export interface ReasonDialogProps {
   open: boolean;
   title: string;
@@ -44,11 +55,26 @@ export function ReasonDialog({
   onClose,
   onConfirm,
 }: ReasonDialogProps) {
-  const [reason, setReason] = useState('');
+  const formId = `reason-${useId().replace(/:/g, '')}`;
+  const { control, handleSubmit, reset, setError, clearErrors } = useForm<ReasonForm>({
+    resolver: zodResolver(reasonSchema),
+    defaultValues: { reason: '' },
+  });
 
   useEffect(() => {
-    if (open) setReason('');
-  }, [open]);
+    if (!open) return;
+    reset({ reason: '' });
+    clearErrors();
+  }, [open, reset, clearErrors]);
+
+  useEffect(() => {
+    if (!error) return;
+    setError('reason', { message: error });
+  }, [error, setError]);
+
+  const onSubmit = handleSubmit((values) => {
+    onConfirm(values.reason);
+  });
 
   return (
     <Modal
@@ -63,31 +89,32 @@ export function ReasonDialog({
             Back
           </Button>
           <Button
+            type="submit"
+            form={formId}
             variant={danger ? 'danger' : 'primary'}
-            disabled={reason.trim().length === 0}
             isLoading={isPending}
             loadingLabel="Recording"
-            onClick={() => onConfirm(reason.trim())}
           >
             {confirmLabel}
           </Button>
         </>
       }
     >
-      <Field label={label} required help={help} error={error}>
-        {({ inputId, describedBy, invalid }) => (
-          <Textarea
-            id={inputId}
-            aria-describedby={describedBy}
-            invalid={invalid}
-            rows={4}
-            value={reason}
-            maxLength={1000}
-            disabled={isPending}
-            onChange={(event) => setReason(event.target.value)}
-          />
-        )}
-      </Field>
+      <form id={formId} onSubmit={onSubmit} noValidate>
+        <HookField control={control} name="reason" label={label} required help={help}>
+          {({ inputId, describedBy, invalid }, field) => (
+            <Textarea
+              id={inputId}
+              aria-describedby={describedBy}
+              invalid={invalid}
+              rows={4}
+              maxLength={1000}
+              disabled={isPending}
+              {...field}
+            />
+          )}
+        </HookField>
+      </form>
     </Modal>
   );
 }

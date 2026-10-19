@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink } from '@/lib/app-link';
 
 import { cn } from '@/lib/utils';
 import type { SectionTab } from '@/layouts/navigation';

@@ -1,4 +1,5 @@
 import { defineConfig, type Plugin } from 'vitest/config';
+import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { createReadStream } from 'node:fs';
@@ -10,6 +11,19 @@ import { fileURLToPath, URL } from 'node:url';
 // Keeps the browser same-origin against the API so the session cookie behaves
 // exactly as it will in production behind one hostname.
 const API_PROXY = {
+  // Better Auth on the Nest server. Listed before `/api` so sign-in does not
+  // fall through to the Python API.
+  '/api/auth': {
+    target: 'http://127.0.0.1:3000',
+    changeOrigin: true,
+  },
+  // Nest application routes, including user invitations. The prefix is stripped
+  // so `/api/nest/admin/users` reaches Nest at `/admin/users`.
+  '/api/nest': {
+    target: 'http://127.0.0.1:3000',
+    changeOrigin: true,
+    rewrite: (path) => path.replace(/^\/api\/nest/, ''),
+  },
   '/api': {
     // 127.0.0.1 rather than localhost: on Windows `localhost` resolves to ::1
     // first, but the API binds IPv4 only, so the proxy would refuse to connect.
@@ -126,7 +140,17 @@ function pdfjsAssets(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), pdfjsAssets()],
+  plugins: [
+    tanstackRouter({
+      target: 'react',
+      autoCodeSplitting: true,
+      quoteStyle: 'single',
+      semicolons: true,
+    }),
+    react(),
+    tailwindcss(),
+    pdfjsAssets(),
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

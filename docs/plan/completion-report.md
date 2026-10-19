@@ -61,7 +61,7 @@ Linux). Phase 11 screens are covered by the `phase11` Playwright project.
 Run locally / in CI:
 
 ```bash
-pnpm --filter @finora/web test:visual
+yarn workspace @finora/web test:visual
 ```
 
 Against the real API, DB, object store and scanner (ADR 5). Flow projects do not
@@ -109,9 +109,9 @@ Confirmed by construction:
 | API types | `mypy src` |
 | API security | `bandit -c pyproject.toml -r src` |
 | API tests | `pytest` against compose Postgres |
-| Web lint / types / unit | `pnpm --filter @finora/web lint`, `typecheck`, `test` |
-| Visual + a11y | `pnpm --filter @finora/web test:visual` |
-| CI | `.github/workflows/ci.yml` (also pip-audit, pnpm audit, gitleaks, release-bar) |
+| Web lint / types / unit | `yarn workspace @finora/web lint`, `typecheck`, `test` |
+| Visual + a11y | `yarn workspace @finora/web test:visual` |
+| CI | `.github/workflows/ci.yml` (also pip-audit, yarn audit, gitleaks, release-bar) |
 
 Threat-model residuals T5 (role composition) and T10 (export audit) are coded;
 see `docs/architecture/threat-model.md`.

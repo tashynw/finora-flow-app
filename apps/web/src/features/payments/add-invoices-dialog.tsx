@@ -49,6 +49,7 @@ export function AddInvoicesDialog({
 }: AddInvoicesDialogProps) {
   const [chosen, setChosen] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
+  const [choiceError, setChoiceError] = useState('');
 
   useEffect(() => {
     if (open) {
@@ -125,16 +126,27 @@ export function AddInvoicesDialog({
                     totals.map((total) => formatMoney(total)).join(' and ') || 'nothing'
                   }`}
             </span>
+            {choiceError ? (
+              <span role="alert" className="text-[length:var(--text-body-sm)] text-[var(--color-danger-700)]">
+                {choiceError}
+              </span>
+            ) : null}
           </div>
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
             Back
           </Button>
           <Button
             variant="primary"
-            disabled={chosen.size === 0}
             isLoading={isPending}
             loadingLabel="Adding"
-            onClick={() => onConfirm([...chosen])}
+            onClick={() => {
+              if (chosen.size === 0) {
+                setChoiceError('Choose at least one invoice.');
+                return;
+              }
+              setChoiceError('');
+              onConfirm([...chosen]);
+            }}
           >
             Add {chosen.size > 0 ? `${chosen.size} ` : ''}
             {chosen.size === 1 ? 'invoice' : 'invoices'}

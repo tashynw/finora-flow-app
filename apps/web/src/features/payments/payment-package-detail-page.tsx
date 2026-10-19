@@ -10,7 +10,7 @@ import {
   ShieldAlert,
   Trash2,
 } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from '@/lib/app-link';
 
 import type {
   PackageDraftRequest,

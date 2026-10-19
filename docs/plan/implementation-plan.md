@@ -27,7 +27,7 @@ TODO gate, traceability updated, and screenshots indexed.
 
 ### Phase 0: Scaffold
 
-Git repository, pnpm workspace, `uv` with pinned Python 3.12, dependency
+Git repository, Yarn workspace, `uv` with pinned Python 3.12, dependency
 containers (PostgreSQL, Redis, MinIO, ClamAV, Greenmail), governance
 documentation, traceability matrix, architecture documents and initial ADRs.
 

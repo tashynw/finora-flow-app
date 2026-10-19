@@ -3,7 +3,7 @@
  *
  * `src/generated/api.ts` is produced from the API's own OpenAPI schema and must
  * never be hand-edited. Regenerate both the schema and the types with
- * `pnpm schema:generate` from the repository root.
+ * `yarn schema:generate` from the repository root.
  *
  * This file gives the generated schemas readable names. It deliberately adds no
  * types of its own for anything the API returns, so the browser cannot hold a

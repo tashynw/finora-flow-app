@@ -7,6 +7,7 @@ import {
   STANDING,
   coverage,
   headlineStatus,
+  mayConcludeCheckIn,
   waitingOn,
 } from '@/features/vendor-confirmations/confirmation-vocabulary';
 
@@ -129,6 +130,14 @@ describe('the two conclusions', () => {
   it('is the only place the word paid appears in a success tone', () => {
     expect(REVIEW.paid.tone).toBe('success');
     expect(REVIEW.outstanding.tone).toBe('danger');
+  });
+});
+
+describe('who may conclude', () => {
+  it('shows Conclude only to someone who can mark a payment paid', () => {
+    expect(mayConcludeCheckIn(true, true)).toBe(true);
+    expect(mayConcludeCheckIn(false, true)).toBe(false);
+    expect(mayConcludeCheckIn(true, false)).toBe(false);
   });
 });
 

@@ -5,7 +5,7 @@
  * an existing register, trail or queue where exports and review already live.
  */
 
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/app-link';
 import { ArrowRight } from 'lucide-react';
 
 import { cn } from '@/lib/utils';

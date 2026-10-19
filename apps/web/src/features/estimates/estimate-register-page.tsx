@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FileSpreadsheet, Plus, Search } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/app-link';
 
 import type { EstimateSummary } from '@finora/shared-types';
 

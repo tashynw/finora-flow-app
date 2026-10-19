@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { AlertTriangle, ArrowLeft, Ban, Save, Send, Undo2 } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from '@/lib/app-link';
 
 import type { EstimateDetail } from '@finora/shared-types';
 

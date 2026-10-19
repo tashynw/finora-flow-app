@@ -3,6 +3,8 @@ import { UserRoundCheck } from 'lucide-react';
 
 import type { ApprovalDelegationOut } from '@finora/shared-types';
 
+import { toast } from 'sonner';
+
 import { errorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
@@ -291,6 +293,7 @@ function CoverDialog({
 }) {
   const [delegateId, setDelegateId] = useState('');
   const [until, setUntil] = useState('');
+  const [formError, setFormError] = useState('');
 
   const { data: people } = usePeople();
   const setCover = useSetCover();
@@ -324,18 +327,34 @@ function CoverDialog({
           </Button>
           <Button
             variant="primary"
-            disabled={isSelf || (!clearing && (!delegateId || !until))}
             isLoading={setCover.isPending}
             loadingLabel="Saving"
             onClick={() => {
               if (!subject) return;
+              if (isSelf) return;
+              if (!clearing && (!delegateId || !until)) {
+                setFormError('Choose who covers and the day they are back, or clear both to end the cover.');
+                return;
+              }
+              if (!clearing && chosen && !chosen.may_decide) return;
+              setFormError('');
               setCover.mutate(
                 {
                   userId: subject.user_id,
                   delegateToId: clearing ? null : delegateId,
                   outOfOfficeUntil: clearing ? null : endOfDay(until),
                 },
-                { onSuccess: close },
+                {
+                  onSuccess: () => {
+                    toast.success(
+                      clearing ? 'The cover has ended.' : 'The cover has been saved.',
+                    );
+                    close();
+                  },
+                  onError: (error) => {
+                    toast.error(errorMessage(error) ?? 'The cover could not be saved.');
+                  },
+                },
               );
             }}
           >
@@ -355,11 +374,13 @@ function CoverDialog({
           label="Who decides instead"
           help="Clear both boxes to end the arrangement. Cover does not chain: if this person is themselves away, work waits rather than moving on again."
           error={
-            isSelf
-              ? 'Somebody cannot cover for themselves. That would leave the work exactly where it is.'
-              : chosen && !chosen.may_decide
-                ? 'This person cannot record an approval decision, so nothing routed to them could be decided.'
-                : undefined
+            formError
+              ? formError
+              : isSelf
+                ? 'Somebody cannot cover for themselves. That would leave the work exactly where it is.'
+                : chosen && !chosen.may_decide
+                  ? 'This person cannot record an approval decision, so nothing routed to them could be decided.'
+                  : undefined
           }
         >
           {({ inputId, describedBy, invalid }) => (

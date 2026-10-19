@@ -1,24 +1,18 @@
 import { createContext, useCallback, useContext, useMemo } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import type {
-  AuthMethodsResponse,
-  CurrentUserResponse,
-} from '@finora/shared-types';
+import type { CurrentUserResponse } from '@finora/shared-types';
 
-import { api, ApiError } from '@/lib/api-client';
+import { authClient } from '@/lib/auth-client';
 import { useWorkBadges } from '@/features/work/use-work';
+import { permissionsForRoles, rolesFromField } from '@/features/auth/role-permissions';
 
-// Generated from the API's OpenAPI schema, so a contract change breaks the
-// build here rather than surfacing as an undefined field at runtime.
 export type CurrentUser = CurrentUserResponse;
-export type AuthMethods = AuthMethodsResponse;
 
 interface AuthContextValue {
   user: CurrentUser | null;
   isLoading: boolean;
-  methods: AuthMethods | null;
-  signIn: (email: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   can: (permission: string) => boolean;
   /** Counts of work awaiting this user, keyed by nav badge. */
@@ -27,51 +21,82 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+const sessionKey = ['auth', 'session'] as const;
+
+function toCurrentUser(
+  sessionUser: {
+    id: string;
+    email: string;
+    name: string;
+    role?: string | null;
+  } | null,
+): CurrentUser | null {
+  if (!sessionUser) return null;
+  const roles = rolesFromField(sessionUser.role);
+  return {
+    id: sessionUser.id,
+    email: sessionUser.email,
+    display_name: sessionUser.name,
+    department: null,
+    roles,
+    permissions: permissionsForRoles(roles),
+  };
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
 
-  const userQuery = useQuery({
-    queryKey: ['auth', 'me'],
-    queryFn: () => api.get<CurrentUser>('/auth/me'),
-    // A 401 is the expected answer for a signed-out visitor, not a fault, so it
-    // must not be retried into a delay before the login screen appears.
-    retry: (failureCount, error) =>
-      !(error instanceof ApiError && error.isUnauthenticated) && failureCount < 2,
+  // The supplier page has no account. Asking who is signed in would hold that
+  // screen on a request that is going to answer nobody, so the session call
+  // stays off while the address is a check-in link.
+  const supplierPage =
+    typeof window !== 'undefined' &&
+    window.location.pathname.startsWith('/payment-check-in/');
+
+  const sessionQuery = useQuery({
+    queryKey: sessionKey,
+    queryFn: async () => {
+      const result = await authClient.getSession();
+      if (result.error) {
+        throw new Error(result.error.message ?? 'The session could not be loaded.');
+      }
+      return result.data;
+    },
+    enabled: !supplierPage,
     staleTime: 60_000,
   });
 
-  const methodsQuery = useQuery({
-    queryKey: ['auth', 'methods'],
-    queryFn: () => api.get<AuthMethods>('/auth/methods'),
-    staleTime: 5 * 60_000,
-  });
-
-  const user =
-    userQuery.data ??
-    (userQuery.error instanceof ApiError && userQuery.error.isUnauthenticated
-      ? null
-      : (userQuery.data ?? null));
+  const user = toCurrentUser(sessionQuery.data?.user ?? null);
 
   const badgesQuery = useWorkBadges(Boolean(user?.permissions.includes('report:view')));
 
-  const signInMutation = useMutation({
-    mutationFn: (email: string) =>
-      api.post<CurrentUser>('/auth/local/sign-in', { email }),
-    onSuccess: (signedIn) => {
-      queryClient.setQueryData(['auth', 'me'], signedIn);
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      const result = await authClient.signIn.email({
+        email,
+        password,
+        rememberMe: true,
+      });
+      if (result.error) {
+        throw new Error(result.error.message ?? 'Sign-in could not be completed.');
+      }
+      const session = await authClient.getSession();
+      queryClient.setQueryData(sessionKey, session.data ?? null);
       void queryClient.invalidateQueries({ queryKey: ['work'] });
     },
-  });
+    [queryClient],
+  );
 
-  const signOutMutation = useMutation({
-    mutationFn: () => api.post<void>('/auth/sign-out'),
-    onSuccess: () => {
-      // Every cached query was fetched under the previous identity, so none of
-      // it may be shown to whoever signs in next.
-      queryClient.clear();
-      queryClient.setQueryData(['auth', 'me'], null);
-    },
-  });
+  const signOut = useCallback(async () => {
+    const result = await authClient.signOut();
+    if (result.error) {
+      throw new Error(result.error.message ?? 'Sign-out could not be completed.');
+    }
+    // Every cached query was fetched under the previous identity, so none of
+    // it may be shown to whoever signs in next.
+    queryClient.clear();
+    queryClient.setQueryData(sessionKey, null);
+  }, [queryClient]);
 
   const permissionSet = useMemo(
     () => new Set(user?.permissions ?? []),
@@ -82,17 +107,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     (permission: string) => permissionSet.has(permission),
     [permissionSet],
   );
-
-  const signIn = useCallback(
-    async (email: string) => {
-      await signInMutation.mutateAsync(email);
-    },
-    [signInMutation],
-  );
-
-  const signOut = useCallback(async () => {
-    await signOutMutation.mutateAsync();
-  }, [signOutMutation]);
 
   const badges = useMemo(() => {
     const data = badgesQuery.data;
@@ -110,14 +124,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
-      isLoading: userQuery.isLoading,
-      methods: methodsQuery.data ?? null,
+      isLoading: sessionQuery.isLoading,
       signIn,
       signOut,
       can,
       badges,
     }),
-    [user, userQuery.isLoading, methodsQuery.data, signIn, signOut, can, badges],
+    [user, sessionQuery.isLoading, signIn, signOut, can, badges],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

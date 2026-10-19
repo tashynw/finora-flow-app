@@ -1,21 +1,31 @@
-/** Reference data administration — vendors, GL accounts and cost centres. */
+/** Reference data administration — vendors, GL accounts, cost centres and departments. */
 
 import { useEffect, useState } from 'react';
 import { BookMarked, Plus } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+import { toast } from 'sonner';
 
 import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
+import { auditReason, optionalEmail, requiredText } from '@/lib/form-schemas';
+import { HookField } from '@/components/form/hook-field';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { DataTable, type Column } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Field, Input, Textarea } from '@/components/ui/field';
+import { Input, Select, Textarea } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
 import { ViewTabs } from '@/components/ui/view-tabs';
 import { ToneBadge } from '@/components/workflow/status-badge';
 import { EmailText } from '@/features/shared/email-text';
 import { PageHeader } from '@/features/shared/page-header';
+import { ActiveChangeModal } from '@/features/administration/active-change-modal';
+import { DepartmentsCatalogue } from '@/features/administration/departments-panel';
+import { useDepartments } from '@/features/administration/use-departments';
 import {
   useAdminCostCentres,
   useAdminGlAccounts,
@@ -34,13 +44,41 @@ import {
   type AdminVendorOut,
 } from '@/features/administration/use-reference-admin';
 
-type Catalogue = 'vendors' | 'gl-accounts' | 'cost-centres';
+type Catalogue = 'vendors' | 'gl-accounts' | 'cost-centres' | 'departments';
 
 const TABS: { id: Catalogue; label: string }[] = [
   { id: 'vendors', label: 'Vendors' },
   { id: 'gl-accounts', label: 'GL accounts' },
   { id: 'cost-centres', label: 'Cost centres' },
+  { id: 'departments', label: 'Departments' },
 ];
+
+/** Matches the Prisma `Currency` enum. The vendor column accepts only these. */
+const VENDOR_CURRENCIES = ['JMD', 'USD'] as const;
+
+const vendorCurrency = z.enum(VENDOR_CURRENCIES, { error: 'Choose JMD or USD.' });
+
+function vendorCurrencyValue(value: string): (typeof VENDOR_CURRENCIES)[number] {
+  return (VENDOR_CURRENCIES as readonly string[]).includes(value) ? (value as (typeof VENDOR_CURRENCIES)[number]) : 'JMD';
+}
+
+const createVendorSchema = z.object({
+  code: requiredText('A code is required.'),
+  name: requiredText('A name is required.'),
+  email: optionalEmail,
+  currency: vendorCurrency,
+  reason: auditReason,
+});
+
+type CreateVendorForm = z.infer<typeof createVendorSchema>;
+
+const emptyVendor: CreateVendorForm = {
+  code: '',
+  name: '',
+  email: '',
+  currency: 'JMD',
+  reason: '',
+};
 
 function CreateVendorModal({
   open,
@@ -50,130 +88,100 @@ function CreateVendorModal({
   onClose: () => void;
 }) {
   const create = useCreateVendor();
-  const [code, setCode] = useState('');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [currency, setCurrency] = useState('JMD');
-  const [reason, setReason] = useState('');
+  const { control, handleSubmit, reset } = useForm<CreateVendorForm>({
+    resolver: zodResolver(createVendorSchema),
+    defaultValues: emptyVendor,
+  });
 
-  function reset() {
-    setCode('');
-    setName('');
-    setEmail('');
-    setCurrency('JMD');
-    setReason('');
+  useEffect(() => {
+    if (!open) return;
+    reset(emptyVendor);
+  }, [open, reset]);
+
+  function close() {
+    reset(emptyVendor);
     create.reset();
+    onClose();
   }
 
+  const onSubmit = handleSubmit((values) => {
+    create.mutate(
+      {
+        code: values.code,
+        name: values.name,
+        email: values.email || null,
+        phone: null,
+        default_currency: values.currency.toUpperCase(),
+        payment_terms_days: null,
+        reason: values.reason,
+      },
+      {
+        onSuccess: () => {
+          toast.success('The vendor has been added.');
+          close();
+        },
+        onError: (error) => {
+          toast.error(errorMessage(error) ?? 'The vendor could not be created.');
+        },
+      },
+    );
+  });
+
   return (
-    <Modal
-      open={open}
-      onClose={() => {
-        reset();
-        onClose();
-      }}
-      title="Add vendor"
-      description="A reason is required. Codes cannot be reused once taken."
-    >
-      <div className="flex flex-col gap-[var(--space-4)]">
-        <Field label="Code">
-          {({ inputId, describedBy, invalid }) => (
-            <Input
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              value={code}
-              onChange={(event) => setCode(event.target.value)}
-            />
+    <Modal open={open} onClose={close} title="Add vendor" description="A reason is required. Codes cannot be reused once taken.">
+      <form className="flex flex-col gap-[var(--space-4)]" onSubmit={onSubmit} noValidate>
+        <HookField control={control} name="code" label="Code" required>
+          {({ inputId, describedBy, invalid }, field) => (
+            <Input id={inputId} aria-describedby={describedBy} invalid={invalid} {...field} />
           )}
-        </Field>
-        <Field label="Name">
-          {({ inputId, describedBy, invalid }) => (
-            <Input
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-            />
+        </HookField>
+        <HookField control={control} name="name" label="Name" required>
+          {({ inputId, describedBy, invalid }, field) => (
+            <Input id={inputId} aria-describedby={describedBy} invalid={invalid} {...field} />
           )}
-        </Field>
-        <Field label="Email" help="Optional.">
-          {({ inputId, describedBy, invalid }) => (
-            <Input
-              id={inputId}
-              type="email"
-              aria-describedby={describedBy}
-              invalid={invalid}
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-            />
+        </HookField>
+        <HookField control={control} name="email" label="Email" help="Optional.">
+          {({ inputId, describedBy, invalid }, field) => (
+            <Input id={inputId} type="email" aria-describedby={describedBy} invalid={invalid} {...field} />
           )}
-        </Field>
-        <Field label="Currency">
-          {({ inputId, describedBy, invalid }) => (
-            <Input
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              maxLength={3}
-              value={currency}
-              onChange={(event) => setCurrency(event.target.value.toUpperCase())}
-            />
+        </HookField>
+        <HookField control={control} name="currency" label="Currency" required>
+          {({ inputId, describedBy, invalid }, field) => (
+            <Select id={inputId} aria-describedby={describedBy} invalid={invalid} {...field}>
+              {VENDOR_CURRENCIES.map((currency) => (
+                <option key={currency} value={currency}>
+                  {currency}
+                </option>
+              ))}
+            </Select>
           )}
-        </Field>
-        <Field label="Why">
-          {({ inputId, describedBy, invalid }) => (
-            <Textarea
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              rows={3}
-              value={reason}
-              onChange={(event) => setReason(event.target.value)}
-            />
+        </HookField>
+        <HookField control={control} name="reason" label="Why" required>
+          {({ inputId, describedBy, invalid }, field) => (
+            <Textarea id={inputId} aria-describedby={describedBy} invalid={invalid} rows={3} {...field} />
           )}
-        </Field>
+        </HookField>
         {create.isError ? (
           <p role="alert" className="m-0 text-[var(--color-danger-700)]">
             {errorMessage(create.error) ?? 'The vendor could not be created.'}
           </p>
         ) : null}
-        <Button
-          type="button"
-          disabled={
-            create.isPending ||
-            !code.trim() ||
-            !name.trim() ||
-            currency.trim().length !== 3 ||
-            reason.trim().length < 3
-          }
-          onClick={() =>
-            create.mutate(
-              {
-                code: code.trim(),
-                name: name.trim(),
-                email: email.trim() || null,
-                phone: null,
-                default_currency: currency.trim().toUpperCase(),
-                payment_terms_days: null,
-                reason: reason.trim(),
-              },
-              {
-                onSuccess: () => {
-                  reset();
-                  onClose();
-                },
-              },
-            )
-          }
-        >
-          {create.isPending ? 'Adding…' : 'Add vendor'}
+        <Button type="submit" isLoading={create.isPending} loadingLabel="Adding">
+          Add vendor
         </Button>
-      </div>
+      </form>
     </Modal>
   );
 }
+
+const editVendorSchema = z.object({
+  name: requiredText('A name is required.'),
+  email: optionalEmail,
+  currency: vendorCurrency,
+  reason: auditReason,
+});
+
+type EditVendorForm = z.infer<typeof editVendorSchema>;
 
 function EditVendorModal({
   vendor,
@@ -183,113 +191,126 @@ function EditVendorModal({
   onClose: () => void;
 }) {
   const update = useUpdateVendor();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [currency, setCurrency] = useState('JMD');
-  const [reason, setReason] = useState('');
-  const open = vendor !== null;
+  const { control, handleSubmit, reset } = useForm<EditVendorForm>({
+    resolver: zodResolver(editVendorSchema),
+    defaultValues: { name: '', email: '', currency: 'JMD', reason: '' },
+  });
 
   useEffect(() => {
-    if (vendor) {
-      setName(vendor.name);
-      setEmail(vendor.email ?? '');
-      setCurrency(vendor.default_currency);
-      setReason('');
-      update.reset();
-    }
-  }, [vendor, update]);
+    if (!vendor) return;
+    reset({
+      name: vendor.name,
+      email: vendor.email ?? '',
+      currency: vendorCurrencyValue(vendor.default_currency),
+      reason: '',
+    });
+    update.reset();
+  }, [vendor, reset, update.reset]);
+
+  const onSubmit = handleSubmit((values) => {
+    if (!vendor) return;
+    update.mutate(
+      {
+        id: vendor.id,
+        body: {
+          name: values.name,
+          email: values.email || null,
+          default_currency: values.currency.toUpperCase(),
+          reason: values.reason,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success('The vendor has been saved.');
+          onClose();
+        },
+        onError: (error) => {
+          toast.error(errorMessage(error) ?? 'The vendor could not be saved.');
+        },
+      },
+    );
+  });
 
   return (
     <Modal
-      open={open}
+      open={vendor !== null}
       onClose={onClose}
       title={vendor ? `Edit ${vendor.code}` : 'Edit vendor'}
       description="Changing a vendor is audited. Bank details are not edited here."
     >
       {vendor ? (
-        <div className="flex flex-col gap-[var(--space-4)]">
-          <Field label="Name">
-            {({ inputId, describedBy, invalid }) => (
-              <Input
-                id={inputId}
-                aria-describedby={describedBy}
-                invalid={invalid}
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-              />
+        <form className="flex flex-col gap-[var(--space-4)]" onSubmit={onSubmit} noValidate>
+          <HookField control={control} name="name" label="Name" required>
+            {({ inputId, describedBy, invalid }, field) => (
+              <Input id={inputId} aria-describedby={describedBy} invalid={invalid} {...field} />
             )}
-          </Field>
-          <Field label="Email" help="Optional.">
-            {({ inputId, describedBy, invalid }) => (
-              <Input
-                id={inputId}
-                type="email"
-                aria-describedby={describedBy}
-                invalid={invalid}
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-              />
+          </HookField>
+          <HookField control={control} name="email" label="Email" help="Optional.">
+            {({ inputId, describedBy, invalid }, field) => (
+              <Input id={inputId} type="email" aria-describedby={describedBy} invalid={invalid} {...field} />
             )}
-          </Field>
-          <Field label="Currency">
-            {({ inputId, describedBy, invalid }) => (
-              <Input
-                id={inputId}
-                aria-describedby={describedBy}
-                invalid={invalid}
-                maxLength={3}
-                value={currency}
-                onChange={(event) => setCurrency(event.target.value.toUpperCase())}
-              />
+          </HookField>
+          <HookField control={control} name="currency" label="Currency" required>
+            {({ inputId, describedBy, invalid }, field) => (
+              <Select id={inputId} aria-describedby={describedBy} invalid={invalid} {...field}>
+                {VENDOR_CURRENCIES.map((currency) => (
+                  <option key={currency} value={currency}>
+                    {currency}
+                  </option>
+                ))}
+              </Select>
             )}
-          </Field>
-          <Field label="Why">
-            {({ inputId, describedBy, invalid }) => (
-              <Textarea
-                id={inputId}
-                aria-describedby={describedBy}
-                invalid={invalid}
-                rows={3}
-                value={reason}
-                onChange={(event) => setReason(event.target.value)}
-              />
+          </HookField>
+          <HookField control={control} name="reason" label="Why" required>
+            {({ inputId, describedBy, invalid }, field) => (
+              <Textarea id={inputId} aria-describedby={describedBy} invalid={invalid} rows={3} {...field} />
             )}
-          </Field>
+          </HookField>
           {update.isError ? (
             <p role="alert" className="m-0 text-[var(--color-danger-700)]">
               {errorMessage(update.error) ?? 'The vendor could not be saved.'}
             </p>
           ) : null}
-          <Button
-            type="button"
-            disabled={
-              update.isPending ||
-              !name.trim() ||
-              currency.trim().length !== 3 ||
-              reason.trim().length < 3
-            }
-            onClick={() =>
-              update.mutate(
-                {
-                  id: vendor.id,
-                  body: {
-                    name: name.trim(),
-                    email: email.trim() || null,
-                    default_currency: currency.trim().toUpperCase(),
-                    reason: reason.trim(),
-                  },
-                },
-                { onSuccess: () => onClose() },
-              )
-            }
-          >
-            {update.isPending ? 'Saving…' : 'Save vendor'}
+          <Button type="submit" isLoading={update.isPending} loadingLabel="Saving">
+            Save vendor
           </Button>
-        </div>
+        </form>
       ) : null}
     </Modal>
   );
 }
+
+const codedRecordSchema = z.object({
+  code: requiredText('A code is required.'),
+  name: requiredText('A name is required.'),
+  reason: auditReason,
+});
+
+type CodedRecordForm = z.infer<typeof codedRecordSchema>;
+
+const emptyCodedRecord: CodedRecordForm = { code: '', name: '', reason: '' };
+
+const namedRecordSchema = z.object({
+  name: requiredText('A name is required.'),
+  reason: auditReason,
+});
+
+type NamedRecordForm = z.infer<typeof namedRecordSchema>;
+
+const costCentreSchema = z.object({
+  code: requiredText('A code is required.'),
+  name: requiredText('A name is required.'),
+  department: z.string().trim(),
+  reason: auditReason,
+});
+
+type CostCentreForm = z.infer<typeof costCentreSchema>;
+
+const emptyCostCentre: CostCentreForm = { code: '', name: '', department: '', reason: '' };
+
+const editCostCentreSchema = costCentreSchema.omit({ code: true });
+
+type EditCostCentreForm = z.infer<typeof editCostCentreSchema>;
 
 function CreateGlAccountModal({
   open,
@@ -299,94 +320,61 @@ function CreateGlAccountModal({
   onClose: () => void;
 }) {
   const create = useCreateGlAccount();
-  const [code, setCode] = useState('');
-  const [name, setName] = useState('');
-  const [reason, setReason] = useState('');
+  const { control, handleSubmit, reset } = useForm<CodedRecordForm>({
+    resolver: zodResolver(codedRecordSchema),
+    defaultValues: emptyCodedRecord,
+  });
 
-  function reset() {
-    setCode('');
-    setName('');
-    setReason('');
+  useEffect(() => {
+    if (!open) return;
+    reset(emptyCodedRecord);
+  }, [open, reset]);
+
+  function close() {
+    reset(emptyCodedRecord);
     create.reset();
+    onClose();
   }
 
+  const onSubmit = handleSubmit((values) => {
+    create.mutate(values, {
+      onSuccess: () => {
+        toast.success('The GL account has been added.');
+        close();
+      },
+      onError: (error) => {
+        toast.error(errorMessage(error) ?? 'The GL account could not be created.');
+      },
+    });
+  });
+
   return (
-    <Modal
-      open={open}
-      onClose={() => {
-        reset();
-        onClose();
-      }}
-      title="Add GL account"
-      description="A reason is required. Codes cannot be reused once taken."
-    >
-      <div className="flex flex-col gap-[var(--space-4)]">
-        <Field label="Code">
-          {({ inputId, describedBy, invalid }) => (
-            <Input
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              value={code}
-              onChange={(event) => setCode(event.target.value)}
-            />
+    <Modal open={open} onClose={close} title="Add GL account" description="A reason is required. Codes cannot be reused once taken.">
+      <form className="flex flex-col gap-[var(--space-4)]" onSubmit={onSubmit} noValidate>
+        <HookField control={control} name="code" label="Code" required>
+          {({ inputId, describedBy, invalid }, field) => (
+            <Input id={inputId} aria-describedby={describedBy} invalid={invalid} {...field} />
           )}
-        </Field>
-        <Field label="Name">
-          {({ inputId, describedBy, invalid }) => (
-            <Input
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-            />
+        </HookField>
+        <HookField control={control} name="name" label="Name" required>
+          {({ inputId, describedBy, invalid }, field) => (
+            <Input id={inputId} aria-describedby={describedBy} invalid={invalid} {...field} />
           )}
-        </Field>
-        <Field label="Why">
-          {({ inputId, describedBy, invalid }) => (
-            <Textarea
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              rows={3}
-              value={reason}
-              onChange={(event) => setReason(event.target.value)}
-            />
+        </HookField>
+        <HookField control={control} name="reason" label="Why" required>
+          {({ inputId, describedBy, invalid }, field) => (
+            <Textarea id={inputId} aria-describedby={describedBy} invalid={invalid} rows={3} {...field} />
           )}
-        </Field>
+        </HookField>
         {create.isError ? (
           <p role="alert" className="m-0 text-[var(--color-danger-700)]">
             {errorMessage(create.error) ?? 'The GL account could not be created.'}
           </p>
         ) : null}
-        <Button
-          type="button"
-          disabled={
-            create.isPending ||
-            !code.trim() ||
-            !name.trim() ||
-            reason.trim().length < 3
-          }
-          onClick={() =>
-            create.mutate(
-              {
-                code: code.trim(),
-                name: name.trim(),
-                reason: reason.trim(),
-              },
-              {
-                onSuccess: () => {
-                  reset();
-                  onClose();
-                },
-              },
-            )
-          }
-        >
-          {create.isPending ? 'Adding…' : 'Add GL account'}
+        <Button type="submit" isLoading={create.isPending} loadingLabel="Adding">
+          Add GL account
         </Button>
-      </div>
+      </form>
     </Modal>
   );
 }
@@ -399,71 +387,61 @@ function EditGlAccountModal({
   onClose: () => void;
 }) {
   const update = useUpdateGlAccount();
-  const [name, setName] = useState('');
-  const [reason, setReason] = useState('');
-  const open = account !== null;
+  const { control, handleSubmit, reset } = useForm<NamedRecordForm>({
+    resolver: zodResolver(namedRecordSchema),
+    defaultValues: { name: '', reason: '' },
+  });
 
   useEffect(() => {
-    if (account) {
-      setName(account.name);
-      setReason('');
-      update.reset();
-    }
-  }, [account, update]);
+    if (!account) return;
+    reset({ name: account.name, reason: '' });
+    update.reset();
+  }, [account, reset, update.reset]);
+
+  const onSubmit = handleSubmit((values) => {
+    if (!account) return;
+    update.mutate(
+      { id: account.id, body: values },
+      {
+        onSuccess: () => {
+          toast.success('The GL account has been saved.');
+          onClose();
+        },
+        onError: (error) => {
+          toast.error(errorMessage(error) ?? 'The GL account could not be saved.');
+        },
+      },
+    );
+  });
 
   return (
     <Modal
-      open={open}
+      open={account !== null}
       onClose={onClose}
       title={account ? `Edit ${account.code}` : 'Edit GL account'}
       description="Changing a GL account is audited."
     >
       {account ? (
-        <div className="flex flex-col gap-[var(--space-4)]">
-          <Field label="Name">
-            {({ inputId, describedBy, invalid }) => (
-              <Input
-                id={inputId}
-                aria-describedby={describedBy}
-                invalid={invalid}
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-              />
+        <form className="flex flex-col gap-[var(--space-4)]" onSubmit={onSubmit} noValidate>
+          <HookField control={control} name="name" label="Name" required>
+            {({ inputId, describedBy, invalid }, field) => (
+              <Input id={inputId} aria-describedby={describedBy} invalid={invalid} {...field} />
             )}
-          </Field>
-          <Field label="Why">
-            {({ inputId, describedBy, invalid }) => (
-              <Textarea
-                id={inputId}
-                aria-describedby={describedBy}
-                invalid={invalid}
-                rows={3}
-                value={reason}
-                onChange={(event) => setReason(event.target.value)}
-              />
+          </HookField>
+          <HookField control={control} name="reason" label="Why" required>
+            {({ inputId, describedBy, invalid }, field) => (
+              <Textarea id={inputId} aria-describedby={describedBy} invalid={invalid} rows={3} {...field} />
             )}
-          </Field>
+          </HookField>
           {update.isError ? (
             <p role="alert" className="m-0 text-[var(--color-danger-700)]">
               {errorMessage(update.error) ?? 'The GL account could not be saved.'}
             </p>
           ) : null}
-          <Button
-            type="button"
-            disabled={update.isPending || !name.trim() || reason.trim().length < 3}
-            onClick={() =>
-              update.mutate(
-                {
-                  id: account.id,
-                  body: { name: name.trim(), reason: reason.trim() },
-                },
-                { onSuccess: () => onClose() },
-              )
-            }
-          >
-            {update.isPending ? 'Saving…' : 'Save GL account'}
+          <Button type="submit" isLoading={update.isPending} loadingLabel="Saving">
+            Save GL account
           </Button>
-        </div>
+        </form>
       ) : null}
     </Modal>
   );
@@ -477,108 +455,88 @@ function CreateCostCentreModal({
   onClose: () => void;
 }) {
   const create = useCreateCostCentre();
-  const [code, setCode] = useState('');
-  const [name, setName] = useState('');
-  const [department, setDepartment] = useState('');
-  const [reason, setReason] = useState('');
+  const departments = useDepartments(false, open);
+  const { control, handleSubmit, reset } = useForm<CostCentreForm>({
+    resolver: zodResolver(costCentreSchema),
+    defaultValues: emptyCostCentre,
+  });
 
-  function reset() {
-    setCode('');
-    setName('');
-    setDepartment('');
-    setReason('');
+  useEffect(() => {
+    if (!open) return;
+    reset(emptyCostCentre);
+  }, [open, reset]);
+
+  function close() {
+    reset(emptyCostCentre);
     create.reset();
+    onClose();
   }
 
+  const onSubmit = handleSubmit((values) => {
+    create.mutate(
+      {
+        code: values.code,
+        name: values.name,
+        department: values.department || null,
+        reason: values.reason,
+      },
+      {
+        onSuccess: () => {
+          toast.success('The cost centre has been added.');
+          close();
+        },
+        onError: (error) => {
+          toast.error(errorMessage(error) ?? 'The cost centre could not be created.');
+        },
+      },
+    );
+  });
+
   return (
-    <Modal
-      open={open}
-      onClose={() => {
-        reset();
-        onClose();
-      }}
-      title="Add cost centre"
-      description="A reason is required. Codes cannot be reused once taken."
-    >
-      <div className="flex flex-col gap-[var(--space-4)]">
-        <Field label="Code">
-          {({ inputId, describedBy, invalid }) => (
-            <Input
+    <Modal open={open} onClose={close} title="Add cost centre" description="A reason is required. Codes cannot be reused once taken.">
+      <form className="flex flex-col gap-[var(--space-4)]" onSubmit={onSubmit} noValidate>
+        <HookField control={control} name="code" label="Code" required>
+          {({ inputId, describedBy, invalid }, field) => (
+            <Input id={inputId} aria-describedby={describedBy} invalid={invalid} {...field} />
+          )}
+        </HookField>
+        <HookField control={control} name="name" label="Name" required>
+          {({ inputId, describedBy, invalid }, field) => (
+            <Input id={inputId} aria-describedby={describedBy} invalid={invalid} {...field} />
+          )}
+        </HookField>
+        <HookField control={control} name="department" label="Department" help="Optional.">
+          {({ inputId, describedBy, invalid }, field) => (
+            <select
               id={inputId}
               aria-describedby={describedBy}
-              invalid={invalid}
-              value={code}
-              onChange={(event) => setCode(event.target.value)}
-            />
+              aria-invalid={invalid || undefined}
+              className="h-10 rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3"
+              {...field}
+            >
+              <option value="">No department</option>
+              {(departments.data ?? []).map((department) => (
+                <option key={department.id} value={department.id}>
+                  {department.name}
+                </option>
+              ))}
+            </select>
           )}
-        </Field>
-        <Field label="Name">
-          {({ inputId, describedBy, invalid }) => (
-            <Input
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-            />
+        </HookField>
+        <HookField control={control} name="reason" label="Why" required>
+          {({ inputId, describedBy, invalid }, field) => (
+            <Textarea id={inputId} aria-describedby={describedBy} invalid={invalid} rows={3} {...field} />
           )}
-        </Field>
-        <Field label="Department" help="Optional.">
-          {({ inputId, describedBy, invalid }) => (
-            <Input
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              value={department}
-              onChange={(event) => setDepartment(event.target.value)}
-            />
-          )}
-        </Field>
-        <Field label="Why">
-          {({ inputId, describedBy, invalid }) => (
-            <Textarea
-              id={inputId}
-              aria-describedby={describedBy}
-              invalid={invalid}
-              rows={3}
-              value={reason}
-              onChange={(event) => setReason(event.target.value)}
-            />
-          )}
-        </Field>
+        </HookField>
         {create.isError ? (
           <p role="alert" className="m-0 text-[var(--color-danger-700)]">
             {errorMessage(create.error) ?? 'The cost centre could not be created.'}
           </p>
         ) : null}
-        <Button
-          type="button"
-          disabled={
-            create.isPending ||
-            !code.trim() ||
-            !name.trim() ||
-            reason.trim().length < 3
-          }
-          onClick={() =>
-            create.mutate(
-              {
-                code: code.trim(),
-                name: name.trim(),
-                department: department.trim() || null,
-                reason: reason.trim(),
-              },
-              {
-                onSuccess: () => {
-                  reset();
-                  onClose();
-                },
-              },
-            )
-          }
-        >
-          {create.isPending ? 'Adding…' : 'Add cost centre'}
+        <Button type="submit" isLoading={create.isPending} loadingLabel="Adding">
+          Add cost centre
         </Button>
-      </div>
+      </form>
     </Modal>
   );
 }
@@ -591,88 +549,87 @@ function EditCostCentreModal({
   onClose: () => void;
 }) {
   const update = useUpdateCostCentre();
-  const [name, setName] = useState('');
-  const [department, setDepartment] = useState('');
-  const [reason, setReason] = useState('');
-  const open = centre !== null;
+  const departments = useDepartments(false, centre !== null);
+  const { control, handleSubmit, reset } = useForm<EditCostCentreForm>({
+    resolver: zodResolver(editCostCentreSchema),
+    defaultValues: { name: '', department: '', reason: '' },
+  });
 
   useEffect(() => {
-    if (centre) {
-      setName(centre.name);
-      setDepartment(centre.department ?? '');
-      setReason('');
-      update.reset();
-    }
-  }, [centre, update]);
+    if (!centre) return;
+    reset({ name: centre.name, department: centre.departmentId ?? '', reason: '' });
+    update.reset();
+  }, [centre, reset, update.reset]);
+
+  const onSubmit = handleSubmit((values) => {
+    if (!centre) return;
+    update.mutate(
+      {
+        id: centre.id,
+        body: {
+          name: values.name,
+          department: values.department || null,
+          reason: values.reason,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success('The cost centre has been saved.');
+          onClose();
+        },
+        onError: (error) => {
+          toast.error(errorMessage(error) ?? 'The cost centre could not be saved.');
+        },
+      },
+    );
+  });
 
   return (
     <Modal
-      open={open}
+      open={centre !== null}
       onClose={onClose}
       title={centre ? `Edit ${centre.code}` : 'Edit cost centre'}
       description="Changing a cost centre is audited."
     >
       {centre ? (
-        <div className="flex flex-col gap-[var(--space-4)]">
-          <Field label="Name">
-            {({ inputId, describedBy, invalid }) => (
-              <Input
+        <form className="flex flex-col gap-[var(--space-4)]" onSubmit={onSubmit} noValidate>
+          <HookField control={control} name="name" label="Name" required>
+            {({ inputId, describedBy, invalid }, field) => (
+              <Input id={inputId} aria-describedby={describedBy} invalid={invalid} {...field} />
+            )}
+          </HookField>
+          <HookField control={control} name="department" label="Department" help="Optional.">
+            {({ inputId, describedBy, invalid }, field) => (
+              <select
                 id={inputId}
                 aria-describedby={describedBy}
-                invalid={invalid}
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-              />
+                aria-invalid={invalid || undefined}
+                className="h-10 rounded-[var(--radius-control)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3"
+                {...field}
+              >
+                <option value="">No department</option>
+                {(departments.data ?? []).map((department) => (
+                  <option key={department.id} value={department.id}>
+                    {department.name}
+                  </option>
+                ))}
+              </select>
             )}
-          </Field>
-          <Field label="Department" help="Optional.">
-            {({ inputId, describedBy, invalid }) => (
-              <Input
-                id={inputId}
-                aria-describedby={describedBy}
-                invalid={invalid}
-                value={department}
-                onChange={(event) => setDepartment(event.target.value)}
-              />
+          </HookField>
+          <HookField control={control} name="reason" label="Why" required>
+            {({ inputId, describedBy, invalid }, field) => (
+              <Textarea id={inputId} aria-describedby={describedBy} invalid={invalid} rows={3} {...field} />
             )}
-          </Field>
-          <Field label="Why">
-            {({ inputId, describedBy, invalid }) => (
-              <Textarea
-                id={inputId}
-                aria-describedby={describedBy}
-                invalid={invalid}
-                rows={3}
-                value={reason}
-                onChange={(event) => setReason(event.target.value)}
-              />
-            )}
-          </Field>
+          </HookField>
           {update.isError ? (
             <p role="alert" className="m-0 text-[var(--color-danger-700)]">
               {errorMessage(update.error) ?? 'The cost centre could not be saved.'}
             </p>
           ) : null}
-          <Button
-            type="button"
-            disabled={update.isPending || !name.trim() || reason.trim().length < 3}
-            onClick={() =>
-              update.mutate(
-                {
-                  id: centre.id,
-                  body: {
-                    name: name.trim(),
-                    department: department.trim() || null,
-                    reason: reason.trim(),
-                  },
-                },
-                { onSuccess: () => onClose() },
-              )
-            }
-          >
-            {update.isPending ? 'Saving…' : 'Save cost centre'}
+          <Button type="submit" isLoading={update.isPending} loadingLabel="Saving">
+            Save cost centre
           </Button>
-        </div>
+        </form>
       ) : null}
     </Modal>
   );
@@ -687,16 +644,14 @@ interface CatalogueRow {
 
 /** Code, name and status are shared; each catalogue adds its own middle columns. */
 function catalogueColumns<T extends CatalogueRow>({
-  noun,
   extra,
   onEdit,
   onToggle,
   toggling,
 }: {
-  noun: string;
   extra: Column<T>[];
   onEdit: (row: T) => void;
-  onToggle: (row: T, reason: string) => void;
+  onToggle: (row: T) => void;
   toggling: boolean;
 }): Column<T>[] {
   return [
@@ -747,15 +702,7 @@ function catalogueColumns<T extends CatalogueRow>({
             variant="ghost"
             disabled={toggling}
             className={cn(!row.is_active && 'text-[var(--color-success-700)]')}
-            onClick={() => {
-              const reason = window.prompt(
-                row.is_active
-                  ? `Why is this ${noun} being deactivated?`
-                  : `Why is this ${noun} being reactivated?`,
-              );
-              if (!reason || reason.trim().length < 3) return;
-              onToggle(row, reason.trim());
-            }}
+            onClick={() => onToggle(row)}
           >
             {row.is_active ? 'Deactivate' : 'Reactivate'}
           </Button>
@@ -828,6 +775,12 @@ export function ReferenceDataPage() {
   const [editingVendor, setEditingVendor] = useState<AdminVendorOut | null>(null);
   const [editingAccount, setEditingAccount] = useState<AdminGlAccountOut | null>(null);
   const [editingCentre, setEditingCentre] = useState<AdminCostCentreOut | null>(null);
+  const [statusTarget, setStatusTarget] = useState<
+    | { noun: 'vendor'; row: AdminVendorOut }
+    | { noun: 'GL account'; row: AdminGlAccountOut }
+    | { noun: 'cost centre'; row: AdminCostCentreOut }
+    | null
+  >(null);
 
   const vendors = useAdminVendors(includeInactive);
   const accounts = useAdminGlAccounts(includeInactive);
@@ -846,10 +799,11 @@ export function ReferenceDataPage() {
       ? 'Add vendor'
       : tab === 'gl-accounts'
         ? 'Add GL account'
-        : 'Add cost centre';
+        : tab === 'departments'
+          ? 'Add department'
+          : 'Add cost centre';
 
   const vendorColumns = catalogueColumns<AdminVendorOut>({
-    noun: 'vendor',
     extra: [
       {
         key: 'email',
@@ -869,22 +823,18 @@ export function ReferenceDataPage() {
       },
     ],
     onEdit: setEditingVendor,
-    onToggle: (row, reason) =>
-      setVendorActive.mutate({ id: row.id, body: { is_active: !row.is_active, reason } }),
+    onToggle: (row) => setStatusTarget({ noun: 'vendor', row }),
     toggling: setVendorActive.isPending,
   });
 
   const accountColumns = catalogueColumns<AdminGlAccountOut>({
-    noun: 'GL account',
     extra: [],
     onEdit: setEditingAccount,
-    onToggle: (row, reason) =>
-      setAccountActive.mutate({ id: row.id, body: { is_active: !row.is_active, reason } }),
+    onToggle: (row) => setStatusTarget({ noun: 'GL account', row }),
     toggling: setAccountActive.isPending,
   });
 
   const centreColumns = catalogueColumns<AdminCostCentreOut>({
-    noun: 'cost centre',
     extra: [
       {
         key: 'department',
@@ -899,8 +849,7 @@ export function ReferenceDataPage() {
       },
     ],
     onEdit: setEditingCentre,
-    onToggle: (row, reason) =>
-      setCentreActive.mutate({ id: row.id, body: { is_active: !row.is_active, reason } }),
+    onToggle: (row) => setStatusTarget({ noun: 'cost centre', row }),
     toggling: setCentreActive.isPending,
   });
 
@@ -908,7 +857,7 @@ export function ReferenceDataPage() {
     <>
       <PageHeader
         title="Reference data"
-        purpose="Vendors, GL accounts and cost centres. Deactivate rather than delete so historical documents still resolve."
+        purpose="Vendors, GL accounts, cost centres and departments. Deactivate rather than delete so historical documents still resolve."
         toolbar={
           <div className="flex flex-wrap items-center gap-[var(--space-3)]">
             <ViewTabs
@@ -973,6 +922,14 @@ export function ReferenceDataPage() {
         />
       ) : null}
 
+      {tab === 'departments' ? (
+        <DepartmentsCatalogue
+          includeInactive={includeInactive}
+          creating={creating}
+          onCloseCreate={() => setCreating(false)}
+        />
+      ) : null}
+
       {tab === 'vendors' ? (
         <CreateVendorModal open={creating} onClose={() => setCreating(false)} />
       ) : null}
@@ -991,6 +948,62 @@ export function ReferenceDataPage() {
       <EditCostCentreModal
         centre={editingCentre}
         onClose={() => setEditingCentre(null)}
+      />
+      <ActiveChangeModal
+        open={statusTarget !== null}
+        title={
+          statusTarget
+            ? `${statusTarget.row.is_active ? 'Deactivate' : 'Reactivate'} ${statusTarget.noun}`
+            : 'Deactivate'
+        }
+        description={
+          statusTarget
+            ? statusTarget.row.is_active
+              ? `Are you sure you want to deactivate ${statusTarget.row.name} (${statusTarget.row.code})? Historical documents keep it. New records cannot use it until it is reactivated.`
+              : `Are you sure you want to reactivate ${statusTarget.row.name} (${statusTarget.row.code})? New records can use it again.`
+            : undefined
+        }
+        nextActive={statusTarget ? !statusTarget.row.is_active : false}
+        confirmLabel={
+          statusTarget
+            ? `${statusTarget.row.is_active ? 'Deactivate' : 'Reactivate'} ${statusTarget.noun}`
+            : 'Deactivate'
+        }
+        reasonPlaceholder={
+          statusTarget
+            ? `Enter a reason for ${statusTarget.row.is_active ? 'deactivating' : 'reactivating'} this ${statusTarget.noun}`
+            : undefined
+        }
+        pending={
+          setVendorActive.isPending || setAccountActive.isPending || setCentreActive.isPending
+        }
+        onClose={() => setStatusTarget(null)}
+        onConfirm={(reason) => {
+          if (!statusTarget) return;
+          const body = { is_active: !statusTarget.row.is_active, reason };
+          const done = {
+            onSuccess: () => {
+              toast.success(
+                statusTarget.row.is_active
+                  ? `The ${statusTarget.noun} has been deactivated.`
+                  : `The ${statusTarget.noun} has been reactivated.`,
+              );
+              setStatusTarget(null);
+            },
+            onError: (error: unknown) => {
+              toast.error(
+                errorMessage(error) ?? `The ${statusTarget.noun} could not be changed.`,
+              );
+            },
+          };
+          if (statusTarget.noun === 'vendor') {
+            setVendorActive.mutate({ id: statusTarget.row.id, body }, done);
+          } else if (statusTarget.noun === 'GL account') {
+            setAccountActive.mutate({ id: statusTarget.row.id, body }, done);
+          } else {
+            setCentreActive.mutate({ id: statusTarget.row.id, body }, done);
+          }
+        }}
       />
     </>
   );

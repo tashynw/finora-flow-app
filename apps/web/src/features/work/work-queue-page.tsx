@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react';
 import { BookmarkPlus, CheckCheck, Trash2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
 import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
 import { formatMoment } from '@/lib/dates';
+import { requiredText } from '@/lib/form-schemas';
+import { HookField } from '@/components/form/hook-field';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { DataTable, type Column } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Field, Input } from '@/components/ui/field';
+import { Input } from '@/components/ui/field';
 import { Modal } from '@/components/ui/modal';
 import { SkeletonText } from '@/components/ui/skeleton';
 import { ToneBadge } from '@/components/workflow/status-badge';
@@ -127,6 +132,12 @@ function kindsFromView(view: SavedViewOut): string[] {
   return raw.filter((item): item is string => typeof item === 'string');
 }
 
+const saveViewSchema = z.object({
+  name: requiredText('A name is required.'),
+});
+
+type SaveViewForm = z.infer<typeof saveViewSchema>;
+
 function SaveViewModal({
   open,
   onClose,
@@ -137,14 +148,23 @@ function SaveViewModal({
   kinds: string[];
 }) {
   const create = useCreateSavedView();
-  const [name, setName] = useState('');
+  const { control, handleSubmit, reset } = useForm<SaveViewForm>({
+    resolver: zodResolver(saveViewSchema),
+    defaultValues: { name: '' },
+  });
 
   useEffect(() => {
-    if (open) {
-      setName('');
-      create.reset();
-    }
-  }, [open, create]);
+    if (!open) return;
+    reset({ name: '' });
+    create.reset();
+  }, [open, reset, create]);
+
+  const onSubmit = handleSubmit((values) => {
+    create.mutate(
+      { scope: 'work', name: values.name, definition: { kinds } },
+      { onSuccess: () => onClose() },
+    );
+  });
 
   return (
     <Modal
@@ -154,41 +174,27 @@ function SaveViewModal({
       description="Keeps the kinds you have turned on. Only you can see it."
       busy={create.isPending}
     >
-      <div className="flex flex-col gap-[var(--space-4)]">
-        <Field label="Name">
-          {({ inputId, describedBy, invalid }) => (
+      <form className="flex flex-col gap-[var(--space-4)]" onSubmit={onSubmit} noValidate>
+        <HookField control={control} name="name" label="Name" required>
+          {({ inputId, describedBy, invalid }, field) => (
             <Input
               id={inputId}
               aria-describedby={describedBy}
               invalid={invalid}
-              value={name}
-              onChange={(event) => setName(event.target.value)}
               placeholder="Approvals only"
+              {...field}
             />
           )}
-        </Field>
+        </HookField>
         {create.isError ? (
           <p role="alert" className="m-0 text-[var(--color-danger-700)]">
             {errorMessage(create.error) ?? 'The view could not be saved.'}
           </p>
         ) : null}
-        <Button
-          type="button"
-          disabled={create.isPending || name.trim().length < 1}
-          onClick={() =>
-            create.mutate(
-              {
-                scope: 'work',
-                name: name.trim(),
-                definition: { kinds },
-              },
-              { onSuccess: () => onClose() },
-            )
-          }
-        >
-          {create.isPending ? 'Saving…' : 'Save view'}
+        <Button type="submit" isLoading={create.isPending} loadingLabel="Saving">
+          Save view
         </Button>
-      </div>
+      </form>
     </Modal>
   );
 }

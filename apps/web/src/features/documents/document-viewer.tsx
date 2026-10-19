@@ -13,6 +13,35 @@ import { useViewerUrl } from '@/features/documents/use-documents';
 
 const PDF_TYPES = new Set(['application/pdf', 'application/x-pdf']);
 
+const IMAGE_EXTENSIONS = new Set([
+  'png',
+  'jpg',
+  'jpeg',
+  'gif',
+  'webp',
+  'bmp',
+  'svg',
+  'avif',
+  'tif',
+  'tiff',
+  'heic',
+  'heif',
+]);
+
+function mediaType(contentType: string): string {
+  return contentType.split(';')[0]?.trim().toLowerCase() ?? '';
+}
+
+function fileExtension(filename: string): string {
+  return filename.split('.').pop()?.trim().toLowerCase() ?? '';
+}
+
+function isImageDocument(contentType: string, filename: string): boolean {
+  const type = mediaType(contentType);
+  if (type.startsWith('image/')) return true;
+  return IMAGE_EXTENSIONS.has(fileExtension(filename));
+}
+
 const ZOOM_STEPS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3] as const;
 
 export interface DocumentViewerProps {
@@ -42,7 +71,8 @@ export function DocumentViewer({
   className,
 }: DocumentViewerProps) {
   const link = useViewerUrl(documentId);
-  const isPdf = PDF_TYPES.has(contentType.split(';')[0]?.trim().toLowerCase() ?? '');
+  const isPdf = PDF_TYPES.has(mediaType(contentType));
+  const isImage = isImageDocument(contentType, filename);
 
   if (link.isLoading) {
     return (
@@ -66,6 +96,10 @@ export function DocumentViewer({
         className={className}
       />
     );
+  }
+
+  if (isImage) {
+    return <ImagePane url={link.data.url} filename={filename} className={className} />;
   }
 
   return isPdf ? (
@@ -348,6 +382,48 @@ function PdfPane({
   );
 }
 
+// ---------------------------------------------------------------- image pane
+
+function ImagePane({
+  url,
+  filename,
+  className,
+}: {
+  url: string;
+  filename: string;
+  className?: string | undefined;
+}) {
+  const [failure, setFailure] = useState(false);
+
+  if (failure) {
+    return (
+      <ViewerNotice
+        icon={FileWarning}
+        title="This image could not be displayed"
+        detail="The stored file did not load as a picture."
+        nextStep="The stored file is unchanged and can still be downloaded."
+        className={className}
+      />
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        'flex min-h-0 flex-1 items-center justify-center overflow-auto bg-[var(--color-surface-subtle)] p-[var(--space-5)]',
+        className,
+      )}
+    >
+      <img
+        src={url}
+        alt={filename}
+        className="max-h-full max-w-full object-contain"
+        onError={() => setFailure(true)}
+      />
+    </div>
+  );
+}
+
 // ----------------------------------------------------------------- text pane
 
 /**
@@ -485,5 +561,5 @@ function ViewerNotice({
 
 /** Exposed for the review page's own layout decisions. */
 export function isViewablePdf(contentType: string): boolean {
-  return PDF_TYPES.has(contentType.split(';')[0]?.trim().toLowerCase() ?? '');
+  return PDF_TYPES.has(mediaType(contentType));
 }

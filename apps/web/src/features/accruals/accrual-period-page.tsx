@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from '@/lib/app-link';
 
 import type { AccrualCandidateOut, AccrualCandidateStanding } from '@finora/shared-types';
 
@@ -55,6 +55,7 @@ export function AccrualPeriodPage() {
   // Lock dialog
   const [lockOpen, setLockOpen] = useState(false);
   const [lockReason, setLockReason] = useState('');
+  const [lockError, setLockError] = useState('');
 
   const detail = period.data;
   const selected = useMemo(
@@ -484,7 +485,7 @@ export function AccrualPeriodPage() {
         description="Locking freezes candidates. The person who raised these accruals cannot lock the period."
       >
         <div className="flex flex-col gap-[var(--space-4)]">
-          <Field label="Why">
+          <Field label="Why" error={lockError}>
             {({ inputId, describedBy, invalid }) => (
               <Textarea
                 id={inputId}
@@ -498,8 +499,14 @@ export function AccrualPeriodPage() {
           </Field>
           <Button
             type="button"
-            disabled={lock.isPending || lockReason.trim().length < 3}
-            onClick={() =>
+            isLoading={lock.isPending}
+            loadingLabel="Locking"
+            onClick={() => {
+              if (lockReason.trim().length < 3) {
+                setLockError('A reason of at least 3 characters is required.');
+                return;
+              }
+              setLockError('');
               lock.mutate(
                 { reason: lockReason },
                 {
@@ -508,8 +515,8 @@ export function AccrualPeriodPage() {
                     setLockReason('');
                   },
                 },
-              )
-            }
+              );
+            }}
           >
             Lock period
           </Button>

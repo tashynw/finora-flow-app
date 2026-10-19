@@ -126,6 +126,17 @@ export function headlineStatus(
  * Returns null for a reviewed check-in: it is waiting on nothing, and a queue
  * that labels finished work is a queue nobody trusts to show them what is left.
  */
+/**
+ * Conclude marks the invoices paid. That right is finance's `payment:mark_paid`,
+ * and the API also withholds it from the person who sent the package.
+ */
+export function mayConcludeCheckIn(
+  holdsMarkPaid: boolean,
+  canReview: boolean,
+): boolean {
+  return holdsMarkPaid && canReview;
+}
+
 export function waitingOn(
   standing: CheckInStanding,
 ): { label: string; tone: StatusTone } | null {

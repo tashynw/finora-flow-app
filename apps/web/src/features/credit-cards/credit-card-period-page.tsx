@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from '@/lib/app-link';
 
 import type { CreditCardTransactionOut } from '@finora/shared-types';
 
@@ -41,6 +41,8 @@ export function CreditCardPeriodPage() {
   const [category, setCategory] = useState('');
   const [exception, setException] = useState('');
   const [waiverReason, setWaiverReason] = useState('');
+  const [waiverError, setWaiverError] = useState('');
+  const [closeError, setCloseError] = useState('');
 
   const detail = period.data;
   const selected = useMemo(
@@ -287,7 +289,7 @@ export function CreditCardPeriodPage() {
 
             <hr className="border-[var(--color-divider)]" />
 
-            <Field label="Waive receipt" help="Only when no receipt exists for this charge.">
+            <Field label="Waive receipt" help="Only when no receipt exists for this charge." error={waiverError}>
               {({ inputId, describedBy, invalid }) => (
                 <Textarea
                   id={inputId}
@@ -303,16 +305,22 @@ export function CreditCardPeriodPage() {
             <Button
               type="button"
               variant="secondary"
-              disabled={matchReceipt.isPending || waiverReason.trim().length < 3}
-              onClick={() =>
+              isLoading={matchReceipt.isPending}
+              loadingLabel="Saving"
+              onClick={() => {
+                if (waiverReason.trim().length < 3) {
+                  setWaiverError('A reason of at least 3 characters is required.');
+                  return;
+                }
+                setWaiverError('');
                 matchReceipt.mutate(
                   {
                     transactionId: selected.id,
                     body: { waived: true, waiver_reason: waiverReason },
                   },
                   { onSuccess: () => setSelectedId(null) },
-                )
-              }
+                );
+              }}
             >
               Waive receipt
             </Button>
@@ -327,7 +335,7 @@ export function CreditCardPeriodPage() {
         description="Closing freezes coding. The person who coded these lines cannot close the period."
       >
         <div className="flex flex-col gap-[var(--space-4)]">
-          <Field label="Why">
+          <Field label="Why" error={closeError}>
             {({ inputId, describedBy, invalid }) => (
               <Textarea
                 id={inputId}
@@ -341,8 +349,14 @@ export function CreditCardPeriodPage() {
           </Field>
           <Button
             type="button"
-            disabled={close.isPending || closeReason.trim().length < 3}
-            onClick={() =>
+            isLoading={close.isPending}
+            loadingLabel="Closing"
+            onClick={() => {
+              if (closeReason.trim().length < 3) {
+                setCloseError('A reason of at least 3 characters is required.');
+                return;
+              }
+              setCloseError('');
               close.mutate(
                 { reason: closeReason },
                 {
@@ -351,8 +365,8 @@ export function CreditCardPeriodPage() {
                     setCloseReason('');
                   },
                 },
-              )
-            }
+              );
+            }}
           >
             Close period
           </Button>

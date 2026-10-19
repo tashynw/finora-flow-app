@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from '@/lib/app-link';
 import { ArrowLeft, Gavel, Mail, PhoneCall } from 'lucide-react';
 
 import type { CheckInDetailOut } from '@finora/shared-types';
@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { SkeletonText } from '@/components/ui/skeleton';
 import { ToneBadge } from '@/components/workflow/status-badge';
 import { MoneyDisplay } from '@/components/finance/money-display';
+import { useAuth } from '@/features/auth/auth-context';
 import { PageHeader } from '@/features/shared/page-header';
 import { DetailRow } from '@/features/shared/detail-row';
 import { CurrencyTotals, toMoneyValue } from '@/features/payments/currency-totals';
@@ -21,6 +22,7 @@ import {
   CHANNEL,
   CLAIM,
   headlineStatus,
+  mayConcludeCheckIn,
   STANDING,
 } from '@/features/vendor-confirmations/confirmation-vocabulary';
 import {
@@ -49,6 +51,7 @@ function purposeFor(checkIn: CheckInDetailOut): string {
 }
 
 export function VendorConfirmationDetailPage() {
+  const { can } = useAuth();
   const { checkInId } = useParams<{ checkInId: string }>();
   const { data: checkIn, isLoading, isError, error } = useVendorCheckIn(checkInId);
   const send = useSendCheckIn(checkInId);
@@ -99,6 +102,10 @@ export function VendorConfirmationDetailPage() {
     );
   }
 
+  const mayConclude = mayConcludeCheckIn(
+    can('payment:mark_paid'),
+    checkIn.can_review,
+  );
   const status = headlineStatus(
     checkIn.standing,
     checkIn.standing_label,
@@ -147,7 +154,7 @@ export function VendorConfirmationDetailPage() {
               </Button>
             ) : null}
 
-            {checkIn.can_review ? (
+            {mayConclude ? (
               <Button variant="primary" onClick={() => setDialog('review')}>
                 <Gavel aria-hidden="true" className="size-4" />
                 Conclude
@@ -325,7 +332,7 @@ export function VendorConfirmationDetailPage() {
             </CardContent>
           </Card>
 
-          {checkIn.can_review ? null : checkIn.reviewed_at ? null : (
+          {mayConclude ? null : checkIn.reviewed_at ? null : (
             // Said where the Conclude button would be, so somebody who cannot
             // see it knows the button is missing on purpose rather than broken.
             <Card>

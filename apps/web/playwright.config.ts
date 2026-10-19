@@ -285,7 +285,7 @@ export default defineConfig({
       // Port follows FINORA_E2E_BASE_URL so a machine whose 4173 is already
       // taken by another project's leftover `vite preview` can still run the
       // suite without silently photographing that other app.
-      command: `pnpm build && pnpm preview --port ${PREVIEW_PORT} --strictPort`,
+      command: `yarn build && yarn preview --port ${PREVIEW_PORT} --strictPort`,
       url: BASE_URL,
       reuseExistingServer: false,
       timeout: 180_000,

@@ -3,6 +3,8 @@ import { AlertTriangle, Info, Plus, Scale } from 'lucide-react';
 
 import type { MatrixOut, MatrixRuleOut } from '@finora/shared-types';
 
+import { toast } from 'sonner';
+
 import { cn } from '@/lib/utils';
 import { errorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
@@ -245,8 +247,14 @@ export function MatrixPage() {
         onConfirm={(body) => {
           addRule.mutate(body, {
             onSuccess: () => {
+              toast.success(
+                replacing ? 'The rule has been replaced.' : 'The rule has been added.',
+              );
               setAdding(false);
               setReplacing(null);
+            },
+            onError: (error) => {
+              toast.error(errorMessage(error) ?? 'The rule could not be saved.');
             },
           });
         }}
@@ -273,7 +281,15 @@ export function MatrixPage() {
           if (!retiring) return;
           retireRule.mutate(
             { ruleId: retiring.id, reason },
-            { onSuccess: () => setRetiring(null) },
+            {
+              onSuccess: () => {
+                toast.success('The rule has been retired.');
+                setRetiring(null);
+              },
+              onError: (error) => {
+                toast.error(errorMessage(error) ?? 'The rule could not be retired.');
+              },
+            },
           );
         }}
       />
