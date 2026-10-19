@@ -32,6 +32,7 @@ export const auth = betterAuth({
   trustedOrigins: [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
+    process.env.WEB_APP_URL ?? '',
   ],
   session: {
     expiresIn: 60 * 60 * 24,
