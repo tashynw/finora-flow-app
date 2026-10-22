@@ -15,8 +15,19 @@ export class PaymentCheckInController {
   async answer(
     @Param('token') token: string,
     @Body()
-    body: { claim: string; respondentName: string; note?: string },
+    body: {
+      claim: string;
+      respondentName?: string;
+      respondent_name?: string;
+      note?: string;
+    },
   ) {
-    return serialize(await this.service.publicAnswer(token, body));
+    return serialize(
+      await this.service.publicAnswer(token, {
+        claim: body.claim,
+        respondentName: body.respondentName ?? body.respondent_name ?? '',
+        note: body.note,
+      }),
+    );
   }
 }

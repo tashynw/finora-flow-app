@@ -42,6 +42,50 @@ describe('VendorCheckInsService', () => {
     ]);
   }
 
+  it('shows the supplier the payment in the shape their page renders', async () => {
+    prisma.vendorCheckIn.findUnique.mockResolvedValue({
+      id: 'chk-1',
+      reference: 'VCI-1',
+      answeredAt: null,
+      reviewedAt: null,
+      packageId: 'pkg-1',
+      vendorId: 'vendor-1',
+      package: { reference: 'PAY-1', submittedAt: new Date('2026-10-01T12:00:00.000Z') },
+      vendor: { name: 'Acme Supplies' },
+    });
+    prisma.paymentPackageLine.findMany.mockResolvedValue([
+      {
+        invoiceReference: 'INV-1',
+        invoiceNumber: 'A-100',
+        amountMinorUnits: 15_000n,
+        currency: 'JMD',
+        dueDate: new Date('2026-09-15T00:00:00.000Z'),
+      },
+    ]);
+
+    const question = await (await service()).publicView('token-1');
+
+    expect(question).toMatchObject({
+      reference: 'VCI-1',
+      vendor_name: 'Acme Supplies',
+      already_answered: false,
+      lines: [
+        {
+          invoice_number: 'A-100',
+          our_reference: 'INV-1',
+          amount: expect.objectContaining({
+            currency: 'JMD',
+            minor_units: 15_000,
+          }),
+        },
+      ],
+    });
+    expect(question.totals[0]).toMatchObject({
+      currency: 'JMD',
+      minor_units: 15_000,
+    });
+  });
+
   it('will not raise check-ins before the package has gone to the bank', async () => {
     prisma.paymentPackage.findUnique.mockResolvedValue({
       id: 'pkg-1',

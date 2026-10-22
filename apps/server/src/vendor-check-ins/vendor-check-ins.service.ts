@@ -568,6 +568,7 @@ export class VendorCheckInsService {
         vendorId: row.vendorId,
       },
       select: {
+        invoiceReference: true,
         invoiceNumber: true,
         amountMinorUnits: true,
         currency: true,
@@ -576,11 +577,18 @@ export class VendorCheckInsService {
     });
 
     return {
-      vendorName: row.vendor?.name ?? 'Unknown supplier',
-      packageReference: row.package.reference,
-      lines,
-      answeredAt: row.answeredAt,
-      canAnswer: row.answeredAt === null && row.reviewedAt === null,
+      reference: row.reference,
+      vendor_name: row.vendor?.name ?? 'Unknown supplier',
+      paid_on: row.package.submittedAt?.toISOString() ?? null,
+      lines: lines.map((line) => ({
+        invoice_number: line.invoiceNumber,
+        our_reference: line.invoiceReference,
+        amount: moneyOut(line.amountMinorUnits, line.currency),
+        due_date: dateOnly(line.dueDate),
+      })),
+      totals: totalsOut(lines),
+      already_answered: row.answeredAt !== null,
+      answered_at: row.answeredAt?.toISOString() ?? null,
     };
   }
 
@@ -592,10 +600,25 @@ export class VendorCheckInsService {
     if (!row) {
       throw new DomainException('This link is not valid.');
     }
-    return this.answer(row.id, body, {
+    if (row.answeredAt) {
+      throw new DomainException(
+        'We already have an answer from you for this payment.',
+      );
+    }
+    if (row.reviewedAt) {
+      throw new DomainException(
+        'This payment has already been reviewed. Please write to us if something has changed.',
+      );
+    }
+    await this.answer(row.id, body, {
       public: true,
       actorLabel: body.respondentName?.trim() || 'Supplier',
     });
+    return {
+      recorded: true,
+      message:
+        'Thank you — we have recorded your answer. Somebody in our accounts team will check it against our records. If anything does not add up we will be in touch.',
+    };
   }
 }
 
