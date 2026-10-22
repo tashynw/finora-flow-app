@@ -18,7 +18,9 @@ export class LinksService {
     ttlHours?: number;
   }) {
     const token = randomBytes(32).toString('base64url');
-    const expiresAt = new Date(Date.now() + (input.ttlHours ?? 72) * 60 * 60 * 1000);
+    const expiresAt = new Date(
+      Date.now() + (input.ttlHours ?? 72) * 60 * 60 * 1000,
+    );
     await this.prisma.signedLink.create({
       data: {
         tokenSha256: this.digest(token),
@@ -29,7 +31,7 @@ export class LinksService {
         expiresAt,
       },
     });
-    const origin = process.env.WEB_ORIGIN ?? 'http://localhost:5173';
+    const origin = process.env.WEB_APP_URL ?? 'http://localhost:5173';
     return { token, url: `${origin}/link/${token}`, expiresAt };
   }
 
