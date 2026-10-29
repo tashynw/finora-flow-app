@@ -47,8 +47,8 @@ export class AdminSettingsService {
         enabled: process.env.AI_ENABLED !== 'false',
         kill_switch_env: killSwitchEnv,
         kill_switch_effective: killSwitchEffective,
-        model_extraction: process.env.AI_MODEL_EXTRACTION ?? 'default',
-        model_classification: process.env.AI_MODEL_CLASSIFICATION ?? 'default',
+        model_extraction: process.env.AI_MODEL_EXTRACTION ?? 'kimi-k2.6',
+        model_classification: process.env.AI_MODEL_CLASSIFICATION ?? 'kimi-k2.6',
       },
       workflow: {
         reminder_interval_hours: Number(process.env.REMINDER_INTERVAL_HOURS ?? 24),
