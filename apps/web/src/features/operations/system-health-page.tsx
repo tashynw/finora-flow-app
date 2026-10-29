@@ -99,9 +99,11 @@ function headlineCards(data: ReadinessResponse | undefined): StatCardItem[] {
       label: 'Platform',
       value: data.ready ? 'Operational' : 'Not accepting work',
       meta: data.ready
-        ? `Accepting work · ${data.environment} ${data.version}`
+        ? `Accepting work · ${data.environment || 'unknown'} ${data.version}`
         : 'A required service is unavailable. Nothing has been lost.',
     },
+    dependencyCard(data, 'ai_gateway', 'AI assistance'),
+    dependencyCard(data, 'smtp', 'Email sending'),
     dependencyCard(data, 'redis', 'Queue'),
     dependencyCard(data, 'imap', 'Mail'),
     dependencyCard(data, 'malware_scanner', 'Scanner'),

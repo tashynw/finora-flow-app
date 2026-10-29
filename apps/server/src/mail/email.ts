@@ -11,8 +11,8 @@ export type SendEmailRequest = {
  * Outbound mail through SendGrid SMTP (Twilio).
  * Same shape as ARC: SMTP_USER_NAME, SMTP_PASSWORD, SMTP_SENDER_EMAIL.
  */
-export const sendEmail = async (emailRequest: SendEmailRequest) => {
-  const transporter = nodemailer.createTransport({
+function outboundTransport() {
+  return nodemailer.createTransport({
     host: 'smtp.sendgrid.net',
     port: 587,
     auth: {
@@ -20,6 +20,28 @@ export const sendEmail = async (emailRequest: SendEmailRequest) => {
       pass: process.env.SMTP_PASSWORD,
     },
   });
+}
+
+export function outboundMailConfigured() {
+  return Boolean(
+    process.env.SMTP_USER_NAME &&
+      process.env.SMTP_PASSWORD &&
+      process.env.SMTP_SENDER_EMAIL,
+  );
+}
+
+/** SMTP handshake only — does not send a message. */
+export async function verifyOutboundMail() {
+  const transporter = outboundTransport();
+  try {
+    await transporter.verify();
+  } finally {
+    transporter.close();
+  }
+}
+
+export const sendEmail = async (emailRequest: SendEmailRequest) => {
+  const transporter = outboundTransport();
 
   return await transporter.sendMail({
     from: `"Finora Flow" <${process.env.SMTP_SENDER_EMAIL}>`,
