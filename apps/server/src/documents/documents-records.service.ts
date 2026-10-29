@@ -637,18 +637,35 @@ export class DocumentsRecordsService {
     const text = review === 'cleared' ? '' : (row?.valueText ?? '');
     const latest = row?.reviews[0];
     const needsAttention = fieldNeedsAttention(name, text, review);
-    const origin = review === 'corrected' || review === 'confirmed' ? 'human' : 'absent';
+    const meta = fieldMeta(row?.notes);
+    const origin =
+      review === 'corrected' || review === 'confirmed'
+        ? 'human'
+        : text
+          ? meta.origin
+          : 'absent';
+    const confidence =
+      review === 'corrected' || review === 'confirmed' ? 1 : text ? meta.confidence : 0;
+    const band = needsAttention
+      ? 'low'
+      : !text
+        ? 'none'
+        : confidence >= REVIEW_THRESHOLD
+          ? 'high'
+          : confidence >= LOW_THRESHOLD
+            ? 'medium'
+            : 'low';
     return {
       name,
       label: fieldLabel(name),
       text,
       origin,
-      confidence: review === 'corrected' || review === 'confirmed' ? 1 : 0,
-      reader_confidence: null,
+      confidence,
+      reader_confidence: meta.origin === 'model' || meta.origin === 'rule' ? meta.confidence : null,
       reader_text: null,
       review,
-      needs_attention: needsAttention,
-      band: needsAttention ? 'low' : text ? 'high' : 'none',
+      needs_attention: needsAttention || (origin === 'model' && review === 'unreviewed'),
+      band,
       amount_minor_units: null,
       currency: null,
       value_date: null,
@@ -656,7 +673,7 @@ export class DocumentsRecordsService {
       correction_reason: latest?.correctionReason ?? null,
       evidence: null,
       adjustments: [],
-      notes: [],
+      notes: jsonStrings(row?.notes ?? []),
     };
   }
 
@@ -690,7 +707,7 @@ export class DocumentsRecordsService {
       fields_needing_attention: attention || (fields.length === 0 && row.documentProcessed
         ? FIELD_DEFS.filter((field) => field.required).length
         : attention),
-      lowest_confidence: null,
+      lowest_confidence: lowestConfidence(fields),
       signal_count: head ? jsonStrings(head.signals).length : 0,
     };
   }
@@ -712,4 +729,38 @@ function reviewOf(row: { reviews: { review: string }[]; valueText?: string }): F
 function jsonStrings(value: Prisma.JsonValue): string[] {
   if (!Array.isArray(value)) return [];
   return value.filter((item): item is string => typeof item === 'string');
+}
+
+function fieldMeta(value: Prisma.JsonValue | undefined): {
+  origin: 'rule' | 'model' | 'human' | 'absent';
+  confidence: number;
+} {
+  if (!Array.isArray(value)) return { origin: 'absent', confidence: 0 };
+  for (const item of value) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
+    const row = item as { origin?: string; confidence?: number };
+    if (row.origin === 'rule' || row.origin === 'model' || row.origin === 'human') {
+      return {
+        origin: row.origin,
+        confidence: typeof row.confidence === 'number' ? row.confidence : 0,
+      };
+    }
+  }
+  return { origin: 'absent', confidence: 0 };
+}
+
+function lowestConfidence(
+  fields: Array<{ valueText: string; notes: Prisma.JsonValue; reviews: { review: string }[] }>,
+): number | null {
+  let lowest: number | null = null;
+  for (const field of fields) {
+    const review = reviewOf(field);
+    if (review === 'cleared' || !field.valueText) continue;
+    const confidence =
+      review === 'corrected' || review === 'confirmed'
+        ? 1
+        : fieldMeta(field.notes).confidence;
+    if (lowest == null || confidence < lowest) lowest = confidence;
+  }
+  return lowest;
 }

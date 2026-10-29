@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { AiGatewayService } from '../../ai/ai-gateway.service.js';
 import { auditMock, compile, provideAudit, providePrisma } from '../../testing/fixtures.js';
 import { readDocumentBytes } from './document-reader.js';
 import { DocumentsJob } from './documents.job.js';
@@ -36,29 +37,67 @@ function bytesOf(text: string) {
   return { bytes, sha256: createHash('sha256').update(bytes).digest('hex') };
 }
 
+function emptyGateway() {
+  return {
+    suggestFields: vi.fn().mockResolvedValue({
+      outcome: 'disabled',
+      suggestions: [],
+      discarded: 0,
+      modelName: null,
+      promptId: null,
+      promptVersion: null,
+      promptSha256: null,
+      latencyMs: null,
+      note: null,
+    }),
+    suggestKind: vi.fn().mockResolvedValue({
+      outcome: 'disabled',
+      kind: 'unknown',
+      quote: null,
+      modelName: null,
+      promptId: null,
+      promptVersion: null,
+      promptSha256: null,
+      latencyMs: null,
+      note: null,
+    }),
+  };
+}
+
 describe('DocumentsJob', () => {
   const prisma = {
     s3Document: { findMany: vi.fn(), update: vi.fn() },
-    documentExtraction: { create: vi.fn() },
+    documentExtraction: { createMany: vi.fn(), updateMany: vi.fn() },
     user: { findMany: vi.fn() },
     vendor: { findMany: vi.fn() },
     estimate: { create: vi.fn() },
     invoice: { create: vi.fn() },
+    $transaction: vi.fn(),
   };
   const audit = auditMock();
+  const gateway = emptyGateway();
 
   beforeEach(() => {
     vi.clearAllMocks();
     prisma.s3Document.update.mockResolvedValue({});
-    prisma.documentExtraction.create.mockResolvedValue({ id: 'ext-1' });
+    prisma.documentExtraction.createMany.mockResolvedValue({ count: 1 });
+    prisma.documentExtraction.updateMany.mockResolvedValue({ count: 0 });
+    prisma.$transaction.mockImplementation(async (fn: (tx: typeof prisma) => Promise<unknown>) =>
+      fn(prisma),
+    );
     prisma.user.findMany.mockResolvedValue([{ id: 'admin-1', role: 'administrator' }]);
     prisma.vendor.findMany.mockResolvedValue([{ id: 'vendor-1', name: 'Acme Supplies' }]);
     prisma.estimate.create.mockResolvedValue({ id: 'est-1', reference: 'EST-1' });
     prisma.invoice.create.mockResolvedValue({ id: 'inv-1', reference: 'INV-1' });
+    Object.assign(gateway, emptyGateway());
   });
 
   async function job() {
-    return compile(DocumentsJob, [providePrisma(prisma), provideAudit(audit)]);
+    return compile(DocumentsJob, [
+      providePrisma(prisma),
+      provideAudit(audit),
+      { provide: AiGatewayService, useValue: gateway },
+    ]);
   }
 
   it('creates an invoice draft from a readable invoice and marks the file processed', async () => {
@@ -89,9 +128,10 @@ describe('DocumentsJob', () => {
       }),
     );
     expect(prisma.estimate.create).not.toHaveBeenCalled();
+    expect(prisma.documentExtraction.createMany).toHaveBeenCalled();
     expect(prisma.s3Document.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ documentProcessed: true, status: 'read' }),
+        data: expect.objectContaining({ documentProcessed: true, status: 'needs_review' }),
       }),
     );
     expect(audit.append).toHaveBeenCalledWith(
@@ -136,9 +176,11 @@ describe('DocumentsJob', () => {
 
     expect(readDocumentBytes).not.toHaveBeenCalled();
     expect(prisma.invoice.create).not.toHaveBeenCalled();
-    expect(prisma.documentExtraction.create).toHaveBeenCalledWith(
+    expect(prisma.documentExtraction.createMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ status: 'unreadable', kind: 'unknown' }),
+        data: expect.arrayContaining([
+          expect.objectContaining({ status: 'unreadable', kind: 'unknown' }),
+        ]),
       }),
     );
     expect(prisma.s3Document.update).toHaveBeenCalledWith(
@@ -154,7 +196,7 @@ describe('DocumentsJob', () => {
 
     await expect((await job()).run()).resolves.toEqual({ read: 0, failed: 1 });
     expect(prisma.s3Document.update).not.toHaveBeenCalled();
-    expect(prisma.documentExtraction.create).not.toHaveBeenCalled();
+    expect(prisma.documentExtraction.createMany).not.toHaveBeenCalled();
   });
 
   it('does not open a second draft when the document is already linked', async () => {
@@ -191,10 +233,13 @@ describe('DocumentsJob', () => {
 
     await (await job()).run();
 
+    expect(gateway.suggestKind).toHaveBeenCalled();
     expect(prisma.invoice.create).not.toHaveBeenCalled();
     expect(prisma.estimate.create).not.toHaveBeenCalled();
     expect(prisma.s3Document.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ status: 'read' }) }),
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'manual_entry_required' }),
+      }),
     );
   });
 
@@ -238,5 +283,47 @@ describe('DocumentsJob', () => {
 
     await expect((await job()).run()).resolves.toEqual({ read: 1, failed: 1 });
     expect(prisma.invoice.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('stores model field proposals from the assistive reader', async () => {
+    const text = 'TAX INVOICE\nAcme Supplies Ltd\nDue 12 May 2026';
+    const file = bytesOf(text);
+    prisma.s3Document.findMany.mockResolvedValue([document({ sha256: file.sha256 })]);
+    send.mockResolvedValue({ Body: { transformToByteArray: async () => file.bytes } });
+    vi.mocked(readDocumentBytes).mockResolvedValue({
+      text,
+      pageCount: 1,
+      source: 'plain_text',
+      notes: [],
+    });
+    gateway.suggestFields.mockResolvedValue({
+      outcome: 'answered',
+      suggestions: [
+        { name: 'vendor_name', text: 'Acme Supplies Ltd', quote: 'Acme Supplies Ltd' },
+      ],
+      discarded: 0,
+      modelName: 'kimi-k2.6',
+      promptId: 'document.fields',
+      promptVersion: 1,
+      promptSha256: 'abc',
+      latencyMs: 12,
+      note: null,
+    });
+
+    await (await job()).run();
+
+    expect(gateway.suggestFields).toHaveBeenCalled();
+    expect(prisma.documentExtraction.createMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.arrayContaining([
+          expect.objectContaining({
+            labelText: 'vendor_name',
+            valueText: 'Acme Supplies Ltd',
+            modelName: 'kimi-k2.6',
+            gatewayOutcome: 'answered',
+          }),
+        ]),
+      }),
+    );
   });
 });

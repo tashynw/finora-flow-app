@@ -1,5 +1,6 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
+import { AiModule } from '../ai/ai.module.js';
 import { ApprovalsModule } from '../approvals/approvals.module.js';
 import { resolveCacheTarget } from './elasticache-auth.js';
 import { DocumentsJob } from './documents/documents.job.js';
@@ -31,6 +32,7 @@ import { RemindersJob } from './reminders/reminders.job.js';
     }),
     BullModule.registerQueue({ name: '{finora}' }),
     ApprovalsModule,
+    AiModule,
   ],
   providers: [
     InboxJob,
