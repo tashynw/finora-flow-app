@@ -42,12 +42,12 @@ export const DEPENDENCY_INFO: Record<
   smtp: {
     label: 'Email sending',
     impact:
-      'Notifications and reminders queue instead of sending. They are retried automatically.',
+      'Notifications and reminders cannot be sent until the connection returns.',
   },
   ai_gateway: {
     label: 'AI assistance',
     impact:
-      'Suggestions are unavailable. Every workflow can still be completed manually.',
+      'Document field suggestions are unavailable. Every workflow can still be completed manually.',
   },
 };
 
