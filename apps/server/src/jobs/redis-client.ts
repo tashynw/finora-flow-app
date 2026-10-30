@@ -15,6 +15,7 @@ const StandaloneConnector = (standalone.default ??
 };
 
 let cacheTarget: CacheTarget | undefined;
+let iamFactoryInstalled = false;
 const pendingConnectors: IamConnector[] = [];
 
 class IamConnector extends StandaloneConnector {
@@ -56,16 +57,38 @@ function attach(redis: Redis) {
   };
 }
 
+/** Install the IAM connector only when talking to ElastiCache. */
 export function useCacheTarget(target: CacheTarget) {
   cacheTarget = target;
+  if (iamFactoryInstalled) return;
+  iamFactoryInstalled = true;
+  RedisConnection.clientFactory = (options) => {
+    const redis = new Redis({
+      ...options,
+      lazyConnect: true,
+      Connector: IamConnector as unknown as RedisOptions['Connector'],
+    });
+    attach(redis);
+    return createIORedisClient(redis);
+  };
 }
 
-RedisConnection.clientFactory = (options) => {
-  const redis = new Redis({
-    ...options,
-    lazyConnect: true,
-    Connector: IamConnector as unknown as RedisOptions['Connector'],
-  });
-  attach(redis);
-  return createIORedisClient(redis);
-};
+export function isLocalRedisHost(host = process.env.REDIS_HOST ?? '') {
+  if (process.env.REDIS_MODE?.trim().toLowerCase() === 'local') return true;
+  const normalized = host.trim().toLowerCase();
+  return (
+    normalized === '127.0.0.1' ||
+    normalized === 'localhost' ||
+    normalized === '::1'
+  );
+}
+
+export function localRedisConnection() {
+  const password = process.env.REDIS_PASSWORD?.trim();
+  return {
+    host: process.env.REDIS_HOST?.trim() || '127.0.0.1',
+    port: Number(process.env.REDIS_PORT ?? 6379),
+    ...(password ? { password } : {}),
+    maxRetriesPerRequest: null,
+  };
+}

@@ -56,6 +56,7 @@ export function AccrualPeriodPage() {
   const [lockOpen, setLockOpen] = useState(false);
   const [lockReason, setLockReason] = useState('');
   const [lockError, setLockError] = useState('');
+  const [generateNote, setGenerateNote] = useState<string | null>(null);
 
   const detail = period.data;
   const selected = useMemo(
@@ -118,7 +119,20 @@ export function AccrualPeriodPage() {
                 type="button"
                 variant="secondary"
                 disabled={generate.isPending}
-                onClick={() => generate.mutate()}
+                onClick={() => {
+                  setGenerateNote(null);
+                  const before = detail.candidate_count;
+                  generate.mutate(undefined, {
+                    onSuccess: (next) => {
+                      const added = next.candidate_count - before;
+                      setGenerateNote(
+                        added > 0
+                          ? `Added ${added} candidate${added === 1 ? '' : 's'} from unpaid invoices.`
+                          : 'No unpaid invoices matched this period. Candidates come from invoices that are approved, outstanding, ready for payment, excepted, or marked accrual-needed, with an invoice date on or before the period end. Draft and paid invoices are skipped.',
+                      );
+                    },
+                  });
+                }}
               >
                 {generate.isPending ? 'Generating…' : 'Generate candidates'}
               </Button>
@@ -138,6 +152,15 @@ export function AccrualPeriodPage() {
           className="m-0 rounded-md bg-[var(--color-surface-danger-subtle)] px-[var(--space-4)] py-[var(--space-3)] text-[length:var(--text-body-sm)] text-[var(--color-text-danger)]"
         >
           {errorMessage(generate.error) ?? 'Generate failed — please try again.'}
+        </p>
+      ) : null}
+
+      {generateNote && !generate.isError ? (
+        <p
+          role="status"
+          className="m-0 rounded-md bg-[var(--color-surface-subtle)] px-[var(--space-4)] py-[var(--space-3)] text-[length:var(--text-body-sm)] text-[var(--color-text-muted)]"
+        >
+          {generateNote}
         </p>
       ) : null}
 

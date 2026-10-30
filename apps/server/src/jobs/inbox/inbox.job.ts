@@ -41,6 +41,12 @@ function sha256(data: Buffer): string {
   return createHash('sha256').update(data).digest('hex');
 }
 
+/** Highest UID already assigned in the mailbox (UIDNEXT - 1). */
+function latestUid(uidNext: number | bigint | undefined): bigint {
+  const next = BigInt(uidNext ?? 1);
+  return next > 1n ? next - 1n : 0n;
+}
+
 function addressList(value: AddressObject | AddressObject[] | undefined): string[] {
   const objects = value == null ? [] : Array.isArray(value) ? value : [value];
   return objects.flatMap((item) => item.value.map((entry) => entry.address).filter((address): address is string => Boolean(address)));
@@ -49,6 +55,7 @@ function addressList(value: AddressObject | AddressObject[] | undefined): string
 @Injectable()
 export class InboxJob {
   private readonly logger = new Logger(InboxJob.name);
+  private primedThisProcess = false;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -87,19 +94,38 @@ export class InboxJob {
 
       if (checkpoint && checkpoint.uidValidity !== uidValidity) {
         this.logger.warn(`IMAP UIDVALIDITY changed for ${config.inbox}. Checkpoint reset.`);
+        const skipTo = latestUid(mailbox.uidNext);
         checkpoint = await this.prisma.mailboxCheckpoint.update({
           where: { id: checkpoint.id },
           data: {
             uidValidity,
-            lastSeenUid: 0n,
+            lastSeenUid: skipTo,
             lastResetAt: new Date(),
             lastResetReason: 'uidvalidity_changed',
             lastPolledAt: new Date(),
           },
         });
+        this.logger.log(
+          `Inbox checkpoint reset at UID ${skipTo}; older messages will not be ingested.`,
+        );
+        return { skipped: false, examined: 0, ingested: 0 };
       }
 
       const lastSeen = checkpoint?.lastSeenUid ?? 0n;
+      // Each Nest process skips whatever is already in the mailbox once, then
+      // only ingests mail that arrives after that prime.
+      if (!this.primedThisProcess) {
+        this.primedThisProcess = true;
+        const skipTo = latestUid(mailbox.uidNext);
+        if (skipTo >= lastSeen) {
+          await this.advance(config.inbox, uidValidity, skipTo);
+          this.logger.log(
+            `Inbox primed at UID ${skipTo}; only messages arriving after this will be ingested.`,
+          );
+          return { skipped: false, examined: 0, ingested: 0 };
+        }
+      }
+
       const found = await client.search({ uid: `${(lastSeen + 1n).toString()}:*` }, { uid: true });
       const uids = (found || []).slice(0, BATCH_SIZE);
       examined = uids.length;
@@ -138,6 +164,14 @@ export class InboxJob {
     const raw = Buffer.from(downloaded.source);
     try {
       const parsed = await simpleParser(raw);
+      const attachments = (parsed.attachments ?? []).filter(
+        (attachment) => attachment.content?.length,
+      );
+      if (attachments.length === 0) {
+        await this.advance(config.inbox, uidValidity, BigInt(uid));
+        this.logger.log(`Skipped UID ${uid}: no attachments.`);
+        return false;
+      }
       const rawHash = sha256(raw);
       const messageId = parsed.messageId?.replace(/^<|>$/g, '') || null;
       const idempotencyKey = messageId ? `message-id:${messageId}` : `sha256:${rawHash}`;

@@ -101,7 +101,8 @@ export class AiGatewayService {
       const client = this.getClient();
       const completion = await client.chat.completions.create({
         model,
-        temperature: 0,
+        // kimi-k2.6: thinking must be off to force a named tool; non-thinking temp is fixed at 0.6.
+        temperature: 0.6,
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: user },
@@ -111,6 +112,7 @@ export class AiGatewayService {
           type: 'function',
           function: { name: 'propose_fields' },
         },
+        ...kimiNonThinking,
       });
 
       const call = completion.choices[0]?.message?.tool_calls?.find(
@@ -229,7 +231,7 @@ export class AiGatewayService {
       const client = this.getClient();
       const completion = await client.chat.completions.create({
         model,
-        temperature: 0,
+        temperature: 0.6,
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: user },
@@ -239,6 +241,7 @@ export class AiGatewayService {
           type: 'function',
           function: { name: 'propose_kind' },
         },
+        ...kimiNonThinking,
       });
 
       const call = completion.choices[0]?.message?.tool_calls?.find(
@@ -433,3 +436,8 @@ function parseJson(raw: string): Record<string, unknown> | null {
 function sha256(value: string) {
   return createHash('sha256').update(value).digest('hex');
 }
+
+/** Moonshot field: OpenAI SDK types omit it, but it must be in the JSON body. */
+const kimiNonThinking = {
+  thinking: { type: 'disabled' as const },
+} as Record<string, unknown>;

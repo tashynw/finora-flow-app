@@ -7,13 +7,21 @@ import { DocumentsJob } from './documents/documents.job.js';
 import { FinoraJobScheduler } from './finora-job.scheduler.js';
 import { FinoraProcessor } from './finora.processor.js';
 import { InboxJob } from './inbox/inbox.job.js';
-import { useCacheTarget } from './redis-client.js';
+import {
+  isLocalRedisHost,
+  localRedisConnection,
+  useCacheTarget,
+} from './redis-client.js';
 import { RemindersJob } from './reminders/reminders.job.js';
 
 @Module({
   imports: [
     BullModule.forRootAsync({
       useFactory: async () => {
+        if (isLocalRedisHost()) {
+          return { connection: localRedisConnection() };
+        }
+
         const target = await resolveCacheTarget();
         useCacheTarget(target);
         return {

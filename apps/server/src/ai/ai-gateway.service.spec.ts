@@ -82,10 +82,12 @@ describe('AiGatewayService', () => {
     expect(create).toHaveBeenCalledWith(
       expect.objectContaining({
         model: 'kimi-k2.6',
+        temperature: 0.6,
         tool_choice: {
           type: 'function',
           function: { name: 'propose_fields' },
         },
+        thinking: { type: 'disabled' },
       }),
     );
   });

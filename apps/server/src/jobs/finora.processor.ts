@@ -18,6 +18,7 @@ export class FinoraProcessor extends WorkerHost {
   }
 
   async process(job: Job) {
+    this.logger.log(`Running job ${job.name}`);
     switch (job.name) {
       case 'inbox':
         return this.inbox.run();

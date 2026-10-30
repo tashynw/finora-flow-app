@@ -2,14 +2,18 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   HttpCode,
   HttpStatus,
   Param,
   Patch,
   Post,
+  Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard, Session, type UserSession } from '@thallesp/nestjs-better-auth';
+import type { Response } from 'express';
 import { serialize } from '../common/serialize.js';
 import { AccrualsService } from './accruals.service.js';
 
@@ -19,8 +23,8 @@ export class AccrualsController {
   constructor(private readonly service: AccrualsService) {}
 
   @Get('periods')
-  async listPeriods() {
-    return serialize(await this.service.listPeriods());
+  async listPeriods(@Query('standing') standing?: string) {
+    return serialize(await this.service.listPeriods(standing));
   }
 
   @Post('periods')
@@ -28,14 +32,23 @@ export class AccrualsController {
   async createPeriod(
     @Session() session: UserSession,
     @Body()
-    body: { periodStart: string; periodEnd: string; label: string },
+    body: {
+      periodStart?: string;
+      periodEnd?: string;
+      period_start?: string;
+      period_end?: string;
+      label: string;
+    },
   ) {
     return serialize(await this.service.createPeriod(session, body));
   }
 
   @Get('periods/:id')
-  async getPeriod(@Param('id') id: string) {
-    return serialize(await this.service.getPeriod(id));
+  async getPeriod(
+    @Session() session: UserSession,
+    @Param('id') id: string,
+  ) {
+    return serialize(await this.service.getPeriod(id, session));
   }
 
   @Post('periods/:id/candidates/generate')
@@ -52,10 +65,13 @@ export class AccrualsController {
     @Param('id') id: string,
     @Body()
     body: {
-      amountMinorUnits?: string | number;
+      amountMinorUnits?: string | number | null;
+      amount_minor?: string | number | null;
       exclude?: boolean;
       note?: string | null;
       editReason?: string;
+      reason?: string;
+      description?: string | null;
     },
   ) {
     return serialize(await this.service.patchCandidate(session, id, body));
@@ -79,11 +95,23 @@ export class AccrualsController {
   }
 
   @Post('periods/:id/export')
+  @Header('Content-Type', 'text/csv; charset=utf-8')
   async exportPeriod(
     @Session() session: UserSession,
     @Param('id') id: string,
-    @Body() body: { format: string; official?: boolean },
+    @Body() body: { format?: string; official?: boolean },
+    @Res() res: Response,
   ) {
-    return serialize(await this.service.exportPeriod(session, id, body));
+    const result = await this.service.exportPeriod(session, id, {
+      format: body.format ?? 'csv',
+      official: body.official,
+    });
+    res.setHeader('X-Finora-Export-Filename', result.filename);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${result.filename}"`,
+    );
+    res.setHeader('X-Finora-Export-Sha256', result.sha256);
+    res.send(result.csv);
   }
 }
