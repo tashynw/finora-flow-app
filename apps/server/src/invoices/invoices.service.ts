@@ -522,30 +522,73 @@ export class InvoicesService {
     }
     this.assertReady(invoice);
     const correlationId = crypto.randomUUID();
-
-    await this.prisma.invoice.update({
-      where: { id },
-      data: {
-        signedOffAt: new Date(),
-        signedOffById: user.id,
-        signOffNote: body.note?.trim() || null,
-        departmentId: user.departmentId,
-      },
-    });
-
-    await this.approvals.submitForApproval({
+    const departmentId = user.departmentId;
+    const routeInput = {
       recordType: RECORD_TYPE,
       recordId: id,
       amountMinorUnits: invoice.totalMinorUnits!,
       currency: invoice.currency!,
-      departmentId: user.departmentId,
+      departmentId,
       requesterId: user.id,
       actor: { userId: user.id, displayName: user.name },
       correlationId,
       link: { invoiceId: id },
-    });
+    };
 
-    await this.moveStatus(invoice, 'PENDING_APPROVAL', user, null, correlationId);
+    // Fail before recording receipt if the matrix or assignees cannot open a route.
+    await this.approvals.assertCanOpenRoute(routeInput);
+
+    let signedOffWritten = false;
+    let routeOpened = false;
+    try {
+      await this.prisma.invoice.update({
+        where: { id },
+        data: {
+          signedOffAt: new Date(),
+          signedOffById: user.id,
+          signOffNote: body.note?.trim() || null,
+          departmentId,
+        },
+      });
+      signedOffWritten = true;
+
+      await this.approvals.submitForApproval(routeInput);
+      routeOpened = true;
+
+      await this.moveStatus(
+        invoice,
+        'PENDING_APPROVAL',
+        user,
+        null,
+        correlationId,
+      );
+    } catch (error) {
+      if (routeOpened) {
+        await this.approvals
+          .withdrawOpenRequest(
+            RECORD_TYPE,
+            id,
+            { userId: user.id, displayName: user.name },
+            'Sign-off rolled back because the approval route could not finish opening.',
+            correlationId,
+          )
+          .catch(() => undefined);
+      }
+      if (signedOffWritten) {
+        await this.prisma.invoice
+          .update({
+            where: { id },
+            data: {
+              signedOffAt: null,
+              signedOffById: null,
+              signOffNote: null,
+            },
+          })
+          .catch(() => undefined);
+      }
+      throw error;
+    }
+
     return this.getById(id, user);
   }
 

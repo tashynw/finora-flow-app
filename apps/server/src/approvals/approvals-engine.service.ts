@@ -112,7 +112,22 @@ export class ApprovalsEngineService {
       );
   }
 
-  async submitForApproval(input: OpenApprovalInput) {
+  /**
+   * Dry-run the matrix and staffing checks with no writes.
+   *
+   * Callers that must not leave a half-finished act (invoice sign-off) use this
+   * before recording the person's answer, then open the route only if it passes.
+   */
+  async assertCanOpenRoute(
+    input: Pick<
+      OpenApprovalInput,
+      | 'recordType'
+      | 'recordId'
+      | 'amountMinorUnits'
+      | 'currency'
+      | 'departmentId'
+    >,
+  ): Promise<ReturnType<typeof planRoute>> {
     const existing = await this.openRequest(input.recordType, input.recordId);
     if (existing) {
       throw conflict('This record already has an open approval request');
@@ -141,6 +156,12 @@ export class ApprovalsEngineService {
         );
       }
     }
+
+    return planned;
+  }
+
+  async submitForApproval(input: OpenApprovalInput) {
+    const planned = await this.assertCanOpenRoute(input);
 
     const attempt = await this.nextAttempt(input.recordType, input.recordId);
     const correlationId = input.correlationId ?? crypto.randomUUID();
