@@ -14,7 +14,7 @@ const client = vi.hoisted(() => ({
   fetchOne: vi.fn(),
   messageMove: vi.fn(async () => true),
   logout: vi.fn(async () => undefined),
-  mailbox: { uidValidity: 4n },
+  mailbox: { uidValidity: 4n, uidNext: 9 },
 }));
 
 vi.mock('imapflow', () => ({
@@ -43,7 +43,13 @@ function parsedMail(overrides: Record<string, unknown> = {}) {
     cc: undefined,
     references: undefined,
     inReplyTo: undefined,
-    attachments: [],
+    attachments: [
+      {
+        filename: 'document.pdf',
+        contentType: 'application/pdf',
+        content: Buffer.from('pdf-bytes'),
+      },
+    ],
     headers: new Map<string, string>(),
     ...overrides,
   };
@@ -70,14 +76,21 @@ describe('InboxJob', () => {
     process.env.FINORA_IMAP_HOST = 'imap.example.test';
     process.env.FINORA_IMAP_USERNAME = 'finora';
     process.env.FINORA_IMAP_PASSWORD = 'secret';
-    prisma.mailboxCheckpoint.findUnique.mockResolvedValue(null);
+    prisma.mailboxCheckpoint.findUnique.mockResolvedValue({
+      id: 'cp-1',
+      folder: 'INBOX',
+      uidValidity: 4n,
+      lastSeenUid: 7n,
+    });
     prisma.mailboxCheckpoint.upsert.mockResolvedValue({});
     prisma.inboundMessage.findUnique.mockResolvedValue(null);
     prisma.inboundMessage.create.mockResolvedValue({ id: 'msg-1', subject: 'Invoice for October' });
     prisma.vendorCheckIn.findMany.mockResolvedValue([]);
     client.mailbox.uidValidity = 4n;
+    client.mailbox.uidNext = 9;
     client.search.mockResolvedValue([8]);
     client.fetchOne.mockResolvedValue({ source: Buffer.from('raw-mail') });
+    client.messageMove.mockResolvedValue(true);
     vi.mocked(simpleParser).mockResolvedValue(parsedMail() as never);
   });
 
@@ -94,6 +107,31 @@ describe('InboxJob', () => {
     return compile(InboxJob, [providePrisma(prisma), provideAudit(audit)]);
   }
 
+  /** First poll always primes; return the same instance ready to ingest. */
+  async function primed() {
+    const inbox = await job();
+    await inbox.run();
+    vi.clearAllMocks();
+    prisma.mailboxCheckpoint.findUnique.mockResolvedValue({
+      id: 'cp-1',
+      folder: 'INBOX',
+      uidValidity: 4n,
+      lastSeenUid: 7n,
+    });
+    prisma.mailboxCheckpoint.upsert.mockResolvedValue({});
+    prisma.inboundMessage.findUnique.mockResolvedValue(null);
+    prisma.inboundMessage.create.mockResolvedValue({
+      id: 'msg-1',
+      subject: 'Invoice for October',
+    });
+    prisma.vendorCheckIn.findMany.mockResolvedValue([]);
+    client.search.mockResolvedValue([8]);
+    client.fetchOne.mockResolvedValue({ source: Buffer.from('raw-mail') });
+    client.messageMove.mockResolvedValue(true);
+    vi.mocked(simpleParser).mockResolvedValue(parsedMail() as never);
+    return inbox;
+  }
+
   it('does nothing when the mailbox is not configured', async () => {
     delete process.env.FINORA_IMAP_HOST;
     delete process.env.FINORA_IMAP_USERNAME;
@@ -106,7 +144,39 @@ describe('InboxJob', () => {
     expect(ImapFlow).not.toHaveBeenCalled();
   });
 
+  it('primes once per process so existing mailbox mail is skipped', async () => {
+    client.mailbox.uidNext = 500;
+    const inbox = await job();
+
+    await expect(inbox.run()).resolves.toEqual({
+      skipped: false,
+      examined: 0,
+      ingested: 0,
+    });
+    expect(client.search).not.toHaveBeenCalled();
+    expect(prisma.mailboxCheckpoint.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        update: expect.objectContaining({ lastSeenUid: 499n }),
+      }),
+    );
+
+    prisma.mailboxCheckpoint.findUnique.mockResolvedValue({
+      id: 'cp-1',
+      folder: 'INBOX',
+      uidValidity: 4n,
+      lastSeenUid: 499n,
+    });
+    client.search.mockResolvedValue([500]);
+    client.mailbox.uidNext = 501;
+    await expect(inbox.run()).resolves.toEqual({
+      skipped: false,
+      examined: 1,
+      ingested: 1,
+    });
+  });
+
   it('stores a new message and its attachment, then advances the checkpoint and moves the mail', async () => {
+    const inbox = await primed();
     vi.mocked(simpleParser).mockResolvedValue(
       parsedMail({
         attachments: [
@@ -119,7 +189,7 @@ describe('InboxJob', () => {
       }) as never,
     );
 
-    await expect((await job()).run()).resolves.toEqual({ skipped: false, examined: 1, ingested: 1 });
+    await expect(inbox.run()).resolves.toEqual({ skipped: false, examined: 1, ingested: 1 });
 
     expect(s3Client.send).toHaveBeenCalledTimes(2);
     expect(prisma.inboundMessage.create).toHaveBeenCalledWith(
@@ -154,9 +224,10 @@ describe('InboxJob', () => {
   });
 
   it('recognises a duplicate, moves it, and does not store it again', async () => {
+    const inbox = await primed();
     prisma.inboundMessage.findUnique.mockResolvedValue({ id: 'msg-existing' });
 
-    await expect((await job()).run()).resolves.toEqual({ skipped: false, examined: 1, ingested: 0 });
+    await expect(inbox.run()).resolves.toEqual({ skipped: false, examined: 1, ingested: 0 });
 
     expect(prisma.inboundMessage.create).not.toHaveBeenCalled();
     expect(s3Client.send).not.toHaveBeenCalled();
@@ -165,17 +236,19 @@ describe('InboxJob', () => {
   });
 
   it('does not advance the checkpoint when the fetch fails', async () => {
+    const inbox = await primed();
     client.fetchOne.mockRejectedValue(new Error('connection reset'));
 
-    await expect((await job()).run()).resolves.toEqual({ skipped: false, examined: 1, ingested: 0 });
+    await expect(inbox.run()).resolves.toEqual({ skipped: false, examined: 1, ingested: 0 });
     expect(prisma.mailboxCheckpoint.upsert).not.toHaveBeenCalled();
     expect(client.messageMove).not.toHaveBeenCalled();
   });
 
   it('advances past a message that vanished between search and fetch', async () => {
+    const inbox = await primed();
     client.fetchOne.mockResolvedValue(false);
 
-    await (await job()).run();
+    await inbox.run();
 
     expect(prisma.inboundMessage.create).not.toHaveBeenCalled();
     expect(prisma.mailboxCheckpoint.upsert).toHaveBeenCalledWith(
@@ -193,24 +266,29 @@ describe('InboxJob', () => {
     prisma.mailboxCheckpoint.update.mockResolvedValue({
       id: 'cp-1',
       uidValidity: 4n,
-      lastSeenUid: 0n,
+      lastSeenUid: 8n,
     });
 
-    await (await job()).run();
+    await expect((await job()).run()).resolves.toEqual({
+      skipped: false,
+      examined: 0,
+      ingested: 0,
+    });
 
     expect(prisma.mailboxCheckpoint.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           uidValidity: 4n,
-          lastSeenUid: 0n,
+          lastSeenUid: 8n,
           lastResetReason: 'uidvalidity_changed',
         }),
       }),
     );
-    expect(client.search).toHaveBeenCalledWith({ uid: '1:*' }, { uid: true });
+    expect(client.search).not.toHaveBeenCalled();
   });
 
   it('records a vendor reply that carries the check-in tag and ignores an automatic reply', async () => {
+    const inbox = await primed();
     vi.mocked(simpleParser).mockResolvedValue(
       parsedMail({
         subject: 'Re: payment [tag-99]',
@@ -222,7 +300,7 @@ describe('InboxJob', () => {
       { id: 'chk-1', correlationTag: 'tag-99', reference: 'VCI-1' },
     ]);
 
-    await (await job()).run();
+    await inbox.run();
 
     expect(prisma.vendorCheckIn.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -242,22 +320,39 @@ describe('InboxJob', () => {
       }) as never,
     );
     prisma.vendorCheckIn.update.mockClear();
-    await (await job()).run();
+    await inbox.run();
     expect(prisma.vendorCheckIn.update).not.toHaveBeenCalled();
   });
 
   it('keeps the stored message when the mailbox move fails', async () => {
+    const inbox = await primed();
     client.messageMove.mockRejectedValue(new Error('no MOVE'));
 
-    await expect((await job()).run()).resolves.toEqual({ skipped: false, examined: 1, ingested: 1 });
+    await expect(inbox.run()).resolves.toEqual({ skipped: false, examined: 1, ingested: 1 });
     expect(prisma.inboundMessage.create).toHaveBeenCalled();
     expect(prisma.mailboxCheckpoint.upsert).toHaveBeenCalled();
   });
 
   it('does not advance when the message cannot be parsed', async () => {
+    const inbox = await primed();
     vi.mocked(simpleParser).mockRejectedValue(new Error('bad mime'));
 
-    await expect((await job()).run()).resolves.toEqual({ skipped: false, examined: 1, ingested: 0 });
+    await expect(inbox.run()).resolves.toEqual({ skipped: false, examined: 1, ingested: 0 });
     expect(prisma.mailboxCheckpoint.upsert).not.toHaveBeenCalled();
+  });
+
+  it('skips messages with no attachments and leaves them in the inbox', async () => {
+    const inbox = await primed();
+    vi.mocked(simpleParser).mockResolvedValue(parsedMail({ attachments: [] }) as never);
+
+    await expect(inbox.run()).resolves.toEqual({ skipped: false, examined: 1, ingested: 0 });
+
+    expect(prisma.inboundMessage.create).not.toHaveBeenCalled();
+    expect(client.messageMove).not.toHaveBeenCalled();
+    expect(prisma.mailboxCheckpoint.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        update: expect.objectContaining({ lastSeenUid: 8n }),
+      }),
+    );
   });
 });
