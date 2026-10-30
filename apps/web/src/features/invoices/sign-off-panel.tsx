@@ -45,7 +45,11 @@ export function SignOffPanel({
   const signOff = invoice.sign_off;
   const actions = invoice.actions;
 
-  if (signOff.signed_off_at) {
+  // Confirmed receipt only counts once the invoice has left pending sign-off.
+  // A signed_off timestamp while still pending means the route failed to open —
+  // keep the confirm action available so the requester can retry after the matrix
+  // is fixed, without cancelling the invoice.
+  if (signOff.signed_off_at && invoice.state !== 'pending_sign_off') {
     return (
       <Card>
         <CardHeader>
@@ -126,6 +130,8 @@ export function SignOffPanel({
 
   const chasing = chasingDescriptor(signOff.reminders_sent, signOff.escalation_level);
   const mine = actions.may_sign_off;
+  const approvalStuck =
+    Boolean(signOff.signed_off_at) && invoice.state === 'pending_sign_off';
 
   return (
     <Card
@@ -134,11 +140,23 @@ export function SignOffPanel({
       }
     >
       <CardHeader>
-        <CardTitle>{mine ? 'Did this arrive?' : 'Waiting on receipt confirmation'}</CardTitle>
+        <CardTitle>
+          {approvalStuck
+            ? mine
+              ? 'Confirm again to open approval'
+              : 'Receipt noted, approval not opened'
+            : mine
+              ? 'Did this arrive?'
+              : 'Waiting on receipt confirmation'}
+        </CardTitle>
         <CardDescription>
-          {mine
-            ? 'You were named as the person who asked for this. Nothing goes to an approver until you answer, and nobody is paid until it does.'
-            : `${signOff.requester_label ?? 'The requester'} has been asked to confirm the goods or services arrived.`}
+          {approvalStuck
+            ? mine
+              ? 'Your earlier confirmation was kept back because the approval route could not open. Fix the matrix or assignees if needed, then confirm again — you do not need to cancel this invoice.'
+              : 'Receipt was confirmed, but the approval route did not open. An administrator should check the approval matrix, then the requester can confirm again.'
+            : mine
+              ? 'You were named as the person who asked for this. Nothing goes to an approver until you answer, and nobody is paid until it does.'
+              : `${signOff.requester_label ?? 'The requester'} has been asked to confirm the goods or services arrived.`}
         </CardDescription>
       </CardHeader>
 

@@ -61,7 +61,12 @@ describe('InvoicesService', () => {
     purchaseOrder: { findMany: vi.fn(), update: vi.fn() },
     user: { findMany: vi.fn() },
   };
-  const approvals = { submitForApproval: vi.fn(), recordDecision: vi.fn() };
+  const approvals = {
+    submitForApproval: vi.fn(),
+    recordDecision: vi.fn(),
+    assertCanOpenRoute: vi.fn().mockResolvedValue([{ stepOrder: 1, level: 'UNIT_HEAD' }]),
+    withdrawOpenRequest: vi.fn(),
+  };
   const audit = auditMock();
 
   beforeEach(() => vi.clearAllMocks());
@@ -193,6 +198,7 @@ describe('InvoicesService', () => {
 
     await (await service()).signOff('inv-1', user, { note: 'Received' });
 
+    expect(approvals.assertCanOpenRoute).toHaveBeenCalled();
     expect(approvals.submitForApproval).toHaveBeenCalledWith(
       expect.objectContaining({
         recordType: 'invoice',
@@ -206,5 +212,53 @@ describe('InvoicesService', () => {
       }),
     );
     void session;
+  });
+
+  it('does not keep a signed-off stamp when the approval route cannot open', async () => {
+    prisma.invoice.findFirst.mockResolvedValue({
+      ...invoice,
+      status: 'PENDING_SIGN_OFF',
+    });
+    approvals.assertCanOpenRoute.mockRejectedValueOnce(
+      new DomainException('No approval levels configured for this amount and currency'),
+    );
+
+    await expect(
+      (await service()).signOff('inv-1', user, { note: 'Received' }),
+    ).rejects.toBeInstanceOf(DomainException);
+
+    expect(prisma.invoice.update).not.toHaveBeenCalled();
+    expect(approvals.submitForApproval).not.toHaveBeenCalled();
+  });
+
+  it('clears a partial sign-off if opening the route fails after the stamp is written', async () => {
+    prisma.invoice.findFirst
+      .mockResolvedValueOnce({
+        ...invoice,
+        status: 'PENDING_SIGN_OFF',
+      })
+      .mockResolvedValueOnce({
+        ...invoice,
+        status: 'PENDING_SIGN_OFF',
+      });
+    prisma.invoice.update.mockResolvedValue(invoice);
+    approvals.submitForApproval.mockRejectedValueOnce(
+      new DomainException('Nobody is assigned at level UNIT_HEAD for this record'),
+    );
+
+    await expect(
+      (await service()).signOff('inv-1', user, { note: 'Received' }),
+    ).rejects.toBeInstanceOf(DomainException);
+
+    expect(prisma.invoice.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          signedOffAt: null,
+          signedOffById: null,
+          signOffNote: null,
+        }),
+      }),
+    );
+    expect(approvals.withdrawOpenRequest).not.toHaveBeenCalled();
   });
 });
