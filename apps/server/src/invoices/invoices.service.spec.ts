@@ -25,10 +25,25 @@ const invoice = {
   estimateId: null,
   documentId: null,
   invoiceNumber: null,
+  invoiceDate: null,
+  dueDate: null,
   description: 'Paper',
   currency: 'JMD',
   totalMinorUnits: 5000n,
   archivedAt: null,
+  submittedAt: null,
+  decidedAt: null,
+  signedOffAt: null,
+  createdAt: new Date('2026-01-01T00:00:00.000Z'),
+  createdBy: { id: user.id, name: user.name },
+  requester: { id: user.id, name: user.name },
+  vendor: { id: 'vendor-1', name: 'Acme' },
+  estimate: null,
+  purchaseOrder: null,
+  department: null,
+  costCentre: null,
+  glAccount: null,
+  approvalRequests: [],
 };
 
 describe('InvoicesService', () => {
@@ -38,7 +53,10 @@ describe('InvoicesService', () => {
       findFirst: vi.fn(),
       update: vi.fn(),
       groupBy: vi.fn(),
+      aggregate: vi.fn().mockResolvedValue({ _sum: { totalMinorUnits: null } }),
     },
+    s3Document: { findUnique: vi.fn() },
+    vendor: { findFirst: vi.fn() },
     estimate: { findMany: vi.fn() },
     purchaseOrder: { findMany: vi.fn(), update: vi.fn() },
     user: { findMany: vi.fn() },
@@ -58,15 +76,85 @@ describe('InvoicesService', () => {
     ]);
   }
 
-  it('creates a draft without starting approval', async () => {
-    prisma.invoice.create.mockResolvedValue({ ...invoice, documentId: 'doc-1' });
-    prisma.invoice.findFirst.mockResolvedValue({ ...invoice, documentId: 'doc-1' });
+  it('creates a blank draft without starting approval', async () => {
+    prisma.invoice.create.mockResolvedValue(invoice);
+    prisma.invoice.findFirst.mockResolvedValue(invoice);
+
+    const result = await (await service()).create(user, {});
+
+    expect(prisma.invoice.create.mock.calls[0][0].data.status).toBe('DRAFT');
+    expect(prisma.invoice.create.mock.calls[0][0].data.documentId).toBeUndefined();
+    expect(approvals.submitForApproval).not.toHaveBeenCalled();
+    expect(result.state).toBe('draft');
+  });
+
+  it('copies accepted invoice reading values onto a new draft', async () => {
+    prisma.s3Document.findUnique.mockResolvedValue({
+      id: 'doc-1',
+      extractions: [
+        {
+          status: 'accepted',
+          kind: 'invoice',
+          labelText: 'vendor_name',
+          valueText: 'Acme Supplies',
+        },
+        {
+          status: 'accepted',
+          kind: 'invoice',
+          labelText: 'document_number',
+          valueText: 'INV-99',
+        },
+        {
+          status: 'accepted',
+          kind: 'invoice',
+          labelText: 'document_date',
+          valueText: '2026-06-15',
+        },
+        {
+          status: 'accepted',
+          kind: 'invoice',
+          labelText: 'currency',
+          valueText: 'JMD',
+        },
+        {
+          status: 'accepted',
+          kind: 'invoice',
+          labelText: 'total',
+          valueText: 'JMD 125.50',
+        },
+      ],
+    });
+    prisma.invoice.findFirst
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({
+        ...invoice,
+        documentId: 'doc-1',
+        invoiceNumber: 'INV-99',
+        totalMinorUnits: 12550n,
+      });
+    prisma.vendor.findFirst.mockResolvedValue({ id: 'vendor-1', name: 'Acme Supplies' });
+    prisma.invoice.create.mockResolvedValue({
+      ...invoice,
+      documentId: 'doc-1',
+      invoiceNumber: 'INV-99',
+      totalMinorUnits: 12550n,
+    });
 
     const result = await (await service()).create(user, { documentId: 'doc-1' });
 
-    expect(prisma.invoice.create.mock.calls[0][0].data.status).toBe('DRAFT');
-    expect(approvals.submitForApproval).not.toHaveBeenCalled();
-    expect(result.state).toBe('draft');
+    expect(prisma.invoice.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          status: 'DRAFT',
+          documentId: 'doc-1',
+          vendorId: 'vendor-1',
+          invoiceNumber: 'INV-99',
+          totalMinorUnits: 12550n,
+          currency: 'JMD',
+        }),
+      }),
+    );
+    expect(result.document_id).toBe('doc-1');
   });
 
   it('links a purchase order on the draft and leaves the order untouched', async () => {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { Invoice, InvoiceStatus, Prisma, User } from '../generated/prisma/index.js';
 import { AuditService } from '../common/audit.service.js';
-import { DomainException, notFound } from '../common/errors.js';
+import { conflict, DomainException, notFound } from '../common/errors.js';
 import { nextReference } from '../common/ids.js';
 import { resolvePage } from '../common/pagination.js';
 import { serialize, toBigInt } from '../common/serialize.js';
@@ -293,12 +293,15 @@ export class InvoicesService {
   }
 
   async create(user: User, body: { documentId?: string | null }) {
+    if (body.documentId) {
+      return this.createFromDocument(user, body.documentId);
+    }
+
     const invoice = await this.prisma.invoice.create({
       data: {
         reference: nextReference('INV'),
         status: 'DRAFT',
         createdById: user.id,
-        documentId: body.documentId ?? null,
       },
     });
     await this.audit.append({
@@ -307,7 +310,98 @@ export class InvoicesService {
       actorLabel: user.name,
       subjectType: RECORD_TYPE,
       subjectId: invoice.id,
-      detail: { reference: invoice.reference },
+      detail: { reference: invoice.reference, from_document: null },
+    });
+    return this.getById(invoice.id, user);
+  }
+
+  /**
+   * Record a draft from an accepted invoice reading.
+   *
+   * Accept alone does not create the invoice: that would put a payment record on
+   * the board without someone choosing to raise it. This path copies confirmed
+   * values and links the source document.
+   */
+  private async createFromDocument(user: User, documentId: string) {
+    const document = await this.prisma.s3Document.findUnique({
+      where: { id: documentId },
+      include: {
+        extractions: {
+          where: { isCurrent: true },
+          orderBy: { attempt: 'desc' },
+        },
+      },
+    });
+    if (!document) throw notFound('Document', documentId);
+
+    const fields = document.extractions;
+    const head = fields[0];
+    if (!head || head.status !== 'accepted') {
+      throw conflict(
+        'The values read from this document have not been accepted yet. Check them in the review workspace and accept them first.',
+      );
+    }
+    if (head.kind !== 'invoice') {
+      throw conflict(
+        `This document was accepted as a ${head.kind.replaceAll('_', ' ')}, not an invoice. Change its type in the review workspace if that is wrong.`,
+      );
+    }
+
+    const existing = await this.prisma.invoice.findFirst({
+      where: { documentId, archivedAt: null },
+    });
+    if (existing) {
+      throw conflict(
+        `This document has already been recorded as invoice ${existing.reference}.`,
+      );
+    }
+
+    const textOf = (name: string) => {
+      const row = fields.find((item) => item.labelText === name);
+      return row?.valueText?.trim() ?? '';
+    };
+
+    const vendorName = textOf('vendor_name');
+    const vendor = vendorName
+      ? await this.prisma.vendor.findFirst({
+          where: { name: { equals: vendorName, mode: 'insensitive' } },
+        })
+      : null;
+
+    const currencyText = textOf('currency').toUpperCase().slice(0, 3);
+    const totalParsed = parseMoneyText(textOf('total'), currencyText || undefined);
+    const currencyRaw = totalParsed?.currency ?? currencyText;
+    const currency =
+      currencyRaw === 'JMD' || currencyRaw === 'USD' ? currencyRaw : null;
+
+    const invoice = await this.prisma.invoice.create({
+      data: {
+        reference: nextReference('INV'),
+        status: 'DRAFT',
+        createdById: user.id,
+        documentId,
+        vendorId: vendor?.id ?? null,
+        invoiceNumber: textOf('document_number').slice(0, 120) || null,
+        invoiceDate: parseDateText(textOf('document_date')),
+        dueDate: parseDateText(textOf('due_date')),
+        totalMinorUnits: totalParsed?.minor ?? null,
+        currency,
+        description: '',
+      },
+    });
+
+    await this.audit.append({
+      action: 'invoice.created',
+      actorId: user.id,
+      actorLabel: user.name,
+      subjectType: RECORD_TYPE,
+      subjectId: invoice.id,
+      detail: {
+        reference: invoice.reference,
+        from_document: documentId,
+        vendor_name: vendorName || null,
+        invoice_number: invoice.invoiceNumber,
+      },
     });
     return this.getById(invoice.id, user);
   }
@@ -858,4 +952,37 @@ export class InvoicesService {
       correlationId: correlationId ?? crypto.randomUUID(),
     });
   }
+}
+
+function parseMoneyText(
+  text: string,
+  fallbackCurrency?: string,
+): { minor: bigint; currency?: string } | null {
+  const cleaned = text.replace(/,/g, '').trim();
+  if (!cleaned) return null;
+  const match = cleaned.match(
+    /(?:([A-Za-z]{3})\s*)?(-?\d+(?:\.\d{1,2})?)(?:\s*([A-Za-z]{3}))?/,
+  );
+  if (!match) return null;
+  const major = Number.parseFloat(match[2]!);
+  if (!Number.isFinite(major)) return null;
+  const currency = (match[1] ?? match[3] ?? fallbackCurrency)?.toUpperCase();
+  return {
+    minor: BigInt(Math.round(major * 100)),
+    currency: currency && /^[A-Z]{3}$/.test(currency) ? currency : undefined,
+  };
+}
+
+function parseDateText(text: string): Date | null {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(trimmed);
+  if (iso) {
+    return new Date(
+      Date.UTC(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3])),
+    );
+  }
+  const parsed = new Date(trimmed);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed;
 }

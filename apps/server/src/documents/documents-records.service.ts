@@ -153,7 +153,7 @@ export class DocumentsRecordsService {
       acceptance_blockers: this.blockers(row.kind, fields),
       extraction: head ? this.extractionOut(head, fields) : null,
       history: await this.history(id, head?.attempt ?? null),
-      raised_as: null,
+      raised_as: await this.raisedAs(id),
     };
   }
 
@@ -710,6 +710,37 @@ export class DocumentsRecordsService {
       lowest_confidence: lowestConfidence(fields),
       signal_count: head ? jsonStrings(head.signals).length : 0,
     };
+  }
+
+  private async raisedAs(documentId: string) {
+    const estimate = await this.prisma.estimate.findFirst({
+      where: { documentId, archivedAt: null },
+      select: { id: true, reference: true, status: true },
+    });
+    if (estimate) {
+      return {
+        kind: 'estimate' as const,
+        id: estimate.id,
+        reference: estimate.reference,
+        state_label: estimate.status.toLowerCase().replaceAll('_', ' '),
+      };
+    }
+
+    const invoice = await this.prisma.invoice.findFirst({
+      where: { documentId, archivedAt: null },
+      select: { id: true, reference: true, status: true },
+    });
+    if (invoice) {
+      return {
+        // OpenAPI historically only named estimates; invoice is the same shape.
+        kind: 'invoice' as const,
+        id: invoice.id,
+        reference: invoice.reference,
+        state_label: invoice.status.toLowerCase().replaceAll('_', ' '),
+      };
+    }
+
+    return null;
   }
 }
 

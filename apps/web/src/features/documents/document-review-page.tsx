@@ -38,6 +38,7 @@ import {
   signalTone,
 } from '@/features/documents/document-vocabulary';
 import { RaiseEstimatePanel } from '@/features/estimates/raise-from-document';
+import { RaiseInvoicePanel } from '@/features/invoices/raise-from-document';
 import {
   useAcceptDocument,
   useAcknowledgeSignal,
@@ -402,6 +403,7 @@ export function DocumentReviewPage() {
                   </Card>
 
                   <RaiseEstimatePanel document={document} />
+                  <RaiseInvoicePanel document={document} />
                 </>
               ) : (
                 <Card>
