@@ -13,7 +13,13 @@ import { serialize, toBigInt } from '../common/serialize.js';
 import { toWorkflowState } from '../common/workflow-state.js';
 import { TransitionsService } from '../common/transitions.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { approvalLevelFromApi } from '../approvals/approval-levels.js';
+import { planRoute, withReadyStates } from '../approvals/approval-domain.js';
+import {
+  approvalLevelFromApi,
+  approvalLevelToApi,
+  LEVEL_LABELS,
+} from '../approvals/approval-levels.js';
+import { mapStepsForApi } from '../approvals/approvals.service.js';
 import { ApprovalsEngineService } from '../approvals/approvals-engine.service.js';
 import { RECORD_TYPES } from '../approvals/record-types.js';
 
@@ -38,7 +44,13 @@ const detailInclude = {
   closedBy: { select: { id: true, name: true } },
   approvalRequests: {
     orderBy: { attempt: 'asc' as const },
-    include: { steps: true },
+    include: {
+      department: true,
+      steps: {
+        orderBy: [{ stepOrder: 'asc' as const }, { level: 'asc' as const }],
+        include: { onBehalfOf: { select: { name: true } } },
+      },
+    },
   },
 } satisfies Prisma.PurchaseOrderInclude;
 
@@ -146,7 +158,7 @@ export class PurchaseOrdersService {
     });
   }
 
-  async getById(id: string) {
+  async getById(id: string, user: User) {
     const order = await this.prisma.purchaseOrder.findFirst({
       where: { id, archivedAt: null },
       include: detailInclude,
@@ -156,7 +168,7 @@ export class PurchaseOrdersService {
       where: { recordType: RECORD_TYPE, recordId: id },
       orderBy: { occurredAt: 'asc' },
     });
-    return serialize(toDetail(order, transitions));
+    return serialize(await this.toDetail(order, transitions, user));
   }
 
   async create(user: User, body: { estimateId?: string | null }) {
@@ -177,7 +189,7 @@ export class PurchaseOrdersService {
       subjectId: order.id,
       detail: { number: order.number },
     });
-    return this.getById(order.id);
+    return this.getById(order.id, user);
   }
 
   async updateDraft(id: string, user: User, body: Record<string, unknown>) {
@@ -212,8 +224,7 @@ export class PurchaseOrdersService {
           | undefined,
       },
     });
-    void user;
-    return this.getById(id);
+    return this.getById(id, user);
   }
 
   async submit(id: string, user: User) {
@@ -263,7 +274,7 @@ export class PurchaseOrdersService {
         data: { openedAt: new Date() },
       });
     }
-    return this.getById(id);
+    return this.getById(id, user);
   }
 
   async withdraw(id: string, user: User, reason: string) {
@@ -285,7 +296,7 @@ export class PurchaseOrdersService {
       where: { id },
       data: { submittedAt: null, submittedById: null },
     });
-    return this.getById(id);
+    return this.getById(id, user);
   }
 
   async amend(
@@ -329,7 +340,7 @@ export class PurchaseOrdersService {
       );
     }
 
-    return this.getById(id);
+    return this.getById(id, user);
   }
 
   async close(id: string, user: User, reason: string) {
@@ -346,7 +357,7 @@ export class PurchaseOrdersService {
         closedReason: reason.trim(),
       },
     });
-    return this.getById(id);
+    return this.getById(id, user);
   }
 
   async cancel(id: string, user: User, reason: string) {
@@ -361,7 +372,7 @@ export class PurchaseOrdersService {
       );
     }
     await this.moveStatus(order, 'CANCELLED', user, reason.trim());
-    return this.getById(id);
+    return this.getById(id, user);
   }
 
   async decision(
@@ -398,8 +409,7 @@ export class PurchaseOrdersService {
         data: { status: 'REJECTED' },
       });
     }
-    void user;
-    return this.getById(id);
+    return this.getById(id, user);
   }
 
   private async coveredByApprovedEstimate(order: PurchaseOrder) {
@@ -459,6 +469,193 @@ export class PurchaseOrdersService {
       reason,
       correlationId: correlationId ?? crypto.randomUUID(),
     });
+  }
+
+  private async toDetail(
+    order: Prisma.PurchaseOrderGetPayload<{ include: typeof detailInclude }>,
+    transitions: {
+      fromState: string;
+      toState: string;
+      actorLabel: string | null;
+      reason: string | null;
+      occurredAt: Date;
+    }[],
+    user: User,
+  ) {
+    const state = toWorkflowState(order.status);
+    const problems = orderProblems(order);
+    const editable = state === 'draft' || state === 'rejected';
+    const open = state === 'approved' && order.closedAt == null;
+    const covered = isCoveredByEstimate(order);
+    const needsApproval = !covered;
+    const openRequest = order.approvalRequests.find((r) => r.status === 'OPEN');
+
+    const route = openRequest
+      ? await this.buildRouteView(openRequest, user, order.raisedById)
+      : null;
+
+    const canDecide =
+      openRequest != null &&
+      state === 'pending_approval' &&
+      (await this.canDecideAnyStep(user, openRequest, order.raisedById));
+
+    const { planned, unavailable } = await this.plannedRoute(
+      order,
+      user,
+      needsApproval,
+    );
+
+    return {
+      id: order.id,
+      number: order.number,
+      state,
+      state_label: orderStateLabel(order.status, order.closedAt),
+      is_open: open,
+      version: order.version ?? 1,
+      vendor: ref(order.vendor),
+      description: order.description ?? '',
+      total_minor_units:
+        order.totalMinorUnits != null ? Number(order.totalMinorUnits) : null,
+      currency: order.currency,
+      total_formatted: formatOrderMoney(order.totalMinorUnits, order.currency),
+      cost_centre: ref(order.costCentre),
+      gl_account: ref(order.glAccount),
+      department: order.department?.name ?? null,
+      estimate_id: order.estimateId,
+      estimate_reference: order.estimate?.reference ?? null,
+      billed_minor_units: null,
+      billed_formatted: null,
+      remaining_minor_units:
+        order.totalMinorUnits != null ? Number(order.totalMinorUnits) : null,
+      remaining_formatted: formatOrderMoney(
+        order.totalMinorUnits,
+        order.currency,
+      ),
+      raised_by_label: order.raisedBy?.name ?? '',
+      submitted_at: order.submittedAt?.toISOString() ?? null,
+      opened_at: order.openedAt?.toISOString() ?? null,
+      closed_at: order.closedAt?.toISOString() ?? null,
+      closed_by_label: order.closedBy?.name ?? null,
+      closed_reason: order.closedReason,
+      problems,
+      blockers: problems.filter((problem) => problem.is_blocking),
+      planned_route: planned,
+      route_unavailable: unavailable,
+      needs_approval: needsApproval,
+      route,
+      transitions: transitions.map((entry) => ({
+        from_state: toWorkflowState(entry.fromState),
+        to_state: toWorkflowState(entry.toState),
+        to_state_label: orderStateLabel(entry.toState, null),
+        actor_label: entry.actorLabel,
+        reason: entry.reason,
+        occurred_at: entry.occurredAt.toISOString(),
+      })),
+      can_edit: editable,
+      can_submit: editable && problems.length === 0,
+      can_withdraw: state === 'pending_approval',
+      can_amend: open,
+      can_close: open,
+      can_cancel: state !== 'cancelled' && state !== 'rejected',
+      can_decide: canDecide,
+    };
+  }
+
+  private async plannedRoute(
+    order: Prisma.PurchaseOrderGetPayload<{ include: typeof detailInclude }>,
+    user: User,
+    needsApproval: boolean,
+  ): Promise<{
+    planned: Array<{
+      step_order: number;
+      level: string;
+      level_label: string;
+    }>;
+    unavailable: string | null;
+  }> {
+    if (order.totalMinorUnits == null || order.currency == null) {
+      return { planned: [], unavailable: null };
+    }
+    if (!needsApproval) {
+      return { planned: [], unavailable: null };
+    }
+
+    const departmentId = order.departmentId ?? user.departmentId;
+    try {
+      const rules = await this.approvals.loadMatrixRules(RECORD_TYPE);
+      const steps = planRoute(
+        rules,
+        order.totalMinorUnits,
+        order.currency,
+        departmentId,
+      );
+      return {
+        planned: steps.map((step) => ({
+          step_order: step.stepOrder,
+          level: approvalLevelToApi(step.level),
+          level_label: LEVEL_LABELS[step.level],
+        })),
+        unavailable: null,
+      };
+    } catch (err) {
+      return {
+        planned: [],
+        unavailable:
+          err instanceof Error ? err.message : 'No approval route available',
+      };
+    }
+  }
+
+  private async canDecideAnyStep(
+    user: User,
+    open: NonNullable<
+      Prisma.PurchaseOrderGetPayload<{
+        include: typeof detailInclude;
+      }>['approvalRequests'][number]
+    >,
+    requesterId: string,
+  ) {
+    if (user.id === requesterId) return false;
+    const ready = withReadyStates(
+      this.approvals.progressFromRequest(open),
+    ).filter((s) => s.status === 'READY');
+    for (const step of ready) {
+      const standing = await this.approvals.standing(
+        open.departmentId,
+        step.level,
+        user,
+      );
+      if (standing.mayDecide) return true;
+    }
+    return false;
+  }
+
+  private async buildRouteView(
+    open: NonNullable<
+      Prisma.PurchaseOrderGetPayload<{
+        include: typeof detailInclude;
+      }>['approvalRequests'][number]
+    >,
+    user: User,
+    requesterId: string,
+  ) {
+    const decidable = new Set<string>();
+    const ready = withReadyStates(
+      this.approvals.progressFromRequest(open),
+    ).filter((s) => s.status === 'READY');
+    for (const step of ready) {
+      const standing = await this.approvals.standing(
+        open.departmentId,
+        step.level,
+        user,
+      );
+      if (standing.mayDecide && user.id !== requesterId) {
+        decidable.add(step.level);
+      }
+    }
+    return mapStepsForApi(open, user.id, requesterId, (level) =>
+      decidable.has(level),
+    );
   }
 }
 
@@ -622,104 +819,23 @@ function orderProblems(order: {
   }));
 }
 
-function toDetail(
-  order: {
-    id: string;
-    number: string;
+function isCoveredByEstimate(order: {
+  vendorId: string | null;
+  totalMinorUnits: bigint | null;
+  currency: string | null;
+  estimate?: {
     status: string;
-    version?: number;
     vendorId: string | null;
-    vendor?: { id: string; code: string; name: string } | null;
-    estimateId: string | null;
-    estimate?: {
-      reference: string;
-      status: string;
-      vendorId: string | null;
-      currency: string | null;
-      totalMinorUnits: bigint | null;
-    } | null;
-    description: string | null;
-    totalMinorUnits: bigint | null;
     currency: string | null;
-    costCentreId?: string | null;
-    costCentre?: { id: string; code: string; name: string } | null;
-    glAccount?: { id: string; code: string; name: string } | null;
-    department?: { name: string } | null;
-    closedAt: Date | null;
-    closedReason: string | null;
-    closedBy?: { name: string } | null;
-    openedAt: Date | null;
-    submittedAt?: Date | null;
-    raisedBy?: { name: string } | null;
-  },
-  transitions: {
-    fromState: string;
-    toState: string;
-    actorLabel: string | null;
-    reason: string | null;
-    occurredAt: Date;
-  }[],
-) {
-  const state = toWorkflowState(order.status);
-  const problems = orderProblems(order);
-  const editable = state === 'draft' || state === 'rejected';
-  const open = state === 'approved' && order.closedAt == null;
-  const covered =
+    totalMinorUnits: bigint | null;
+  } | null;
+}) {
+  return (
     order.estimate?.status === 'APPROVED' &&
     order.estimate.vendorId === order.vendorId &&
     order.estimate.currency === order.currency &&
     (order.estimate.totalMinorUnits == null ||
       order.totalMinorUnits == null ||
-      order.totalMinorUnits <= order.estimate.totalMinorUnits);
-  return {
-    id: order.id,
-    number: order.number,
-    state,
-    state_label: orderStateLabel(order.status, order.closedAt),
-    is_open: open,
-    version: order.version ?? 1,
-    vendor: ref(order.vendor),
-    description: order.description ?? '',
-    total_minor_units:
-      order.totalMinorUnits != null ? Number(order.totalMinorUnits) : null,
-    currency: order.currency,
-    total_formatted: formatOrderMoney(order.totalMinorUnits, order.currency),
-    cost_centre: ref(order.costCentre),
-    gl_account: ref(order.glAccount),
-    department: order.department?.name ?? null,
-    estimate_id: order.estimateId,
-    estimate_reference: order.estimate?.reference ?? null,
-    billed_minor_units: null,
-    billed_formatted: null,
-    remaining_minor_units:
-      order.totalMinorUnits != null ? Number(order.totalMinorUnits) : null,
-    remaining_formatted: formatOrderMoney(order.totalMinorUnits, order.currency),
-    raised_by_label: order.raisedBy?.name ?? '',
-    submitted_at: order.submittedAt?.toISOString() ?? null,
-    opened_at: order.openedAt?.toISOString() ?? null,
-    closed_at: order.closedAt?.toISOString() ?? null,
-    closed_by_label: order.closedBy?.name ?? null,
-    closed_reason: order.closedReason,
-    problems,
-    blockers: problems.filter((problem) => problem.is_blocking),
-    planned_route: [],
-    route_unavailable: null,
-    needs_approval: !covered,
-    route: null,
-    transitions: transitions.map((entry) => ({
-      from_state: toWorkflowState(entry.fromState),
-      to_state: toWorkflowState(entry.toState),
-      to_state_label: orderStateLabel(entry.toState, null),
-      actor_label: entry.actorLabel,
-      reason: entry.reason,
-      occurred_at: entry.occurredAt.toISOString(),
-    })),
-    can_edit: editable,
-    can_submit: editable && problems.length === 0,
-    can_withdraw: state === 'pending_approval',
-    can_amend: open,
-    can_close: open,
-    can_cancel: state !== 'cancelled' && state !== 'rejected',
-    can_decide: false,
-  };
+      order.totalMinorUnits <= order.estimate.totalMinorUnits)
+  );
 }

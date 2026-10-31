@@ -61,8 +61,9 @@ export class PurchaseOrdersController {
   }
 
   @Get(':id')
-  getOne(@Param('id') id: string) {
-    return this.service.getById(id);
+  async getOne(@Session() session: UserSession, @Param('id') id: string) {
+    const user = await this.sessionUser(session);
+    return this.service.getById(id, user);
   }
 
   @Post()

@@ -71,7 +71,9 @@ export function Field({
             </span>
             <span className="sr-only">(required)</span>
           </>
-        ) : null}
+        ) : (
+          <span className="sr-only">(optional)</span>
+        )}
       </label>
 
       {children({ inputId, describedBy, invalid: Boolean(error) })}
