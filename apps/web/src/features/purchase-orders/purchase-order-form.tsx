@@ -1,13 +1,13 @@
-import { useMemo } from 'react';
+import { useMemo } from "react";
 
 import type {
   PurchaseOrderDetail,
   PurchaseOrderDraftRequest,
   PurchaseOrderReferenceData,
-} from '@finora/shared-types';
+} from "@finora/shared-types";
 
-import { Field, Input, Select } from '@/components/ui/field';
-import { amountInputValue, parseAmount } from '@/lib/money';
+import { Field, Input, Select } from "@/components/ui/field";
+import { amountInputValue, parseAmount } from "@/lib/money";
 
 /**
  * The editor for an order that has not yet been committed.
@@ -38,15 +38,15 @@ export interface OrderFormValues {
 
 /** The saved order as form text. */
 export function valuesFrom(order: PurchaseOrderDetail): OrderFormValues {
-  const currency = order.currency ?? 'JMD';
+  const currency = order.currency ?? "JMD";
   return {
-    vendorId: order.vendor?.id ?? '',
+    vendorId: order.vendor?.id ?? "",
     description: order.description,
     amount: amountInputValue(order.total_minor_units, currency),
     currency,
-    costCentreId: order.cost_centre?.id ?? '',
-    glAccountId: order.gl_account?.id ?? '',
-    estimateId: order.estimate_id ?? '',
+    costCentreId: order.cost_centre?.id ?? "",
+    glAccountId: order.gl_account?.id ?? "",
+    estimateId: order.estimate_id ?? "",
   };
 }
 
@@ -66,8 +66,13 @@ export function draftFrom(values: OrderFormValues): PurchaseOrderDraftRequest {
   };
 }
 
-export function isSameDraft(a: PurchaseOrderDraftRequest, b: PurchaseOrderDraftRequest): boolean {
-  return (Object.keys(a) as (keyof PurchaseOrderDraftRequest)[]).every((key) => a[key] === b[key]);
+export function isSameDraft(
+  a: PurchaseOrderDraftRequest,
+  b: PurchaseOrderDraftRequest,
+): boolean {
+  return (Object.keys(a) as (keyof PurchaseOrderDraftRequest)[]).every(
+    (key) => a[key] === b[key],
+  );
 }
 
 /**
@@ -115,7 +120,6 @@ export function PurchaseOrderForm({
   const costCentres = reference?.cost_centres ?? [];
   const glAccounts = reference?.gl_accounts ?? [];
   const estimates = reference?.approved_estimates ?? [];
-
   /**
    * A problem for this field, unless it has been edited since the save the
    * problem was computed from. Once somebody types in a box, what the server
@@ -126,14 +130,15 @@ export function PurchaseOrderForm({
     [problems, touched],
   );
 
-  const set = (patch: Partial<OrderFormValues>) => onChange({ ...values, ...patch });
+  const set = (patch: Partial<OrderFormValues>) =>
+    onChange({ ...values, ...patch });
 
   return (
     <div className="flex flex-col gap-[var(--space-5)]">
       <Field
         label="Supplier"
         required
-        error={errorFor('vendor_id')}
+        error={errorFor("vendor_id")}
         help="Who the commitment is with. Only suppliers finance has set up can be committed to, because this is the record an invoice is matched against."
       >
         {({ inputId, describedBy, invalid }) => (
@@ -158,7 +163,7 @@ export function PurchaseOrderForm({
       <Field
         label="What is being ordered"
         required
-        error={errorFor('description')}
+        error={errorFor("description")}
         help="One line an approver can recognise without opening anything else."
       >
         {({ inputId, describedBy, invalid }) => (
@@ -178,7 +183,7 @@ export function PurchaseOrderForm({
         <Field
           label="Order total"
           required
-          error={errorFor('total')}
+          error={errorFor("total")}
           help="The most this order commits the organisation to. Invoices against it cannot add up to more. Figures only, in the form"
           formatHint="1234.56"
         >
@@ -217,7 +222,7 @@ export function PurchaseOrderForm({
 
       <Field
         label="Approved estimate this draws on"
-        error={errorFor('estimate_id')}
+        error={errorFor("estimate_id")}
         help="If an approved estimate already covers this supplier at this amount, name it and the order opens on submission instead of going round for signatures again."
       >
         {({ inputId, describedBy, invalid }) => (
@@ -232,7 +237,7 @@ export function PurchaseOrderForm({
             <option value="">Not against an estimate</option>
             {estimates.map((estimate) => (
               <option key={estimate.id} value={estimate.id}>
-                {estimate.name}
+                {estimate.reference}
               </option>
             ))}
           </Select>
@@ -243,7 +248,7 @@ export function PurchaseOrderForm({
         <Field
           label="Cost centre"
           required
-          error={errorFor('cost_centre_id')}
+          error={errorFor("cost_centre_id")}
           help="Whose budget this comes out of. It also decides which department’s approvers see it."
         >
           {({ inputId, describedBy, invalid }) => (
@@ -267,7 +272,7 @@ export function PurchaseOrderForm({
 
         <Field
           label="Account code"
-          error={errorFor('gl_account_id')}
+          error={errorFor("gl_account_id")}
           help="Optional here. Finance can set it later, and will need it before anything is paid."
         >
           {({ inputId, describedBy, invalid }) => (

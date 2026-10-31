@@ -4,10640 +4,10828 @@
  */
 
 export interface paths {
-    "/api/v1/accruals/candidates/{candidate_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Edit Candidate */
-        patch: operations["edit_candidate_api_v1_accruals_candidates__candidate_id__patch"];
-        trace?: never;
-    };
-    "/api/v1/accruals/candidates/{candidate_id}/finalize": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Finalize Candidate */
-        post: operations["finalize_candidate_api_v1_accruals_candidates__candidate_id__finalize_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/accruals/periods": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Periods */
-        get: operations["list_periods_api_v1_accruals_periods_get"];
-        put?: never;
-        /** Open Period */
-        post: operations["open_period_api_v1_accruals_periods_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/accruals/periods/{period_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Period */
-        get: operations["get_period_api_v1_accruals_periods__period_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/accruals/periods/{period_id}/candidates/generate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Generate Candidates */
-        post: operations["generate_candidates_api_v1_accruals_periods__period_id__candidates_generate_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/accruals/periods/{period_id}/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Export Period */
-        post: operations["export_period_api_v1_accruals_periods__period_id__export_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/accruals/periods/{period_id}/lock": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Lock Period */
-        post: operations["lock_period_api_v1_accruals_periods__period_id__lock_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/assignments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Read Assignments */
-        get: operations["read_assignments_api_v1_admin_assignments_get"];
-        put?: never;
-        /** Assign Level */
-        post: operations["assign_level_api_v1_admin_assignments_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/assignments/{assignment_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Unassign Level */
-        delete: operations["unassign_level_api_v1_admin_assignments__assignment_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/delegations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Delegations
-         * @description Everybody who currently has cover arranged, in effect or not.
-         *
-         *     Dormant and expired arrangements are included on purpose. An expired one is
-         *     the commonest reason an approval queue has silently stopped moving, and it is
-         *     invisible on a screen that lists only what is working.
-         */
-        get: operations["read_delegations_api_v1_admin_delegations_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/delegations/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Set Cover
-         * @description Arrange, change or clear cover.
-         *
-         *     Your own needs the delegate permission; somebody else's needs the matrix
-         *     permission, because arranging cover for another approver is a change to who
-         *     can decide, which is an administrative act however kindly meant.
-         */
-        put: operations["set_cover_api_v1_admin_delegations__user_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/matrix/{record_type}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Matrix
-         * @description The rules for a record type and what they currently do.
-         */
-        get: operations["read_matrix_api_v1_admin_matrix__record_type__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/matrix/{record_type}/preview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Preview Route
-         * @description Who would have to approve a given amount, under the live matrix.
-         *
-         *     The same call the submission path makes. An administrator checking their work
-         *     against a re-description of the rules would be checking the wrong thing.
-         */
-        get: operations["preview_route_api_v1_admin_matrix__record_type__preview_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/matrix/rules": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Add Rule
-         * @description Add a rule, or replace a live one by naming it in `supersedes_id`.
-         *
-         *     Answers with the whole matrix rather than the rule that was written. The
-         *     question an administrator has after saving is never "what did I just type",
-         *     it is "what does this now do", and returning only the new row would leave
-         *     them to work that out from the table.
-         */
-        post: operations["add_rule_api_v1_admin_matrix_rules_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/matrix/rules/{rule_id}/retire": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Retire Rule */
-        post: operations["retire_rule_api_v1_admin_matrix_rules__rule_id__retire_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/operational-settings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Operational Settings
-         * @description AI status and workflow policy snapshot. No secrets.
-         */
-        get: operations["read_operational_settings_api_v1_admin_operational_settings_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/operational-settings/ai-kill-switch": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Post Ai Kill Switch */
-        post: operations["post_ai_kill_switch_api_v1_admin_operational_settings_ai_kill_switch_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/people": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read People
-         * @description Everybody who could hold a level or be named as somebody's cover.
-         *
-         *     Closed accounts are left out entirely: anything routed to them waits
-         *     indefinitely, and offering the name is offering a way to stop a queue.
-         */
-        get: operations["read_people_api_v1_admin_people_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/reference/cost-centres": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Cost Centres */
-        get: operations["list_cost_centres_api_v1_admin_reference_cost_centres_get"];
-        put?: never;
-        /** Create Cost Centre */
-        post: operations["create_cost_centre_api_v1_admin_reference_cost_centres_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/reference/cost-centres/{centre_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update Cost Centre */
-        put: operations["update_cost_centre_api_v1_admin_reference_cost_centres__centre_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/reference/cost-centres/{centre_id}/active": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Set Cost Centre Active */
-        post: operations["set_cost_centre_active_api_v1_admin_reference_cost_centres__centre_id__active_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/reference/gl-accounts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Gl Accounts */
-        get: operations["list_gl_accounts_api_v1_admin_reference_gl_accounts_get"];
-        put?: never;
-        /** Create Gl Account */
-        post: operations["create_gl_account_api_v1_admin_reference_gl_accounts_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/reference/gl-accounts/{account_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update Gl Account */
-        put: operations["update_gl_account_api_v1_admin_reference_gl_accounts__account_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/reference/gl-accounts/{account_id}/active": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Set Gl Account Active */
-        post: operations["set_gl_account_active_api_v1_admin_reference_gl_accounts__account_id__active_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/reference/vendors": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Vendors */
-        get: operations["list_vendors_api_v1_admin_reference_vendors_get"];
-        put?: never;
-        /** Create Vendor */
-        post: operations["create_vendor_api_v1_admin_reference_vendors_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/reference/vendors/{vendor_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update Vendor */
-        put: operations["update_vendor_api_v1_admin_reference_vendors__vendor_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/reference/vendors/{vendor_id}/active": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Set Vendor Active */
-        post: operations["set_vendor_active_api_v1_admin_reference_vendors__vendor_id__active_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/retention": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Policies */
-        get: operations["list_policies_api_v1_admin_retention_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/retention/{policy_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update Policy */
-        patch: operations["update_policy_api_v1_admin_retention__policy_id__patch"];
-        trace?: never;
-    };
-    "/api/v1/admin/retention/{policy_id}/active": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Set Policy Active */
-        post: operations["set_policy_active_api_v1_admin_retention__policy_id__active_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/thresholds": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Thresholds */
-        get: operations["list_thresholds_api_v1_admin_thresholds_get"];
-        /** Upsert Threshold */
-        put: operations["upsert_threshold_api_v1_admin_thresholds_put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/thresholds/{threshold_id}/active": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Set Threshold Active */
-        post: operations["set_threshold_active_api_v1_admin_thresholds__threshold_id__active_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Users */
-        get: operations["list_users_api_v1_admin_users_get"];
-        put?: never;
-        /** Create User */
-        post: operations["create_user_api_v1_admin_users_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/users/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Read User */
-        get: operations["read_user_api_v1_admin_users__user_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/users/{user_id}/active": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Set Active */
-        post: operations["set_active_api_v1_admin_users__user_id__active_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/users/{user_id}/roles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Set Roles */
-        put: operations["set_roles_api_v1_admin_users__user_id__roles_put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/approvals/queue": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Queue
-         * @description Everything waiting on this caller, oldest first.
-         *
-         *     Eligibility is resolved before pagination rather than after. Whether a route
-         *     is this person's to decide depends on department-scoped assignments and live
-         *     delegations, which the query cannot answer alone, so the honest choices are
-         *     to filter then page, or to page then filter and hand back pages of varying
-         *     and occasionally zero length. An approver's queue is tens of items, and a
-         *     page that is empty for no visible reason is worse than the extra work.
-         */
-        get: operations["read_queue_api_v1_approvals_queue_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/audit/entries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Entries
-         * @description Paginated trail, oldest first, with optional filters.
-         */
-        get: operations["list_entries_api_v1_audit_entries_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/audit/entries/{sequence}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Entry
-         * @description One entry by its place in the chain.
-         */
-        get: operations["read_entry_api_v1_audit_entries__sequence__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/audit/verify": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Verify Chain
-         * @description Check that a contiguous range of the chain still holds.
-         *
-         *     Offered as a range because a mature trail is too large to hash in one
-         *     request; an auditor checks segments and the segments join because each
-         *     carries its predecessor's hash.
-         */
-        post: operations["verify_chain_api_v1_audit_verify_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/local/sign-in": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Local Sign In
-         * @description Development and test sign-in by email, with no password.
-         *
-         *     This is safe only because it cannot be enabled in production: startup fails
-         *     if `allow_local_accounts` is true there.
-         */
-        post: operations["local_sign_in_api_v1_auth_local_sign_in_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Current User
-         * @description Who the caller is, and precisely what they may do.
-         *
-         *     The frontend uses the permission list to decide what to render, but every
-         *     endpoint re-checks server-side; this is a convenience, not the control.
-         */
-        get: operations["current_user_api_v1_auth_me_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/methods": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Auth Methods
-         * @description What sign-in options this deployment offers.
-         *
-         *     The login screen renders from this rather than hard-coding a provider.
-         */
-        get: operations["auth_methods_api_v1_auth_methods_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/oidc/callback": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Oidc Callback
-         * @description OIDC redirect handler.
-         *
-         *     Deliberately unimplemented rather than faked. The authorization-code
-         *     exchange requires a chosen provider, its JWKS endpoint and a registered
-         *     redirect URI, none of which are decided yet. Returning a fabricated session
-         *     here would create exactly the kind of fake success the release bar forbids.
-         */
-        get: operations["oidc_callback_api_v1_auth_oidc_callback_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/sign-out": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Sign Out */
-        post: operations["sign_out_api_v1_auth_sign_out_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/credit-cards/cards": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Cards */
-        get: operations["list_cards_api_v1_credit_cards_cards_get"];
-        put?: never;
-        /** Create Card */
-        post: operations["create_card_api_v1_credit_cards_cards_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/credit-cards/cards/{card_id}/statements": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Import Statement */
-        post: operations["import_statement_api_v1_credit_cards_cards__card_id__statements_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/credit-cards/periods": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Periods */
-        get: operations["list_periods_api_v1_credit_cards_periods_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/credit-cards/periods/{period_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Period */
-        get: operations["get_period_api_v1_credit_cards_periods__period_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/credit-cards/periods/{period_id}/close": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Close Period */
-        post: operations["close_period_api_v1_credit_cards_periods__period_id__close_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/credit-cards/transactions/{transaction_id}/code": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Code Transaction */
-        post: operations["code_transaction_api_v1_credit_cards_transactions__transaction_id__code_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/credit-cards/transactions/{transaction_id}/receipt": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Match Receipt */
-        post: operations["match_receipt_api_v1_credit_cards_transactions__transaction_id__receipt_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/credit-cards/transactions/{transaction_id}/suggestion": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Record Suggestion */
-        post: operations["record_suggestion_api_v1_credit_cards_transactions__transaction_id__suggestion_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/credit-cards/transactions/{transaction_id}/suggestion/dispose": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Dispose Suggestion */
-        post: operations["dispose_suggestion_api_v1_credit_cards_transactions__transaction_id__suggestion_dispose_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/documents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Documents
-         * @description The review queue, oldest first.
-         *
-         *     Oldest first, unlike the message list. A message list is a record of what
-         *     arrived and is read newest first; this is a work queue, and the document that
-         *     has waited longest is the one to do next.
-         */
-        get: operations["list_documents_api_v1_documents_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/documents/{document_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Document
-         * @description One document, its current reading, and everything outstanding on it.
-         */
-        get: operations["get_document_api_v1_documents__document_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/documents/{document_id}/accept": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Accept Document
-         * @description Confirm a reading, making its values available to the rest of the platform.
-         */
-        post: operations["accept_document_api_v1_documents__document_id__accept_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/documents/{document_id}/acknowledge": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Acknowledge Signal
-         * @description Record that a reviewer has seen a warning and acted on it.
-         */
-        post: operations["acknowledge_signal_api_v1_documents__document_id__acknowledge_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/documents/{document_id}/fields/{field_name}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Correct Field
-         * @description Replace a value with what a person read on the document.
-         */
-        patch: operations["correct_field_api_v1_documents__document_id__fields__field_name__patch"];
-        trace?: never;
-    };
-    "/api/v1/documents/{document_id}/fields/{field_name}/review": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Review Field
-         * @description Confirm a value as read, or record that the document does not carry it.
-         */
-        post: operations["review_field_api_v1_documents__document_id__fields__field_name__review_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/documents/{document_id}/kind": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Set Kind
-         * @description Say what kind of document this is, when the document itself did not.
-         */
-        post: operations["set_kind_api_v1_documents__document_id__kind_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/documents/{document_id}/read": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Reread Document
-         * @description Read one document again, keeping every earlier attempt.
-         *
-         *     Run inline rather than queued, because a person asking for this is waiting to
-         *     see whether it helped. An accepted reading is refused: replacing what someone
-         *     confirmed is an administrative act, not a button on the review screen.
-         */
-        post: operations["reread_document_api_v1_documents__document_id__read_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/documents/{document_id}/viewer-url": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Viewer Url
-         * @description A short-lived link to the document itself, for the viewer to render.
-         *
-         *     Served without a `Content-Disposition` of `attachment`, unlike the intake
-         *     download link, because this URL is fetched by the viewer rather than followed
-         *     by the browser. It is only ever issued for a document, and a document is by
-         *     construction an attachment that scanned clean.
-         */
-        get: operations["viewer_url_api_v1_documents__document_id__viewer_url_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/documents/read-pending": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Read Pending
-         * @description Start reading the documents that are waiting.
-         *
-         *     Queued rather than run inline: a backlog can be dozens of documents and the
-         *     caller does not need to hold a connection open for it. Existing readings are
-         *     untouched, so calling this twice is harmless.
-         */
-        post: operations["read_pending_api_v1_documents_read_pending_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/estimates": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Estimates
-         * @description The estimate register, newest first.
-         *
-         *     Newest first, unlike the document queue. A document queue is work to be done
-         *     and the oldest is next; this is a register of records, and a requester opening
-         *     it has almost always just made the thing they are looking for.
-         */
-        get: operations["list_estimates_api_v1_estimates_get"];
-        put?: never;
-        /**
-         * Create Estimate
-         * @description Raise a draft estimate, from an accepted reading or from nothing.
-         */
-        post: operations["create_estimate_api_v1_estimates_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/estimates/{estimate_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Estimate
-         * @description One estimate, its route, its history, and what this caller may do to it.
-         */
-        get: operations["get_estimate_api_v1_estimates__estimate_id__get"];
-        /**
-         * Update Estimate
-         * @description Replace a draft's details.
-         */
-        put: operations["update_estimate_api_v1_estimates__estimate_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/estimates/{estimate_id}/cancel": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Cancel Estimate
-         * @description Abandon an estimate for good.
-         *
-         *     The requester's to cancel, like withdrawal. An approver who wants it stopped
-         *     rejects it, which is a decision with their name against it.
-         */
-        post: operations["cancel_estimate_api_v1_estimates__estimate_id__cancel_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/estimates/{estimate_id}/decision": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Decide Estimate
-         * @description Record one approval decision, moving the estimate if the route closed.
-         *
-         *     The step and level are named by the caller rather than inferred from who they
-         *     are. A user eligible at two levels of the same route must say which one they
-         *     are deciding, because "approved by Manager" and "approved by Head of
-         *     Department" are different facts about the same signature.
-         */
-        post: operations["decide_estimate_api_v1_estimates__estimate_id__decision_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/estimates/{estimate_id}/submit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Submit Estimate
-         * @description Send a complete draft for approval.
-         */
-        post: operations["submit_estimate_api_v1_estimates__estimate_id__submit_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/estimates/{estimate_id}/withdraw": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Withdraw Estimate
-         * @description Pull an estimate back from approvers so it can be corrected.
-         *
-         *     Restricted to the requester. An approver who thinks a request is wrong
-         *     rejects it, with a reason the requester can read; quietly returning it to
-         *     somebody's drafts is not a decision anybody is accountable for.
-         */
-        post: operations["withdraw_estimate_api_v1_estimates__estimate_id__withdraw_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/health/live": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Liveness */
-        get: operations["liveness_api_v1_health_live_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/health/ready": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Readiness */
-        get: operations["readiness_api_v1_health_ready_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/intake/attachments/{attachment_id}/download-url": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Attachment Download Url
-         * @description A short-lived link to one clean attachment.
-         */
-        get: operations["attachment_download_url_api_v1_intake_attachments__attachment_id__download_url_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/intake/messages": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Messages
-         * @description Messages awaiting or past triage, newest first.
-         */
-        get: operations["list_messages_api_v1_intake_messages_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/intake/messages/{message_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Message */
-        get: operations["get_message_api_v1_intake_messages__message_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/intake/operations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Intake Operations
-         * @description Whether intake is actually running, and what is waiting.
-         *
-         *     The live mailbox probe is opt-in. It opens a real IMAP connection, so polling
-         *     it on a dashboard refresh would add login attempts that some providers
-         *     rate-limit or treat as suspicious. Stored state answers the common question
-         *     ("is the worker alive") without touching the network.
-         */
-        get: operations["intake_operations_api_v1_intake_operations_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/intake/uploads": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Upload Document
-         * @description Ingest an uploaded document through the same path as mailbox intake.
-         *
-         *     The file is wrapped as RFC 822 so that upload and mailbox delivery share one
-         *     validation, scanning, storage and audit path. A second path would be a second
-         *     place for the scanning rule to be missed.
-         */
-        post: operations["upload_document_api_v1_intake_uploads_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/invoices": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Invoices
-         * @description The invoice register, newest first.
-         */
-        get: operations["list_invoices_api_v1_invoices_get"];
-        put?: never;
-        /**
-         * Create Invoice
-         * @description Record an invoice, from an accepted reading or from nothing.
-         */
-        post: operations["create_invoice_api_v1_invoices_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/invoices/{invoice_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Invoice
-         * @description One invoice, its linkage, its sign-off position, and what this caller may do.
-         */
-        get: operations["get_invoice_api_v1_invoices__invoice_id__get"];
-        /**
-         * Update Invoice
-         * @description Replace a draft invoice's details.
-         *
-         *     Not restricted to whoever recorded it, unlike an estimate. An estimate is
-         *     somebody's own request and rewriting it puts words in their mouth; an invoice is
-         *     a document a supplier sent, and correcting how it was read is ordinary finance
-         *     work whoever first recorded it.
-         */
-        put: operations["update_invoice_api_v1_invoices__invoice_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/invoices/{invoice_id}/cancel": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Cancel Invoice
-         * @description Abandon an invoice, closing any route and stopping any chasing.
-         */
-        post: operations["cancel_invoice_api_v1_invoices__invoice_id__cancel_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/invoices/{invoice_id}/decision": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Decide Invoice
-         * @description Record one approval decision, moving the invoice if the route closed.
-         */
-        post: operations["decide_invoice_api_v1_invoices__invoice_id__decision_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/invoices/{invoice_id}/decline": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Decline Sign Off
-         * @description Report that what was billed did not arrive, or not as billed.
-         */
-        post: operations["decline_sign_off_api_v1_invoices__invoice_id__decline_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/invoices/{invoice_id}/recall": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Recall Invoice
-         * @description Take an invoice back from sign-off so a detail can be corrected.
-         */
-        post: operations["recall_invoice_api_v1_invoices__invoice_id__recall_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/invoices/{invoice_id}/request-sign-off": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Request Sign Off
-         * @description Ask the named requester to confirm the goods or services arrived.
-         *
-         *     The link that goes in the email is deliberately absent from this response.
-         *     Returning it would put a single-use credential in a browser's network log and
-         *     in whatever else observes API traffic, for no gain: the person who asked for
-         *     the confirmation is not the person who needs the link.
-         */
-        post: operations["request_sign_off_api_v1_invoices__invoice_id__request_sign_off_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/invoices/{invoice_id}/sign-off": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Sign Off
-         * @description Confirm the goods or services were received, opening the approval route.
-         */
-        post: operations["sign_off_api_v1_invoices__invoice_id__sign_off_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/invoices/reference/linkable": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Linkable Reference Data
-         * @description Approved estimates, open orders and active people, for the linkage selectors.
-         */
-        get: operations["linkable_reference_data_api_v1_invoices_reference_linkable_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/invoices/summary": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Summarise Invoices
-         * @description Whole-register headline figures and status mix for the stat band.
-         *
-         *     Scoped to exactly the invoices this caller may list, so the totals here can
-         *     always be reached by opening the register. Amounts are summed per currency
-         *     and reported in the one carrying the most invoices; a mixed-currency
-         *     deployment is never silently added together.
-         */
-        get: operations["summarise_invoices_api_v1_invoices_summary_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/links/resolve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Resolve Link
-         * @description Exchange a link token for the record it names.
-         *
-         *     Requires a session, and that is the whole design: the token identifies a
-         *     destination, the session identifies the person. A holder who is not signed in
-         *     is sent to sign in first and arrives here as themselves.
-         *
-         *     Every refusal returns the same 404 and the same sentence, whether the token
-         *     never existed, expired, was spent or belongs to somebody else. Distinguishing
-         *     them would let a holder learn which tokens are real.
-         */
-        post: operations["resolve_link_api_v1_links_resolve_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/overview/metrics": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Metrics
-         * @description Counts, amounts, aging and recent activity for the home dashboard.
-         */
-        get: operations["read_metrics_api_v1_overview_metrics_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/payment-check-in/{token}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Vendor Question
-         * @description What the supplier is being asked. No session, and no token spent.
-         *
-         *     Opening the page does not consume the link. A supplier reads it, goes to
-         *     check their bank, and comes back; burning the token on the first view would
-         *     teach them our links do not work. It is spent when they answer.
-         */
-        get: operations["vendor_question_api_v1_payment_check_in__token__get"];
-        put?: never;
-        /**
-         * Vendor Answer
-         * @description Record what the supplier says. Moves nothing, releases nothing.
-         *
-         *     The token is spent here rather than on the page view, so a supplier gets one
-         *     answer per link — a correction goes through the same channel their original
-         *     answer did, by writing to us, and reaches a person.
-         */
-        post: operations["vendor_answer_api_v1_payment_check_in__token__post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/payment-packages": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Packages
-         * @description The package register.
-         *
-         *     Filtered on standing rather than on a state column, because there is no
-         *     state column: each of the three is a condition on the two timestamps.
-         */
-        get: operations["list_packages_api_v1_payment_packages_get"];
-        put?: never;
-        /**
-         * Create Package
-         * @description Open an empty package and give it its reference.
-         */
-        post: operations["create_package_api_v1_payment_packages_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/payment-packages/{package_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Read Package */
-        get: operations["read_package_api_v1_payment_packages__package_id__get"];
-        /** Update Package */
-        put: operations["update_package_api_v1_payment_packages__package_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/payment-packages/{package_id}/cancel": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Cancel Package
-         * @description Abandon a package, returning everything in it to approved and unpaid.
-         */
-        post: operations["cancel_package_api_v1_payment_packages__package_id__cancel_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/payment-packages/{package_id}/lines": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Add Lines
-         * @description Add approved invoices, taking the ones that can go and naming the rest.
-         *
-         *     Deliberately not all-or-nothing. Somebody adding a page of search results
-         *     needs to see which two of thirty were already spoken for, and a refusal of
-         *     the whole batch would leave them to work that out themselves.
-         */
-        post: operations["add_lines_api_v1_payment_packages__package_id__lines_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/payment-packages/{package_id}/lines/{invoice_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Remove Line
-         * @description Take one invoice out, returning it to approved and unpaid.
-         */
-        delete: operations["remove_line_api_v1_payment_packages__package_id__lines__invoice_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/payment-packages/{package_id}/manifest": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Manifest
-         * @description The manifest as a value, for previewing before submission.
-         *
-         *     On a submitted package this also reports whether the file rebuilt now still
-         *     hashes to what was recorded at the time, which is the check that makes the
-         *     stored digest worth storing.
-         */
-        get: operations["read_manifest_api_v1_payment_packages__package_id__manifest_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/payment-packages/{package_id}/manifest.csv": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Download Manifest
-         * @description The manifest as a file, which is what actually goes to the bank.
-         *
-         *     Taking a copy of the organisation's outgoing payments is an export, so it
-         *     is recorded as one — the same action accruals use when a period file leaves.
-         */
-        get: operations["download_manifest_api_v1_payment_packages__package_id__manifest_csv_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/payment-packages/{package_id}/submit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Submit Package
-         * @description Send the package, recording the bank's reference and the manifest digest.
-         *
-         *     Guarded by `payment:submit` rather than `payment:package_manage`. Assembling
-         *     a package and sending it are different authorities on purpose: the person
-         *     who chose what goes out is not necessarily the person entitled to send it.
-         */
-        post: operations["submit_package_api_v1_payment_packages__package_id__submit_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/payment-packages/eligible-invoices": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Eligible Invoices
-         * @description Approved invoices not yet in any package, soonest due first.
-         */
-        get: operations["eligible_invoices_api_v1_payment_packages_eligible_invoices_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/purchase-orders": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Orders
-         * @description The order register.
-         *
-         *     `open_only` is separate from `state` on purpose: "open" is not a state, it is
-         *     an approved order that has not been closed, and a caller filtering for live
-         *     commitments should not have to know that.
-         */
-        get: operations["list_orders_api_v1_purchase_orders_get"];
-        put?: never;
-        /**
-         * Create Order
-         * @description Start a blank order and give it its number.
-         *
-         *     The number is issued now rather than at submission so that whoever is raising
-         *     it can quote it to the supplier while the details are still being agreed.
-         */
-        post: operations["create_order_api_v1_purchase_orders_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/purchase-orders/{order_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Read Order */
-        get: operations["read_order_api_v1_purchase_orders__order_id__get"];
-        /** Update Order */
-        put: operations["update_order_api_v1_purchase_orders__order_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/purchase-orders/{order_id}/amend": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Amend Order
-         * @description Change what a live order commits.
-         *
-         *     An increase sends it back for approval. That is the point of the endpoint
-         *     rather than a side effect of it: the signature on the order was given for the
-         *     old figure and does not cover the new one.
-         */
-        post: operations["amend_order_api_v1_purchase_orders__order_id__amend_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/purchase-orders/{order_id}/cancel": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Cancel Order
-         * @description Withdraw an order that should never have been raised.
-         *
-         *     Refused once anything has been billed against it, with the suggestion to
-         *     close it instead. Cancelling asserts the commitment never existed, and an
-         *     invoice against it is evidence to the contrary.
-         */
-        post: operations["cancel_order_api_v1_purchase_orders__order_id__cancel_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/purchase-orders/{order_id}/close": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Close Order
-         * @description Stop an order taking further invoices, without denying the ones it took.
-         */
-        post: operations["close_order_api_v1_purchase_orders__order_id__close_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/purchase-orders/{order_id}/decisions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Decide Order
-         * @description Record an approval decision on an order.
-         *
-         *     The step and level are named by the caller rather than inferred from who they
-         *     are, for the same reason as on an estimate: somebody eligible at two levels
-         *     of one route must say which they are deciding, because the two signatures
-         *     mean different things.
-         */
-        post: operations["decide_order_api_v1_purchase_orders__order_id__decisions_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/purchase-orders/{order_id}/submit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Submit Order
-         * @description Commit the order, through approval when it needs any.
-         */
-        post: operations["submit_order_api_v1_purchase_orders__order_id__submit_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/purchase-orders/{order_id}/withdraw": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Withdraw Order */
-        post: operations["withdraw_order_api_v1_purchase_orders__order_id__withdraw_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/purchase-orders/reference-data": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Reference Data
-         * @description Everything the order form needs to offer, resolved to names.
-         */
-        get: operations["reference_data_api_v1_purchase_orders_reference_data_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/reference": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Reference Data
-         * @description Active vendors, cost centres and accounts, for the coding selectors.
-         */
-        get: operations["reference_data_api_v1_reference_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/saved-views": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Views */
-        get: operations["list_views_api_v1_saved_views_get"];
-        put?: never;
-        /** Create View */
-        post: operations["create_view_api_v1_saved_views_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/saved-views/{view_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete View */
-        delete: operations["delete_view_api_v1_saved_views__view_id__delete"];
-        options?: never;
-        head?: never;
-        /** Update View */
-        patch: operations["update_view_api_v1_saved_views__view_id__patch"];
-        trace?: never;
-    };
-    "/api/v1/search": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Search
-         * @description Find records by reference, vendor, description or filename.
-         */
-        get: operations["search_api_v1_search_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/vendor-check-ins": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Check Ins
-         * @description The review queue.
-         *
-         *     Ordered so the ones needing a person come first: answered and unreviewed at
-         *     the top, then those still waiting, oldest first within each. A queue sorted
-         *     by creation date buries the work under the things that have not happened
-         *     yet.
-         */
-        get: operations["list_check_ins_api_v1_vendor_check_ins_get"];
-        put?: never;
-        /**
-         * Raise Check Ins
-         * @description Open one question per supplier in a submitted package.
-         */
-        post: operations["raise_check_ins_api_v1_vendor_check_ins_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/vendor-check-ins/{check_in_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Read Check In */
-        get: operations["read_check_in_api_v1_vendor_check_ins__check_in_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/vendor-check-ins/{check_in_id}/answer": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Record Answer
-         * @description Write down what a supplier said by phone, or in a mail nobody could parse.
-         *
-         *     Recorded as a claim like any other, with the channel saying a member of
-         *     staff typed it. It is not a review and it moves nothing: the person who
-         *     takes the call is very often not the person allowed to conclude.
-         */
-        post: operations["record_answer_api_v1_vendor_check_ins__check_in_id__answer_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/vendor-check-ins/{check_in_id}/review": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Review Check In
-         * @description Conclude, and move the invoices.
-         *
-         *     The only route in the platform to `paid`. Guarded by `payment:mark_paid`
-         *     inside the service rather than by a dependency here, so the permission is
-         *     enforced in one place whether the call arrives from this endpoint or from
-         *     anywhere else.
-         */
-        post: operations["review_check_in_api_v1_vendor_check_ins__check_in_id__review_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/vendor-check-ins/{check_in_id}/send": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Send Check In
-         * @description Email the supplier the question and a link to answer it.
-         */
-        post: operations["send_check_in_api_v1_vendor_check_ins__check_in_id__send_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/work/badges": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Badges
-         * @description Navigation badge counts for this caller.
-         */
-        get: operations["read_badges_api_v1_work_badges_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/work/dashboard": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Dashboard
-         * @description The handful of next actions the home page shows.
-         */
-        get: operations["read_dashboard_api_v1_work_dashboard_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/work/queue": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Read Queue
-         * @description Everything waiting on this caller, oldest first.
-         */
-        get: operations["read_queue_api_v1_work_queue_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+  "/api/v1/accruals/candidates/{candidate_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Edit Candidate */
+    patch: operations["edit_candidate_api_v1_accruals_candidates__candidate_id__patch"];
+    trace?: never;
+  };
+  "/api/v1/accruals/candidates/{candidate_id}/finalize": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Finalize Candidate */
+    post: operations["finalize_candidate_api_v1_accruals_candidates__candidate_id__finalize_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/accruals/periods": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Periods */
+    get: operations["list_periods_api_v1_accruals_periods_get"];
+    put?: never;
+    /** Open Period */
+    post: operations["open_period_api_v1_accruals_periods_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/accruals/periods/{period_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Period */
+    get: operations["get_period_api_v1_accruals_periods__period_id__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/accruals/periods/{period_id}/candidates/generate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Generate Candidates */
+    post: operations["generate_candidates_api_v1_accruals_periods__period_id__candidates_generate_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/accruals/periods/{period_id}/export": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Export Period */
+    post: operations["export_period_api_v1_accruals_periods__period_id__export_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/accruals/periods/{period_id}/lock": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Lock Period */
+    post: operations["lock_period_api_v1_accruals_periods__period_id__lock_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/assignments": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Read Assignments */
+    get: operations["read_assignments_api_v1_admin_assignments_get"];
+    put?: never;
+    /** Assign Level */
+    post: operations["assign_level_api_v1_admin_assignments_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/assignments/{assignment_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Unassign Level */
+    delete: operations["unassign_level_api_v1_admin_assignments__assignment_id__delete"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/delegations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read Delegations
+     * @description Everybody who currently has cover arranged, in effect or not.
+     *
+     *     Dormant and expired arrangements are included on purpose. An expired one is
+     *     the commonest reason an approval queue has silently stopped moving, and it is
+     *     invisible on a screen that lists only what is working.
+     */
+    get: operations["read_delegations_api_v1_admin_delegations_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/delegations/{user_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Set Cover
+     * @description Arrange, change or clear cover.
+     *
+     *     Your own needs the delegate permission; somebody else's needs the matrix
+     *     permission, because arranging cover for another approver is a change to who
+     *     can decide, which is an administrative act however kindly meant.
+     */
+    put: operations["set_cover_api_v1_admin_delegations__user_id__put"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/matrix/{record_type}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read Matrix
+     * @description The rules for a record type and what they currently do.
+     */
+    get: operations["read_matrix_api_v1_admin_matrix__record_type__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/matrix/{record_type}/preview": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Preview Route
+     * @description Who would have to approve a given amount, under the live matrix.
+     *
+     *     The same call the submission path makes. An administrator checking their work
+     *     against a re-description of the rules would be checking the wrong thing.
+     */
+    get: operations["preview_route_api_v1_admin_matrix__record_type__preview_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/matrix/rules": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Add Rule
+     * @description Add a rule, or replace a live one by naming it in `supersedes_id`.
+     *
+     *     Answers with the whole matrix rather than the rule that was written. The
+     *     question an administrator has after saving is never "what did I just type",
+     *     it is "what does this now do", and returning only the new row would leave
+     *     them to work that out from the table.
+     */
+    post: operations["add_rule_api_v1_admin_matrix_rules_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/matrix/rules/{rule_id}/retire": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Retire Rule */
+    post: operations["retire_rule_api_v1_admin_matrix_rules__rule_id__retire_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/operational-settings": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read Operational Settings
+     * @description AI status and workflow policy snapshot. No secrets.
+     */
+    get: operations["read_operational_settings_api_v1_admin_operational_settings_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/operational-settings/ai-kill-switch": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Post Ai Kill Switch */
+    post: operations["post_ai_kill_switch_api_v1_admin_operational_settings_ai_kill_switch_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/people": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read People
+     * @description Everybody who could hold a level or be named as somebody's cover.
+     *
+     *     Closed accounts are left out entirely: anything routed to them waits
+     *     indefinitely, and offering the name is offering a way to stop a queue.
+     */
+    get: operations["read_people_api_v1_admin_people_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/reference/cost-centres": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Cost Centres */
+    get: operations["list_cost_centres_api_v1_admin_reference_cost_centres_get"];
+    put?: never;
+    /** Create Cost Centre */
+    post: operations["create_cost_centre_api_v1_admin_reference_cost_centres_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/reference/cost-centres/{centre_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Update Cost Centre */
+    put: operations["update_cost_centre_api_v1_admin_reference_cost_centres__centre_id__put"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/reference/cost-centres/{centre_id}/active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Set Cost Centre Active */
+    post: operations["set_cost_centre_active_api_v1_admin_reference_cost_centres__centre_id__active_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/reference/gl-accounts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Gl Accounts */
+    get: operations["list_gl_accounts_api_v1_admin_reference_gl_accounts_get"];
+    put?: never;
+    /** Create Gl Account */
+    post: operations["create_gl_account_api_v1_admin_reference_gl_accounts_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/reference/gl-accounts/{account_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Update Gl Account */
+    put: operations["update_gl_account_api_v1_admin_reference_gl_accounts__account_id__put"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/reference/gl-accounts/{account_id}/active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Set Gl Account Active */
+    post: operations["set_gl_account_active_api_v1_admin_reference_gl_accounts__account_id__active_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/reference/vendors": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Vendors */
+    get: operations["list_vendors_api_v1_admin_reference_vendors_get"];
+    put?: never;
+    /** Create Vendor */
+    post: operations["create_vendor_api_v1_admin_reference_vendors_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/reference/vendors/{vendor_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Update Vendor */
+    put: operations["update_vendor_api_v1_admin_reference_vendors__vendor_id__put"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/reference/vendors/{vendor_id}/active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Set Vendor Active */
+    post: operations["set_vendor_active_api_v1_admin_reference_vendors__vendor_id__active_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/retention": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Policies */
+    get: operations["list_policies_api_v1_admin_retention_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/retention/{policy_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update Policy */
+    patch: operations["update_policy_api_v1_admin_retention__policy_id__patch"];
+    trace?: never;
+  };
+  "/api/v1/admin/retention/{policy_id}/active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Set Policy Active */
+    post: operations["set_policy_active_api_v1_admin_retention__policy_id__active_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/thresholds": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Thresholds */
+    get: operations["list_thresholds_api_v1_admin_thresholds_get"];
+    /** Upsert Threshold */
+    put: operations["upsert_threshold_api_v1_admin_thresholds_put"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/thresholds/{threshold_id}/active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Set Threshold Active */
+    post: operations["set_threshold_active_api_v1_admin_thresholds__threshold_id__active_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/users": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Users */
+    get: operations["list_users_api_v1_admin_users_get"];
+    put?: never;
+    /** Create User */
+    post: operations["create_user_api_v1_admin_users_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/users/{user_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Read User */
+    get: operations["read_user_api_v1_admin_users__user_id__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/users/{user_id}/active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Set Active */
+    post: operations["set_active_api_v1_admin_users__user_id__active_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/admin/users/{user_id}/roles": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Set Roles */
+    put: operations["set_roles_api_v1_admin_users__user_id__roles_put"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/approvals/queue": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read Queue
+     * @description Everything waiting on this caller, oldest first.
+     *
+     *     Eligibility is resolved before pagination rather than after. Whether a route
+     *     is this person's to decide depends on department-scoped assignments and live
+     *     delegations, which the query cannot answer alone, so the honest choices are
+     *     to filter then page, or to page then filter and hand back pages of varying
+     *     and occasionally zero length. An approver's queue is tens of items, and a
+     *     page that is empty for no visible reason is worse than the extra work.
+     */
+    get: operations["read_queue_api_v1_approvals_queue_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/audit/entries": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Entries
+     * @description Paginated trail, oldest first, with optional filters.
+     */
+    get: operations["list_entries_api_v1_audit_entries_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/audit/entries/{sequence}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read Entry
+     * @description One entry by its place in the chain.
+     */
+    get: operations["read_entry_api_v1_audit_entries__sequence__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/audit/verify": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Verify Chain
+     * @description Check that a contiguous range of the chain still holds.
+     *
+     *     Offered as a range because a mature trail is too large to hash in one
+     *     request; an auditor checks segments and the segments join because each
+     *     carries its predecessor's hash.
+     */
+    post: operations["verify_chain_api_v1_audit_verify_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/auth/local/sign-in": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Local Sign In
+     * @description Development and test sign-in by email, with no password.
+     *
+     *     This is safe only because it cannot be enabled in production: startup fails
+     *     if `allow_local_accounts` is true there.
+     */
+    post: operations["local_sign_in_api_v1_auth_local_sign_in_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/auth/me": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Current User
+     * @description Who the caller is, and precisely what they may do.
+     *
+     *     The frontend uses the permission list to decide what to render, but every
+     *     endpoint re-checks server-side; this is a convenience, not the control.
+     */
+    get: operations["current_user_api_v1_auth_me_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/auth/methods": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Auth Methods
+     * @description What sign-in options this deployment offers.
+     *
+     *     The login screen renders from this rather than hard-coding a provider.
+     */
+    get: operations["auth_methods_api_v1_auth_methods_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/auth/oidc/callback": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Oidc Callback
+     * @description OIDC redirect handler.
+     *
+     *     Deliberately unimplemented rather than faked. The authorization-code
+     *     exchange requires a chosen provider, its JWKS endpoint and a registered
+     *     redirect URI, none of which are decided yet. Returning a fabricated session
+     *     here would create exactly the kind of fake success the release bar forbids.
+     */
+    get: operations["oidc_callback_api_v1_auth_oidc_callback_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/auth/sign-out": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Sign Out */
+    post: operations["sign_out_api_v1_auth_sign_out_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/credit-cards/cards": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Cards */
+    get: operations["list_cards_api_v1_credit_cards_cards_get"];
+    put?: never;
+    /** Create Card */
+    post: operations["create_card_api_v1_credit_cards_cards_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/credit-cards/cards/{card_id}/statements": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Import Statement */
+    post: operations["import_statement_api_v1_credit_cards_cards__card_id__statements_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/credit-cards/periods": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Periods */
+    get: operations["list_periods_api_v1_credit_cards_periods_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/credit-cards/periods/{period_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Period */
+    get: operations["get_period_api_v1_credit_cards_periods__period_id__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/credit-cards/periods/{period_id}/close": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Close Period */
+    post: operations["close_period_api_v1_credit_cards_periods__period_id__close_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/credit-cards/transactions/{transaction_id}/code": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Code Transaction */
+    post: operations["code_transaction_api_v1_credit_cards_transactions__transaction_id__code_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/credit-cards/transactions/{transaction_id}/receipt": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Match Receipt */
+    post: operations["match_receipt_api_v1_credit_cards_transactions__transaction_id__receipt_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/credit-cards/transactions/{transaction_id}/suggestion": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Record Suggestion */
+    post: operations["record_suggestion_api_v1_credit_cards_transactions__transaction_id__suggestion_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/credit-cards/transactions/{transaction_id}/suggestion/dispose": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Dispose Suggestion */
+    post: operations["dispose_suggestion_api_v1_credit_cards_transactions__transaction_id__suggestion_dispose_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/documents": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Documents
+     * @description The review queue, oldest first.
+     *
+     *     Oldest first, unlike the message list. A message list is a record of what
+     *     arrived and is read newest first; this is a work queue, and the document that
+     *     has waited longest is the one to do next.
+     */
+    get: operations["list_documents_api_v1_documents_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/documents/{document_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Document
+     * @description One document, its current reading, and everything outstanding on it.
+     */
+    get: operations["get_document_api_v1_documents__document_id__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/documents/{document_id}/accept": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Accept Document
+     * @description Confirm a reading, making its values available to the rest of the platform.
+     */
+    post: operations["accept_document_api_v1_documents__document_id__accept_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/documents/{document_id}/acknowledge": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Acknowledge Signal
+     * @description Record that a reviewer has seen a warning and acted on it.
+     */
+    post: operations["acknowledge_signal_api_v1_documents__document_id__acknowledge_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/documents/{document_id}/fields/{field_name}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Correct Field
+     * @description Replace a value with what a person read on the document.
+     */
+    patch: operations["correct_field_api_v1_documents__document_id__fields__field_name__patch"];
+    trace?: never;
+  };
+  "/api/v1/documents/{document_id}/fields/{field_name}/review": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Review Field
+     * @description Confirm a value as read, or record that the document does not carry it.
+     */
+    post: operations["review_field_api_v1_documents__document_id__fields__field_name__review_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/documents/{document_id}/kind": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Set Kind
+     * @description Say what kind of document this is, when the document itself did not.
+     */
+    post: operations["set_kind_api_v1_documents__document_id__kind_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/documents/{document_id}/read": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Reread Document
+     * @description Read one document again, keeping every earlier attempt.
+     *
+     *     Run inline rather than queued, because a person asking for this is waiting to
+     *     see whether it helped. An accepted reading is refused: replacing what someone
+     *     confirmed is an administrative act, not a button on the review screen.
+     */
+    post: operations["reread_document_api_v1_documents__document_id__read_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/documents/{document_id}/viewer-url": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Viewer Url
+     * @description A short-lived link to the document itself, for the viewer to render.
+     *
+     *     Served without a `Content-Disposition` of `attachment`, unlike the intake
+     *     download link, because this URL is fetched by the viewer rather than followed
+     *     by the browser. It is only ever issued for a document, and a document is by
+     *     construction an attachment that scanned clean.
+     */
+    get: operations["viewer_url_api_v1_documents__document_id__viewer_url_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/documents/read-pending": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Read Pending
+     * @description Start reading the documents that are waiting.
+     *
+     *     Queued rather than run inline: a backlog can be dozens of documents and the
+     *     caller does not need to hold a connection open for it. Existing readings are
+     *     untouched, so calling this twice is harmless.
+     */
+    post: operations["read_pending_api_v1_documents_read_pending_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/estimates": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Estimates
+     * @description The estimate register, newest first.
+     *
+     *     Newest first, unlike the document queue. A document queue is work to be done
+     *     and the oldest is next; this is a register of records, and a requester opening
+     *     it has almost always just made the thing they are looking for.
+     */
+    get: operations["list_estimates_api_v1_estimates_get"];
+    put?: never;
+    /**
+     * Create Estimate
+     * @description Raise a draft estimate, from an accepted reading or from nothing.
+     */
+    post: operations["create_estimate_api_v1_estimates_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/estimates/{estimate_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Estimate
+     * @description One estimate, its route, its history, and what this caller may do to it.
+     */
+    get: operations["get_estimate_api_v1_estimates__estimate_id__get"];
+    /**
+     * Update Estimate
+     * @description Replace a draft's details.
+     */
+    put: operations["update_estimate_api_v1_estimates__estimate_id__put"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/estimates/{estimate_id}/cancel": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Cancel Estimate
+     * @description Abandon an estimate for good.
+     *
+     *     The requester's to cancel, like withdrawal. An approver who wants it stopped
+     *     rejects it, which is a decision with their name against it.
+     */
+    post: operations["cancel_estimate_api_v1_estimates__estimate_id__cancel_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/estimates/{estimate_id}/decision": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Decide Estimate
+     * @description Record one approval decision, moving the estimate if the route closed.
+     *
+     *     The step and level are named by the caller rather than inferred from who they
+     *     are. A user eligible at two levels of the same route must say which one they
+     *     are deciding, because "approved by Manager" and "approved by Head of
+     *     Department" are different facts about the same signature.
+     */
+    post: operations["decide_estimate_api_v1_estimates__estimate_id__decision_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/estimates/{estimate_id}/submit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Submit Estimate
+     * @description Send a complete draft for approval.
+     */
+    post: operations["submit_estimate_api_v1_estimates__estimate_id__submit_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/estimates/{estimate_id}/withdraw": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Withdraw Estimate
+     * @description Pull an estimate back from approvers so it can be corrected.
+     *
+     *     Restricted to the requester. An approver who thinks a request is wrong
+     *     rejects it, with a reason the requester can read; quietly returning it to
+     *     somebody's drafts is not a decision anybody is accountable for.
+     */
+    post: operations["withdraw_estimate_api_v1_estimates__estimate_id__withdraw_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/health/live": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Liveness */
+    get: operations["liveness_api_v1_health_live_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/health/ready": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Readiness */
+    get: operations["readiness_api_v1_health_ready_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/intake/attachments/{attachment_id}/download-url": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Attachment Download Url
+     * @description A short-lived link to one clean attachment.
+     */
+    get: operations["attachment_download_url_api_v1_intake_attachments__attachment_id__download_url_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/intake/messages": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Messages
+     * @description Messages awaiting or past triage, newest first.
+     */
+    get: operations["list_messages_api_v1_intake_messages_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/intake/messages/{message_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Message */
+    get: operations["get_message_api_v1_intake_messages__message_id__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/intake/operations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Intake Operations
+     * @description Whether intake is actually running, and what is waiting.
+     *
+     *     The live mailbox probe is opt-in. It opens a real IMAP connection, so polling
+     *     it on a dashboard refresh would add login attempts that some providers
+     *     rate-limit or treat as suspicious. Stored state answers the common question
+     *     ("is the worker alive") without touching the network.
+     */
+    get: operations["intake_operations_api_v1_intake_operations_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/intake/uploads": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Upload Document
+     * @description Ingest an uploaded document through the same path as mailbox intake.
+     *
+     *     The file is wrapped as RFC 822 so that upload and mailbox delivery share one
+     *     validation, scanning, storage and audit path. A second path would be a second
+     *     place for the scanning rule to be missed.
+     */
+    post: operations["upload_document_api_v1_intake_uploads_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/invoices": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Invoices
+     * @description The invoice register, newest first.
+     */
+    get: operations["list_invoices_api_v1_invoices_get"];
+    put?: never;
+    /**
+     * Create Invoice
+     * @description Record an invoice, from an accepted reading or from nothing.
+     */
+    post: operations["create_invoice_api_v1_invoices_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/invoices/{invoice_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Invoice
+     * @description One invoice, its linkage, its sign-off position, and what this caller may do.
+     */
+    get: operations["get_invoice_api_v1_invoices__invoice_id__get"];
+    /**
+     * Update Invoice
+     * @description Replace a draft invoice's details.
+     *
+     *     Not restricted to whoever recorded it, unlike an estimate. An estimate is
+     *     somebody's own request and rewriting it puts words in their mouth; an invoice is
+     *     a document a supplier sent, and correcting how it was read is ordinary finance
+     *     work whoever first recorded it.
+     */
+    put: operations["update_invoice_api_v1_invoices__invoice_id__put"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/invoices/{invoice_id}/cancel": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Cancel Invoice
+     * @description Abandon an invoice, closing any route and stopping any chasing.
+     */
+    post: operations["cancel_invoice_api_v1_invoices__invoice_id__cancel_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/invoices/{invoice_id}/decision": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Decide Invoice
+     * @description Record one approval decision, moving the invoice if the route closed.
+     */
+    post: operations["decide_invoice_api_v1_invoices__invoice_id__decision_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/invoices/{invoice_id}/decline": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Decline Sign Off
+     * @description Report that what was billed did not arrive, or not as billed.
+     */
+    post: operations["decline_sign_off_api_v1_invoices__invoice_id__decline_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/invoices/{invoice_id}/recall": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Recall Invoice
+     * @description Take an invoice back from sign-off so a detail can be corrected.
+     */
+    post: operations["recall_invoice_api_v1_invoices__invoice_id__recall_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/invoices/{invoice_id}/request-sign-off": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Request Sign Off
+     * @description Ask the named requester to confirm the goods or services arrived.
+     *
+     *     The link that goes in the email is deliberately absent from this response.
+     *     Returning it would put a single-use credential in a browser's network log and
+     *     in whatever else observes API traffic, for no gain: the person who asked for
+     *     the confirmation is not the person who needs the link.
+     */
+    post: operations["request_sign_off_api_v1_invoices__invoice_id__request_sign_off_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/invoices/{invoice_id}/sign-off": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Sign Off
+     * @description Confirm the goods or services were received, opening the approval route.
+     */
+    post: operations["sign_off_api_v1_invoices__invoice_id__sign_off_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/invoices/reference/linkable": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Linkable Reference Data
+     * @description Approved estimates, open orders and active people, for the linkage selectors.
+     */
+    get: operations["linkable_reference_data_api_v1_invoices_reference_linkable_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/invoices/summary": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Summarise Invoices
+     * @description Whole-register headline figures and status mix for the stat band.
+     *
+     *     Scoped to exactly the invoices this caller may list, so the totals here can
+     *     always be reached by opening the register. Amounts are summed per currency
+     *     and reported in the one carrying the most invoices; a mixed-currency
+     *     deployment is never silently added together.
+     */
+    get: operations["summarise_invoices_api_v1_invoices_summary_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/links/resolve": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Resolve Link
+     * @description Exchange a link token for the record it names.
+     *
+     *     Requires a session, and that is the whole design: the token identifies a
+     *     destination, the session identifies the person. A holder who is not signed in
+     *     is sent to sign in first and arrives here as themselves.
+     *
+     *     Every refusal returns the same 404 and the same sentence, whether the token
+     *     never existed, expired, was spent or belongs to somebody else. Distinguishing
+     *     them would let a holder learn which tokens are real.
+     */
+    post: operations["resolve_link_api_v1_links_resolve_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/overview/metrics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read Metrics
+     * @description Counts, amounts, aging and recent activity for the home dashboard.
+     */
+    get: operations["read_metrics_api_v1_overview_metrics_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payment-check-in/{token}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Vendor Question
+     * @description What the supplier is being asked. No session, and no token spent.
+     *
+     *     Opening the page does not consume the link. A supplier reads it, goes to
+     *     check their bank, and comes back; burning the token on the first view would
+     *     teach them our links do not work. It is spent when they answer.
+     */
+    get: operations["vendor_question_api_v1_payment_check_in__token__get"];
+    put?: never;
+    /**
+     * Vendor Answer
+     * @description Record what the supplier says. Moves nothing, releases nothing.
+     *
+     *     The token is spent here rather than on the page view, so a supplier gets one
+     *     answer per link — a correction goes through the same channel their original
+     *     answer did, by writing to us, and reaches a person.
+     */
+    post: operations["vendor_answer_api_v1_payment_check_in__token__post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payment-packages": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Packages
+     * @description The package register.
+     *
+     *     Filtered on standing rather than on a state column, because there is no
+     *     state column: each of the three is a condition on the two timestamps.
+     */
+    get: operations["list_packages_api_v1_payment_packages_get"];
+    put?: never;
+    /**
+     * Create Package
+     * @description Open an empty package and give it its reference.
+     */
+    post: operations["create_package_api_v1_payment_packages_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payment-packages/{package_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Read Package */
+    get: operations["read_package_api_v1_payment_packages__package_id__get"];
+    /** Update Package */
+    put: operations["update_package_api_v1_payment_packages__package_id__put"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payment-packages/{package_id}/cancel": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Cancel Package
+     * @description Abandon a package, returning everything in it to approved and unpaid.
+     */
+    post: operations["cancel_package_api_v1_payment_packages__package_id__cancel_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payment-packages/{package_id}/lines": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Add Lines
+     * @description Add approved invoices, taking the ones that can go and naming the rest.
+     *
+     *     Deliberately not all-or-nothing. Somebody adding a page of search results
+     *     needs to see which two of thirty were already spoken for, and a refusal of
+     *     the whole batch would leave them to work that out themselves.
+     */
+    post: operations["add_lines_api_v1_payment_packages__package_id__lines_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payment-packages/{package_id}/lines/{invoice_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Remove Line
+     * @description Take one invoice out, returning it to approved and unpaid.
+     */
+    delete: operations["remove_line_api_v1_payment_packages__package_id__lines__invoice_id__delete"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payment-packages/{package_id}/manifest": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read Manifest
+     * @description The manifest as a value, for previewing before submission.
+     *
+     *     On a submitted package this also reports whether the file rebuilt now still
+     *     hashes to what was recorded at the time, which is the check that makes the
+     *     stored digest worth storing.
+     */
+    get: operations["read_manifest_api_v1_payment_packages__package_id__manifest_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payment-packages/{package_id}/manifest.csv": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Download Manifest
+     * @description The manifest as a file, which is what actually goes to the bank.
+     *
+     *     Taking a copy of the organisation's outgoing payments is an export, so it
+     *     is recorded as one — the same action accruals use when a period file leaves.
+     */
+    get: operations["download_manifest_api_v1_payment_packages__package_id__manifest_csv_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payment-packages/{package_id}/submit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Submit Package
+     * @description Send the package, recording the bank's reference and the manifest digest.
+     *
+     *     Guarded by `payment:submit` rather than `payment:package_manage`. Assembling
+     *     a package and sending it are different authorities on purpose: the person
+     *     who chose what goes out is not necessarily the person entitled to send it.
+     */
+    post: operations["submit_package_api_v1_payment_packages__package_id__submit_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payment-packages/eligible-invoices": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Eligible Invoices
+     * @description Approved invoices not yet in any package, soonest due first.
+     */
+    get: operations["eligible_invoices_api_v1_payment_packages_eligible_invoices_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/purchase-orders": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Orders
+     * @description The order register.
+     *
+     *     `open_only` is separate from `state` on purpose: "open" is not a state, it is
+     *     an approved order that has not been closed, and a caller filtering for live
+     *     commitments should not have to know that.
+     */
+    get: operations["list_orders_api_v1_purchase_orders_get"];
+    put?: never;
+    /**
+     * Create Order
+     * @description Start a blank order and give it its number.
+     *
+     *     The number is issued now rather than at submission so that whoever is raising
+     *     it can quote it to the supplier while the details are still being agreed.
+     */
+    post: operations["create_order_api_v1_purchase_orders_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/purchase-orders/{order_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Read Order */
+    get: operations["read_order_api_v1_purchase_orders__order_id__get"];
+    /** Update Order */
+    put: operations["update_order_api_v1_purchase_orders__order_id__put"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/purchase-orders/{order_id}/amend": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Amend Order
+     * @description Change what a live order commits.
+     *
+     *     An increase sends it back for approval. That is the point of the endpoint
+     *     rather than a side effect of it: the signature on the order was given for the
+     *     old figure and does not cover the new one.
+     */
+    post: operations["amend_order_api_v1_purchase_orders__order_id__amend_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/purchase-orders/{order_id}/cancel": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Cancel Order
+     * @description Withdraw an order that should never have been raised.
+     *
+     *     Refused once anything has been billed against it, with the suggestion to
+     *     close it instead. Cancelling asserts the commitment never existed, and an
+     *     invoice against it is evidence to the contrary.
+     */
+    post: operations["cancel_order_api_v1_purchase_orders__order_id__cancel_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/purchase-orders/{order_id}/close": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Close Order
+     * @description Stop an order taking further invoices, without denying the ones it took.
+     */
+    post: operations["close_order_api_v1_purchase_orders__order_id__close_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/purchase-orders/{order_id}/decisions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Decide Order
+     * @description Record an approval decision on an order.
+     *
+     *     The step and level are named by the caller rather than inferred from who they
+     *     are, for the same reason as on an estimate: somebody eligible at two levels
+     *     of one route must say which they are deciding, because the two signatures
+     *     mean different things.
+     */
+    post: operations["decide_order_api_v1_purchase_orders__order_id__decisions_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/purchase-orders/{order_id}/submit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Submit Order
+     * @description Commit the order, through approval when it needs any.
+     */
+    post: operations["submit_order_api_v1_purchase_orders__order_id__submit_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/purchase-orders/{order_id}/withdraw": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Withdraw Order */
+    post: operations["withdraw_order_api_v1_purchase_orders__order_id__withdraw_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/purchase-orders/reference-data": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Reference Data
+     * @description Everything the order form needs to offer, resolved to names.
+     */
+    get: operations["reference_data_api_v1_purchase_orders_reference_data_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/reference": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Reference Data
+     * @description Active vendors, cost centres and accounts, for the coding selectors.
+     */
+    get: operations["reference_data_api_v1_reference_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/saved-views": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Views */
+    get: operations["list_views_api_v1_saved_views_get"];
+    put?: never;
+    /** Create View */
+    post: operations["create_view_api_v1_saved_views_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/saved-views/{view_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete View */
+    delete: operations["delete_view_api_v1_saved_views__view_id__delete"];
+    options?: never;
+    head?: never;
+    /** Update View */
+    patch: operations["update_view_api_v1_saved_views__view_id__patch"];
+    trace?: never;
+  };
+  "/api/v1/search": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Search
+     * @description Find records by reference, vendor, description or filename.
+     */
+    get: operations["search_api_v1_search_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/vendor-check-ins": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Check Ins
+     * @description The review queue.
+     *
+     *     Ordered so the ones needing a person come first: answered and unreviewed at
+     *     the top, then those still waiting, oldest first within each. A queue sorted
+     *     by creation date buries the work under the things that have not happened
+     *     yet.
+     */
+    get: operations["list_check_ins_api_v1_vendor_check_ins_get"];
+    put?: never;
+    /**
+     * Raise Check Ins
+     * @description Open one question per supplier in a submitted package.
+     */
+    post: operations["raise_check_ins_api_v1_vendor_check_ins_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/vendor-check-ins/{check_in_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Read Check In */
+    get: operations["read_check_in_api_v1_vendor_check_ins__check_in_id__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/vendor-check-ins/{check_in_id}/answer": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Record Answer
+     * @description Write down what a supplier said by phone, or in a mail nobody could parse.
+     *
+     *     Recorded as a claim like any other, with the channel saying a member of
+     *     staff typed it. It is not a review and it moves nothing: the person who
+     *     takes the call is very often not the person allowed to conclude.
+     */
+    post: operations["record_answer_api_v1_vendor_check_ins__check_in_id__answer_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/vendor-check-ins/{check_in_id}/review": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Review Check In
+     * @description Conclude, and move the invoices.
+     *
+     *     The only route in the platform to `paid`. Guarded by `payment:mark_paid`
+     *     inside the service rather than by a dependency here, so the permission is
+     *     enforced in one place whether the call arrives from this endpoint or from
+     *     anywhere else.
+     */
+    post: operations["review_check_in_api_v1_vendor_check_ins__check_in_id__review_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/vendor-check-ins/{check_in_id}/send": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Send Check In
+     * @description Email the supplier the question and a link to answer it.
+     */
+    post: operations["send_check_in_api_v1_vendor_check_ins__check_in_id__send_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/work/badges": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read Badges
+     * @description Navigation badge counts for this caller.
+     */
+    get: operations["read_badges_api_v1_work_badges_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/work/dashboard": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read Dashboard
+     * @description The handful of next actions the home page shows.
+     */
+    get: operations["read_dashboard_api_v1_work_dashboard_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/work/queue": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read Queue
+     * @description Everything waiting on this caller, oldest first.
+     */
+    get: operations["read_queue_api_v1_work_queue_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        /** AcceptRequest */
-        AcceptRequest: {
-            /** Note */
-            note?: string | null;
-        };
-        /** AccrualCandidateOut */
-        AccrualCandidateOut: {
-            amount: components["schemas"]["AccrualMoneyOut"];
-            cost_centre: components["schemas"]["AccrualReferenceRef"] | null;
-            /** Currency */
-            currency: string;
-            /** Department */
-            department: string | null;
-            /** Description */
-            description: string;
-            /** Edit Reason */
-            edit_reason: string | null;
-            /** Finalized At */
-            finalized_at: string | null;
-            gl_account: components["schemas"]["AccrualReferenceRef"] | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Invoice Id */
-            invoice_id: string | null;
-            /** Invoice Number */
-            invoice_number: string | null;
-            /** Invoice Reference */
-            invoice_reference: string | null;
-            /** Note */
-            note: string | null;
-            original_amount: components["schemas"]["AccrualMoneyOut"];
-            /** Reference */
-            reference: string;
-            standing: components["schemas"]["CandidateStanding"];
-            /** Standing Label */
-            standing_label: string;
-            /** Vendor Name */
-            vendor_name: string;
-            /** Version */
-            version: number;
-        };
-        /** AccrualEditCandidateBody */
-        AccrualEditCandidateBody: {
-            /** Amount Minor */
-            amount_minor?: number | null;
-            /**
-             * Currency
-             * @default JMD
-             */
-            currency: string;
-            /** Description */
-            description?: string | null;
-            /**
-             * Exclude
-             * @default false
-             */
-            exclude: boolean;
-            /** Expected Version */
-            expected_version?: number | null;
-            /** Note */
-            note?: string | null;
-            /** Reason */
-            reason: string;
-        };
-        /** AccrualExportBody */
-        AccrualExportBody: {
-            /**
-             * Format
-             * @default csv
-             * @enum {string}
-             */
-            format: "csv" | "xlsx";
-            /**
-             * Official
-             * @default false
-             */
-            official: boolean;
-        };
-        /** AccrualExportOut */
-        AccrualExportOut: {
-            /** Byte Size */
-            byte_size: number;
-            /** Filename */
-            filename: string;
-            /** Format */
-            format: string;
-            /**
-             * Generated At
-             * Format: date-time
-             */
-            generated_at: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Official */
-            official: boolean;
-            /** Row Count */
-            row_count: number;
-            /** Sha256 */
-            sha256: string;
-            /** Version */
-            version: number;
-        };
-        /** AccrualFinalizeCandidateBody */
-        AccrualFinalizeCandidateBody: {
-            /** Expected Version */
-            expected_version?: number | null;
-        };
-        /** AccrualLockBody */
-        AccrualLockBody: {
-            /** Expected Version */
-            expected_version?: number | null;
-            /** Reason */
-            reason: string;
-        };
-        /** AccrualMoneyOut */
-        AccrualMoneyOut: {
-            /** Currency */
-            currency: string;
-            /** Formatted */
-            formatted: string;
-            /** Minor Units */
-            minor_units: number;
-        };
-        /** AccrualOpenBody */
-        AccrualOpenBody: {
-            /**
-             * Label
-             * @default
-             */
-            label: string;
-            /**
-             * Period End
-             * Format: date
-             */
-            period_end: string;
-            /**
-             * Period Start
-             * Format: date
-             */
-            period_start: string;
-        };
-        /** AccrualPeriodDetail */
-        AccrualPeriodDetail: {
-            /** Actions */
-            actions: {
-                [key: string]: boolean;
-            };
-            /** Candidate Count */
-            candidate_count: number;
-            /** Candidates */
-            candidates: components["schemas"]["AccrualCandidateOut"][];
-            /** Exports */
-            exports: components["schemas"]["AccrualExportOut"][];
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Label */
-            label: string;
-            /** Lock Reason */
-            lock_reason: string | null;
-            /** Locked At */
-            locked_at: string | null;
-            /** Open Candidate Count */
-            open_candidate_count: number;
-            /**
-             * Period End
-             * Format: date
-             */
-            period_end: string;
-            /**
-             * Period Start
-             * Format: date
-             */
-            period_start: string;
-            /** Reference */
-            reference: string;
-            standing: components["schemas"]["finora__domain__accruals__PeriodStanding"];
-            /** Standing Description */
-            standing_description: string;
-            /** Standing Label */
-            standing_label: string;
-        };
-        /** AccrualPeriodSummary */
-        AccrualPeriodSummary: {
-            /** Candidate Count */
-            candidate_count: number;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Label */
-            label: string;
-            /** Lock Reason */
-            lock_reason: string | null;
-            /** Locked At */
-            locked_at: string | null;
-            /** Open Candidate Count */
-            open_candidate_count: number;
-            /**
-             * Period End
-             * Format: date
-             */
-            period_end: string;
-            /**
-             * Period Start
-             * Format: date
-             */
-            period_start: string;
-            /** Reference */
-            reference: string;
-            standing: components["schemas"]["finora__domain__accruals__PeriodStanding"];
-            /** Standing Description */
-            standing_description: string;
-            /** Standing Label */
-            standing_label: string;
-        };
-        /** AccrualReferenceRef */
-        AccrualReferenceRef: {
-            /** Code */
-            code: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Name */
-            name: string;
-        };
-        /** AcknowledgeRequest */
-        AcknowledgeRequest: {
-            signal: components["schemas"]["DocumentSignal"];
-        };
-        /** ActiveRequest */
-        ActiveRequest: {
-            /** Is Active */
-            is_active: boolean;
-            /** Reason */
-            reason: string;
-        };
-        /** ActivityOut */
-        ActivityOut: {
-            /** Amount Formatted */
-            amount_formatted?: string | null;
-            /** Kind */
-            kind: string;
-            /** Kind Label */
-            kind_label: string;
-            /** Reference */
-            reference: string;
-            /** State Label */
-            state_label: string;
-            /** Title */
-            title: string;
-            /** Tone */
-            tone: string;
-            /**
-             * When
-             * Format: date-time
-             */
-            when: string;
-        };
-        /**
-         * ActorType
-         * @enum {string}
-         */
-        ActorType: "user" | "service" | "scheduler" | "ai" | "external_vendor" | "anonymous";
-        /** AddLinesRequest */
-        AddLinesRequest: {
-            /** Invoice Ids */
-            invoice_ids: string[];
-        };
-        /**
-         * AddLinesResponse
-         * @description What went in and what did not, with the package as it now stands.
-         */
-        AddLinesResponse: {
-            /** Added */
-            added: string[];
-            package: components["schemas"]["PaymentPackageDetail"];
-            /** Refused */
-            refused: components["schemas"]["RefusedOut"][];
-        };
-        /**
-         * AdjustmentOut
-         * @description One named reason a confidence is not what the match alone would give.
-         */
-        AdjustmentOut: {
-            /** Delta */
-            delta: number;
-            /** Reason */
-            reason: string;
-        };
-        /** ApprovalAssignmentOut */
-        ApprovalAssignmentOut: {
-            /** Department */
-            department: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Is Active */
-            is_active: boolean;
-            /** Is Covered By Id */
-            is_covered_by_id: string | null;
-            /** Is Covered By Name */
-            is_covered_by_name: string | null;
-            level: components["schemas"]["ApprovalLevel"];
-            /** Level Label */
-            level_label: string;
-            /** User Email */
-            user_email: string;
-            /**
-             * User Id
-             * Format: uuid
-             */
-            user_id: string;
-            /** User Name */
-            user_name: string;
-        };
-        /** ApprovalAssignRequest */
-        ApprovalAssignRequest: {
-            /** Department */
-            department?: string | null;
-            level: components["schemas"]["ApprovalLevel"];
-            /**
-             * User Id
-             * Format: uuid
-             */
-            user_id: string;
-        };
-        /**
-         * ApprovalCoverRequest
-         * @description Empty on both fields means "I am back", which is always allowed.
-         */
-        ApprovalCoverRequest: {
-            /** Delegate To Id */
-            delegate_to_id?: string | null;
-            /** Out Of Office Until */
-            out_of_office_until?: string | null;
-        };
-        /** ApprovalDelegationOut */
-        ApprovalDelegationOut: {
-            /** Delegate To Id */
-            delegate_to_id: string | null;
-            /** Delegate To Name */
-            delegate_to_name: string | null;
-            /** Is In Effect */
-            is_in_effect: boolean;
-            /** Out Of Office Until */
-            out_of_office_until: string | null;
-            /**
-             * User Id
-             * Format: uuid
-             */
-            user_id: string;
-            /** User Name */
-            user_name: string;
-        };
-        /**
-         * ApprovalLevel
-         * @description Approval matrix tiers named by the master prompt. The amount bands that
-         *     map to each tier are configuration, pending the requirements document.
-         * @enum {string}
-         */
-        ApprovalLevel: "unit_head" | "manager" | "hod" | "coo";
-        /**
-         * ApprovalOutcome
-         * @description What an approver decided. There is no third option.
-         *
-         *     Abstention is deliberately not available. A step that can be neither
-         *     approved nor rejected is a step that stalls indefinitely with nobody
-         *     accountable; an approver who should not decide is handled by reassignment,
-         *     which is a recorded act by a named person.
-         * @enum {string}
-         */
-        ApprovalOutcome: "approved" | "rejected";
-        /** ApprovalPerformanceOut */
-        ApprovalPerformanceOut: {
-            /** Approval Rate */
-            approval_rate?: number | null;
-            /** Avg Hours */
-            avg_hours?: number | null;
-            /** Decided */
-            decided: number;
-        };
-        /**
-         * ApprovalPersonOut
-         * @description Somebody who could be put at a level, or named as cover.
-         */
-        ApprovalPersonOut: {
-            /** Department */
-            department: string | null;
-            /** Email */
-            email: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** May Decide */
-            may_decide: boolean;
-            /** Name */
-            name: string;
-        };
-        /**
-         * ApprovalQueueItemOut
-         * @description One thing waiting on this approver.
-         */
-        ApprovalQueueItemOut: {
-            /** Amount Formatted */
-            amount_formatted: string;
-            /** Amount Minor Units */
-            amount_minor_units: number;
-            /** Attempt */
-            attempt: number;
-            /** Awaiting Labels */
-            awaiting_labels: string[];
-            /** Currency */
-            currency: string;
-            /** Department */
-            department: string | null;
-            /** Description */
-            description: string;
-            /** My Levels */
-            my_levels: string[];
-            /**
-             * Opened At
-             * Format: date-time
-             */
-            opened_at: string;
-            /**
-             * Record Id
-             * Format: uuid
-             */
-            record_id: string;
-            /** Record Path */
-            record_path: string;
-            /** Record Type */
-            record_type: string;
-            /** Record Type Label */
-            record_type_label: string;
-            /** Reference */
-            reference: string;
-            /**
-             * Request Id
-             * Format: uuid
-             */
-            request_id: string;
-            /** Requester Label */
-            requester_label: string | null;
-            /** Vendor Name */
-            vendor_name: string;
-            /** Waiting Hours */
-            waiting_hours: number;
-        };
-        /** ApprovalQueueOut */
-        ApprovalQueueOut: {
-            /** Counts By Type */
-            counts_by_type: {
-                [key: string]: number;
-            };
-            /** Items */
-            items: components["schemas"]["ApprovalQueueItemOut"][];
-            /** Total */
-            total: number;
-        };
-        /** AttachmentSummary */
-        AttachmentSummary: {
-            /** Can Download */
-            can_download: boolean;
-            /** Content Type */
-            content_type: string;
-            /** Filename */
-            filename: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Inline */
-            inline: boolean;
-            /** Is Quarantined */
-            is_quarantined: boolean;
-            /** Rejection Detail */
-            rejection_detail: string | null;
-            /** Rejection Reason */
-            rejection_reason: string | null;
-            /** Scan Detail */
-            scan_detail: string | null;
-            scan_verdict: components["schemas"]["ScanVerdict"] | null;
-            /** Sha256 */
-            sha256: string;
-            /** Size Bytes */
-            size_bytes: number;
-        };
-        /** AttemptSummary */
-        AttemptSummary: {
-            /** Accepted At */
-            accepted_at: string | null;
-            /** Attempt */
-            attempt: number;
-            /** Completed At */
-            completed_at: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            kind: components["schemas"]["DocumentKind"];
-            /** Model Name */
-            model_name: string | null;
-            status: components["schemas"]["ExtractionStatus"];
-        };
-        /**
-         * AuditAction
-         * @enum {string}
-         */
-        AuditAction: "sign_in" | "sign_in_failed" | "sign_out" | "permission_denied" | "record_created" | "record_updated" | "state_changed" | "document_stored" | "document_viewed" | "document_downloaded" | "document_quarantined" | "document_released" | "message_ingested" | "message_duplicate_detected" | "intake_retried" | "scan_completed" | "extraction_completed" | "extraction_corrected" | "extraction_accepted" | "ai_suggestion_produced" | "ai_suggestion_accepted" | "ai_suggestion_rejected" | "ai_kill_switch_changed" | "approval_requested" | "approval_withdrawn" | "sign_off_requested" | "signed_off" | "sign_off_declined" | "approved" | "rejected" | "delegated" | "overridden" | "package_submitted" | "marked_paid" | "vendor_confirmation_received" | "vendor_confirmation_reviewed" | "vendor_confirmation_requested" | "credit_card_statement_imported" | "credit_card_transaction_coded" | "credit_card_receipt_matched" | "credit_card_period_closed" | "accrual_period_opened" | "accrual_candidates_generated" | "accrual_candidate_edited" | "accrual_candidate_finalized" | "period_locked" | "export_generated" | "mail_sent" | "mail_failed" | "reminder_sent" | "escalated" | "link_issued" | "link_followed" | "link_refused" | "configuration_changed" | "role_assigned";
-        /** AuditEntryOut */
-        AuditEntryOut: {
-            action: components["schemas"]["AuditAction"];
-            /** Actor Id */
-            actor_id: string | null;
-            /** Actor Label */
-            actor_label: string;
-            actor_type: components["schemas"]["ActorType"];
-            /** Correlation Id */
-            correlation_id: string | null;
-            /** Detail */
-            detail: {
-                [key: string]: unknown;
-            };
-            /** Entry Hash */
-            entry_hash: string;
-            /**
-             * Occurred At
-             * Format: date-time
-             */
-            occurred_at: string;
-            /** Previous Hash */
-            previous_hash: string;
-            /** Sequence */
-            sequence: number;
-            /** Subject Id */
-            subject_id: string | null;
-            /** Subject Type */
-            subject_type: string;
-        };
-        /** AuditEntryPage */
-        AuditEntryPage: {
-            /** Items */
-            items: components["schemas"]["AuditEntryOut"][];
-            /** Limit */
-            limit: number;
-            /** Offset */
-            offset: number;
-            /** Total */
-            total: number;
-        };
-        /** AuthMethodsResponse */
-        AuthMethodsResponse: {
-            /** Environment */
-            environment: string;
-            /** Local Accounts Enabled */
-            local_accounts_enabled: boolean;
-            /** Oidc Authorize Url */
-            oidc_authorize_url: string | null;
-            /** Oidc Enabled */
-            oidc_enabled: boolean;
-        };
-        /** BacklogReport */
-        BacklogReport: {
-            /** Counts By Status */
-            counts_by_status: {
-                [key: string]: number;
-            };
-            /** Failed */
-            failed: number;
-            /** In Flight */
-            in_flight: number;
-            /** Needs Attention */
-            needs_attention: number;
-            /** Oldest Unresolved Age Seconds */
-            oldest_unresolved_age_seconds: number | null;
-            /** Oldest Unresolved At */
-            oldest_unresolved_at: string | null;
-            /** Quarantined */
-            quarantined: number;
-            /** Total */
-            total: number;
-        };
-        /** Body_import_statement_api_v1_credit_cards_cards__card_id__statements_post */
-        Body_import_statement_api_v1_credit_cards_cards__card_id__statements_post: {
-            /** File */
-            file: string;
-            /**
-             * Period End
-             * Format: date
-             */
-            period_end: string;
-            /**
-             * Period Start
-             * Format: date
-             */
-            period_start: string;
-            /**
-             * Statement Date
-             * Format: date
-             */
-            statement_date: string;
-        };
-        /** Body_upload_document_api_v1_intake_uploads_post */
-        Body_upload_document_api_v1_intake_uploads_post: {
-            /**
-             * File
-             * @description The document to ingest.
-             */
-            file: string;
-            /** Note */
-            note?: string | null;
-        };
-        /**
-         * BoxOut
-         * @description A rectangle on a page, in PDF points from the top-left corner.
-         */
-        BoxOut: {
-            /** Height */
-            height: number;
-            /** Width */
-            width: number;
-            /** X */
-            x: number;
-            /** Y */
-            y: number;
-        };
-        /**
-         * CandidateStanding
-         * @description Where a candidate is in the review.
-         * @enum {string}
-         */
-        CandidateStanding: "proposed" | "adjusted" | "finalized" | "excluded";
-        /** CheckInDetailOut */
-        CheckInDetailOut: {
-            /** Answered At */
-            answered_at: string | null;
-            /** Can Record Answer */
-            can_record_answer: boolean;
-            /** Can Review */
-            can_review: boolean;
-            /** Can Send */
-            can_send: boolean;
-            claim: components["schemas"]["ClaimOutcome"] | null;
-            claim_channel: components["schemas"]["ClaimChannel"] | null;
-            /** Claim Channel Label */
-            claim_channel_label: string | null;
-            /** Claim Description */
-            claim_description: string | null;
-            /** Claim Label */
-            claim_label: string | null;
-            /** Confirmed Paid */
-            confirmed_paid: boolean;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Lines */
-            lines: components["schemas"]["CheckInLineOut"][];
-            /**
-             * Package Id
-             * Format: uuid
-             */
-            package_id: string;
-            /** Package Reference */
-            package_reference: string;
-            /** Package Submitted At */
-            package_submitted_at: string | null;
-            /** Reference */
-            reference: string;
-            /** Respondent Name */
-            respondent_name: string | null;
-            /** Respondent Note */
-            respondent_note: string | null;
-            /** Review Note */
-            review_note: string | null;
-            review_outcome: components["schemas"]["ReviewOutcome"] | null;
-            /** Review Outcome Label */
-            review_outcome_label: string | null;
-            /** Reviewed At */
-            reviewed_at: string | null;
-            /** Reviewed By Label */
-            reviewed_by_label: string | null;
-            /** Sent At */
-            sent_at: string | null;
-            standing: components["schemas"]["CheckInStanding"];
-            /** Standing Description */
-            standing_description: string;
-            /** Standing Label */
-            standing_label: string;
-            /** Submission Reference */
-            submission_reference: string | null;
-            suggestion: components["schemas"]["SuggestionOut"];
-            /** Totals */
-            totals: components["schemas"]["MoneyOut"][];
-            /** Vendor Email */
-            vendor_email: string | null;
-            /** Vendor Name */
-            vendor_name: string;
-            /** Version */
-            version: number;
-        };
-        /** CheckInLineOut */
-        CheckInLineOut: {
-            amount: components["schemas"]["MoneyOut"];
-            /** Due Date */
-            due_date: string | null;
-            /** Invoice Number */
-            invoice_number: string | null;
-            /** Invoice Reference */
-            invoice_reference: string;
-            invoice_state: components["schemas"]["WorkflowState"];
-            /** Invoice State Label */
-            invoice_state_label: string;
-        };
-        /** CheckInPage */
-        CheckInPage: {
-            /** Page */
-            page: number;
-            /** Page Size */
-            page_size: number;
-            /** Rows */
-            rows: components["schemas"]["CheckInSummary"][];
-            /** Total */
-            total: number;
-        };
-        /**
-         * CheckInReviewRequest
-         * @description Named for the thing it reviews.
-         *
-         *     A plain `ReviewRequest` collides with the document reader's, and the schema
-         *     generator resolves a collision by qualifying both with their module paths —
-         *     which quietly renames a type the web app already imports. Distinct names
-         *     here keep the generated contract readable.
-         */
-        CheckInReviewRequest: {
-            /**
-             * Note
-             * @default
-             */
-            note: string;
-            outcome: components["schemas"]["ReviewOutcome"];
-        };
-        /**
-         * CheckInStanding
-         * @description Where a check-in is, derived from its timestamps rather than stored.
-         *
-         *     Same reasoning as a payment package: this is a conversation with a supplier,
-         *     not a financial record with a lifecycle anybody signs off. The invoices it
-         *     concerns are on the state machine; the conversation is not.
-         * @enum {string}
-         */
-        CheckInStanding: "not_sent" | "awaiting_vendor" | "vendor_answered" | "reviewed";
-        /** CheckInSummary */
-        CheckInSummary: {
-            /** Answered At */
-            answered_at: string | null;
-            claim: components["schemas"]["ClaimOutcome"] | null;
-            /** Claim Label */
-            claim_label: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Invoice Count */
-            invoice_count: number;
-            /** Package Reference */
-            package_reference: string;
-            /** Reference */
-            reference: string;
-            review_outcome: components["schemas"]["ReviewOutcome"] | null;
-            /** Review Outcome Label */
-            review_outcome_label: string | null;
-            /** Reviewed At */
-            reviewed_at: string | null;
-            /** Sent At */
-            sent_at: string | null;
-            standing: components["schemas"]["CheckInStanding"];
-            /** Standing Label */
-            standing_label: string;
-            /** Totals */
-            totals: components["schemas"]["MoneyOut"][];
-            /** Vendor Email */
-            vendor_email: string | null;
-            /** Vendor Name */
-            vendor_name: string;
-        };
-        /** CheckpointReport */
-        CheckpointReport: {
-            /** Folder */
-            folder: string;
-            /** Is Stalled */
-            is_stalled: boolean;
-            /** Last Polled At */
-            last_polled_at: string | null;
-            /** Last Reset At */
-            last_reset_at: string | null;
-            /** Last Reset Reason */
-            last_reset_reason: string | null;
-            /** Last Seen Uid */
-            last_seen_uid: number;
-            /** Seconds Since Poll */
-            seconds_since_poll: number | null;
-            /** Uid Validity */
-            uid_validity: number;
-        };
-        /**
-         * ClaimChannel
-         * @description How the answer reached us, which is part of how much it is worth.
-         *
-         *     A link answer came from whoever held the link. A reply came from whatever
-         *     address the mail claimed to be from. Somebody phoning in came through a
-         *     member of staff who typed it. None of the three is authentication, and
-         *     keeping them apart is what lets a reviewer weigh them differently.
-         * @enum {string}
-         */
-        ClaimChannel: "signed_link" | "email_reply" | "recorded_by_staff";
-        /**
-         * ClaimOutcome
-         * @description What the supplier said.
-         *
-         *     Three answers rather than two, because "some of it" is what a supplier
-         *     actually says when a batch payment is short, and forcing that into "no"
-         *     loses the only useful thing about the reply.
-         * @enum {string}
-         */
-        ClaimOutcome: "received" | "partly_received" | "not_received";
-        /**
-         * CodingStanding
-         * @description Whether a transaction has been explained.
-         * @enum {string}
-         */
-        CodingStanding: "uncoded" | "coded" | "excepted";
-        /**
-         * ConfidenceBand
-         * @enum {string}
-         */
-        ConfidenceBand: "high" | "medium" | "low" | "none";
-        /** CorrectionRequest */
-        CorrectionRequest: {
-            /** Reason */
-            reason?: string | null;
-            /** Text */
-            text: string;
-        };
-        /** CostCentreCreateRequest */
-        CostCentreCreateRequest: {
-            /** Code */
-            code: string;
-            /** Department */
-            department?: string | null;
-            /** Name */
-            name: string;
-            /** Reason */
-            reason: string;
-        };
-        /** CostCentreOut */
-        CostCentreOut: {
-            /** Code */
-            code: string;
-            /** Department */
-            department: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Is Active */
-            is_active: boolean;
-            /** Name */
-            name: string;
-        };
-        /** CostCentreUpdateRequest */
-        CostCentreUpdateRequest: {
-            /** Department */
-            department?: string | null;
-            /** Name */
-            name?: string | null;
-            /** Reason */
-            reason: string;
-        };
-        /** CreditCardCloseBody */
-        CreditCardCloseBody: {
-            /** Reason */
-            reason: string;
-        };
-        /** CreditCardCodeBody */
-        CreditCardCodeBody: {
-            /** Category */
-            category?: string | null;
-            /** Cost Centre Id */
-            cost_centre_id?: string | null;
-            /** Exception Reason */
-            exception_reason?: string | null;
-            /** Expected Version */
-            expected_version?: number | null;
-            /** Gl Account Id */
-            gl_account_id?: string | null;
-        };
-        /** CreditCardCreate */
-        CreditCardCreate: {
-            /** Cardholder Name */
-            cardholder_name: string;
-            /**
-             * Currency
-             * @default JMD
-             */
-            currency: string;
-            /** Label */
-            label: string;
-            /** Last Four */
-            last_four: string;
-        };
-        /** CreditCardDisposeBody */
-        CreditCardDisposeBody: {
-            disposition: components["schemas"]["SuggestionDisposition"];
-        };
-        /** CreditCardMoneyOut */
-        CreditCardMoneyOut: {
-            /** Currency */
-            currency: string;
-            /** Formatted */
-            formatted: string;
-            /** Minor Units */
-            minor_units: number;
-        };
-        /** CreditCardPeriodDetail */
-        CreditCardPeriodDetail: {
-            /** Actions */
-            actions: {
-                [key: string]: boolean;
-            };
-            card: components["schemas"]["CreditCardSummary"];
-            /** Close Reason */
-            close_reason: string | null;
-            /** Closed At */
-            closed_at: string | null;
-            /** Currency */
-            currency: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Missing Receipt Count */
-            missing_receipt_count: number;
-            /**
-             * Period End
-             * Format: date
-             */
-            period_end: string;
-            /**
-             * Period Start
-             * Format: date
-             */
-            period_start: string;
-            /** Reference */
-            reference: string;
-            /** Source Filename */
-            source_filename: string;
-            standing: components["schemas"]["finora__domain__credit_cards__PeriodStanding"];
-            /** Standing Description */
-            standing_description: string;
-            /** Standing Label */
-            standing_label: string;
-            /**
-             * Statement Date
-             * Format: date
-             */
-            statement_date: string;
-            /** Transaction Count */
-            transaction_count: number;
-            /** Transactions */
-            transactions: components["schemas"]["CreditCardTransactionOut"][];
-            /** Uncoded Count */
-            uncoded_count: number;
-        };
-        /** CreditCardPeriodSummary */
-        CreditCardPeriodSummary: {
-            card: components["schemas"]["CreditCardSummary"];
-            /** Closed At */
-            closed_at: string | null;
-            /** Currency */
-            currency: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Missing Receipt Count */
-            missing_receipt_count: number;
-            /**
-             * Period End
-             * Format: date
-             */
-            period_end: string;
-            /**
-             * Period Start
-             * Format: date
-             */
-            period_start: string;
-            /** Reference */
-            reference: string;
-            /** Source Filename */
-            source_filename: string;
-            standing: components["schemas"]["finora__domain__credit_cards__PeriodStanding"];
-            /** Standing Description */
-            standing_description: string;
-            /** Standing Label */
-            standing_label: string;
-            /**
-             * Statement Date
-             * Format: date
-             */
-            statement_date: string;
-            /** Transaction Count */
-            transaction_count: number;
-            /** Uncoded Count */
-            uncoded_count: number;
-        };
-        /** CreditCardReceiptBody */
-        CreditCardReceiptBody: {
-            /** Confidence */
-            confidence?: number | null;
-            /** Document Id */
-            document_id?: string | null;
-            /**
-             * Waived
-             * @default false
-             */
-            waived: boolean;
-            /** Waiver Reason */
-            waiver_reason?: string | null;
-        };
-        /** CreditCardReferenceRef */
-        CreditCardReferenceRef: {
-            /** Code */
-            code: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Name */
-            name: string;
-        };
-        /** CreditCardSuggestionBody */
-        CreditCardSuggestionBody: {
-            /** Cost Centre Id */
-            cost_centre_id?: string | null;
-            /** Evidence */
-            evidence?: {
-                [key: string]: unknown;
-            };
-            /** Gl Account Id */
-            gl_account_id?: string | null;
-            /** Receipt Document Id */
-            receipt_document_id?: string | null;
-        };
-        /** CreditCardSummary */
-        CreditCardSummary: {
-            /** Cardholder Name */
-            cardholder_name: string;
-            /** Currency */
-            currency: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Is Active */
-            is_active: boolean;
-            /** Label */
-            label: string;
-            /** Last Four */
-            last_four: string;
-        };
-        /** CreditCardTransactionOut */
-        CreditCardTransactionOut: {
-            amount: components["schemas"]["CreditCardMoneyOut"];
-            /** Cardholder */
-            cardholder: string;
-            /** Category */
-            category: string | null;
-            /** Coding Label */
-            coding_label: string;
-            coding_standing: components["schemas"]["CodingStanding"];
-            cost_centre: components["schemas"]["CreditCardReferenceRef"] | null;
-            /** Description */
-            description: string | null;
-            /** Exception Reason */
-            exception_reason: string | null;
-            /** External Reference */
-            external_reference: string | null;
-            gl_account: components["schemas"]["CreditCardReferenceRef"] | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Merchant */
-            merchant: string;
-            /**
-             * Posted On
-             * Format: date
-             */
-            posted_on: string;
-            /** Receipt Document Id */
-            receipt_document_id: string | null;
-            /** Receipt Label */
-            receipt_label: string;
-            /** Receipt Match Confidence */
-            receipt_match_confidence: number | null;
-            receipt_status: components["schemas"]["ReceiptStatus"];
-            /** Receipt Waived */
-            receipt_waived: boolean;
-            /** Receipt Waiver Reason */
-            receipt_waiver_reason: string | null;
-            /** Source Row */
-            source_row: number;
-            /** Suggested Cost Centre Id */
-            suggested_cost_centre_id: string | null;
-            /** Suggested Gl Account Id */
-            suggested_gl_account_id: string | null;
-            suggestion_disposition: components["schemas"]["SuggestionDisposition"] | null;
-            /** Suggestion Evidence */
-            suggestion_evidence: {
-                [key: string]: unknown;
-            } | null;
-            /** Version */
-            version: number;
-        };
-        /** CurrentUserResponse */
-        CurrentUserResponse: {
-            /** Department */
-            department: string | null;
-            /** Display Name */
-            display_name: string;
-            /** Email */
-            email: string;
-            /** Id */
-            id: string;
-            /** Permissions */
-            permissions: string[];
-            /** Roles */
-            roles: string[];
-        };
-        /** DependencyReport */
-        DependencyReport: {
-            /** Detail */
-            detail?: string | null;
-            /** Name */
-            name: string;
-            state: components["schemas"]["DependencyState"];
-        };
-        /**
-         * DependencyState
-         * @enum {string}
-         */
-        DependencyState: "up" | "down" | "degraded" | "not_configured";
-        /** DocumentDetail */
-        DocumentDetail: {
-            /** Acceptance Blockers */
-            acceptance_blockers: string[];
-            /** Content Type */
-            content_type: string;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            extraction: components["schemas"]["ExtractionOut"] | null;
-            /** Fields Needing Attention */
-            fields_needing_attention: number;
-            /** Filename */
-            filename: string;
-            /** From Address */
-            from_address: string | null;
-            /** History */
-            history: components["schemas"]["AttemptSummary"][];
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            kind: components["schemas"]["DocumentKind"];
-            /** Kind Label */
-            kind_label: string;
-            /** Lowest Confidence */
-            lowest_confidence: number | null;
-            /**
-             * Message Id
-             * Format: uuid
-             */
-            message_id: string;
-            raised_as: components["schemas"]["RaisedRecordOut"] | null;
-            /** Sha256 */
-            sha256: string;
-            /** Signal Count */
-            signal_count: number;
-            /** Size Bytes */
-            size_bytes: number;
-            status: components["schemas"]["ExtractionStatus"];
-            /** Subject */
-            subject: string | null;
-        };
-        /**
-         * DocumentKind
-         * @description What kind of document this is.
-         *
-         *     `unknown` is a real answer and is used whenever the evidence does not decide.
-         *     Guessing `invoice` because most documents are invoices would put a quotation
-         *     into the payment path, which is the expensive direction to be wrong in.
-         * @enum {string}
-         */
-        DocumentKind: "invoice" | "estimate" | "credit_note" | "receipt" | "purchase_order" | "statement" | "remittance_advice" | "unknown";
-        /** DocumentPage */
-        DocumentPage: {
-            /** Items */
-            items: components["schemas"]["DocumentSummary"][];
-            /** Limit */
-            limit: number;
-            /** Offset */
-            offset: number;
-            /** Total */
-            total: number;
-        };
-        /**
-         * DocumentSignal
-         * @description Things about a document that a person needs to be told.
-         *
-         *     These are not extraction failures. A document can be read perfectly and still
-         *     carry every one of these, and each of them changes what the reviewer should
-         *     do next. They are enumerated rather than assembled as free text so that the
-         *     same condition always reads the same way and can be counted across documents.
-         * @enum {string}
-         */
-        DocumentSignal: "no_text_layer" | "scanned_and_unreadable" | "encrypted" | "truncated_pages" | "bank_details_present" | "prompt_injection_suspected" | "amounts_do_not_add_up" | "ambiguous_date" | "multiple_currencies" | "kind_undetermined" | "model_unavailable" | "model_output_rejected" | "model_assisted" | "required_field_missing" | "negative_total" | "due_before_document_date";
-        /** DocumentSummary */
-        DocumentSummary: {
-            /** Content Type */
-            content_type: string;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Fields Needing Attention */
-            fields_needing_attention: number;
-            /** Filename */
-            filename: string;
-            /** From Address */
-            from_address: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            kind: components["schemas"]["DocumentKind"];
-            /** Kind Label */
-            kind_label: string;
-            /** Lowest Confidence */
-            lowest_confidence: number | null;
-            /**
-             * Message Id
-             * Format: uuid
-             */
-            message_id: string;
-            /** Signal Count */
-            signal_count: number;
-            /** Size Bytes */
-            size_bytes: number;
-            status: components["schemas"]["ExtractionStatus"];
-            /** Subject */
-            subject: string | null;
-        };
-        /**
-         * EligibleInvoiceOut
-         * @description An approved invoice that could go into a package.
-         */
-        EligibleInvoiceOut: {
-            amount: components["schemas"]["MoneyOut"];
-            /** Department */
-            department: string | null;
-            /** Due Date */
-            due_date: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Invoice Number */
-            invoice_number: string | null;
-            /** Reference */
-            reference: string;
-            /** Vendor Name */
-            vendor_name: string;
-        };
-        /**
-         * EstimateActionsOut
-         * @description What this caller may do to this estimate, decided by the server.
-         *
-         *     Every field is the outcome of the same check the corresponding endpoint
-         *     performs, so a disabled button and a refused request always agree.
-         */
-        EstimateActionsOut: {
-            /** May Cancel */
-            may_cancel: boolean;
-            /** May Decide */
-            may_decide: boolean;
-            /** May Edit */
-            may_edit: boolean;
-            /** May Submit */
-            may_submit: boolean;
-            /** May Withdraw */
-            may_withdraw: boolean;
-        };
-        /** EstimateCreateRequest */
-        EstimateCreateRequest: {
-            /** Document Id */
-            document_id?: string | null;
-        };
-        /** EstimateDecisionRequest */
-        EstimateDecisionRequest: {
-            /** Comment */
-            comment?: string | null;
-            level: components["schemas"]["ApprovalLevel"];
-            outcome: components["schemas"]["ApprovalOutcome"];
-            /** Step Order */
-            step_order: number;
-        };
-        /** EstimateDetail */
-        EstimateDetail: {
-            actions: components["schemas"]["EstimateActionsOut"];
-            /** Awaiting Labels */
-            awaiting_labels: string[];
-            /** Awaiting Me */
-            awaiting_me: boolean;
-            cost_centre: components["schemas"]["NamedRefOut"] | null;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Currency */
-            currency: string | null;
-            /** Decided At */
-            decided_at: string | null;
-            /** Department */
-            department: string | null;
-            /** Description */
-            description: string;
-            /** Document Id */
-            document_id: string | null;
-            /** Estimate Date */
-            estimate_date: string | null;
-            /** Estimate Number */
-            estimate_number: string | null;
-            gl_account: components["schemas"]["NamedRefOut"] | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Justification */
-            justification: string;
-            /** Needed By */
-            needed_by: string | null;
-            /** Planned Route */
-            planned_route: components["schemas"]["PlannedStepOut"][] | null;
-            /** Planned Route Problem */
-            planned_route_problem: string | null;
-            /** Problem Count */
-            problem_count: number;
-            /** Problems */
-            problems: components["schemas"]["EstimateProblemOut"][];
-            /** Reference */
-            reference: string;
-            /** Requester Label */
-            requester_label: string;
-            route: components["schemas"]["RouteOut"] | null;
-            /** Route History */
-            route_history: components["schemas"]["RouteOut"][];
-            /** Route Summary */
-            route_summary: string | null;
-            state: components["schemas"]["WorkflowState"];
-            /** State Label */
-            state_label: string;
-            /** Submitted At */
-            submitted_at: string | null;
-            /** Total Formatted */
-            total_formatted: string | null;
-            /** Total Minor Units */
-            total_minor_units: number | null;
-            /** Transitions */
-            transitions: components["schemas"]["TransitionOut"][];
-            /** Vendor Id */
-            vendor_id: string | null;
-            /** Vendor Name */
-            vendor_name: string;
-        };
-        /**
-         * EstimateDraftRequest
-         * @description The complete editable state of a draft, not a set of changes.
-         *
-         *     A PUT rather than a PATCH because `null` then means "this estimate has no
-         *     such value" without a second sentinel, and because the form sends every field
-         *     it owns anyway.
-         */
-        EstimateDraftRequest: {
-            /** Cost Centre Id */
-            cost_centre_id?: string | null;
-            /** Currency */
-            currency?: string | null;
-            /** Description */
-            description: string;
-            /** Estimate Date */
-            estimate_date?: string | null;
-            /** Estimate Number */
-            estimate_number?: string | null;
-            /** Gl Account Id */
-            gl_account_id?: string | null;
-            /** Justification */
-            justification: string;
-            /** Needed By */
-            needed_by?: string | null;
-            /** Total Minor Units */
-            total_minor_units?: number | null;
-            /** Vendor Id */
-            vendor_id?: string | null;
-            /** Vendor Name */
-            vendor_name: string;
-        };
-        /** EstimatePage */
-        EstimatePage: {
-            /** Items */
-            items: components["schemas"]["EstimateSummary"][];
-            /** Limit */
-            limit: number;
-            /** Offset */
-            offset: number;
-            /** Total */
-            total: number;
-        };
-        /**
-         * EstimateProblem
-         * @description Why an estimate is not ready to be sent for approval.
-         *
-         *     Enumerated rather than assembled as free text so the same gap always reads
-         *     the same way, the screen can point at the field responsible, and "how often
-         *     do estimates arrive without a cost centre" is a question the data can answer.
-         * @enum {string}
-         */
-        EstimateProblem: "vendor_missing" | "description_missing" | "amount_missing" | "amount_not_positive" | "estimate_date_missing" | "estimate_date_in_future" | "cost_centre_missing" | "justification_missing" | "needed_by_before_estimate_date";
-        /** EstimateProblemOut */
-        EstimateProblemOut: {
-            /** Explanation */
-            explanation: string;
-            /** Field */
-            field: string;
-            problem: components["schemas"]["EstimateProblem"];
-        };
-        /** EstimateReasonRequest */
-        EstimateReasonRequest: {
-            /** Reason */
-            reason: string;
-        };
-        /** EstimateSummary */
-        EstimateSummary: {
-            /** Awaiting Labels */
-            awaiting_labels: string[];
-            /** Awaiting Me */
-            awaiting_me: boolean;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Currency */
-            currency: string | null;
-            /** Decided At */
-            decided_at: string | null;
-            /** Department */
-            department: string | null;
-            /** Description */
-            description: string;
-            /** Estimate Date */
-            estimate_date: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Needed By */
-            needed_by: string | null;
-            /** Problem Count */
-            problem_count: number;
-            /** Reference */
-            reference: string;
-            /** Requester Label */
-            requester_label: string;
-            /** Route Summary */
-            route_summary: string | null;
-            state: components["schemas"]["WorkflowState"];
-            /** State Label */
-            state_label: string;
-            /** Submitted At */
-            submitted_at: string | null;
-            /** Total Formatted */
-            total_formatted: string | null;
-            /** Total Minor Units */
-            total_minor_units: number | null;
-            /** Vendor Name */
-            vendor_name: string;
-        };
-        /** EvidenceOut */
-        EvidenceOut: {
-            /** Boxes */
-            boxes: components["schemas"]["BoxOut"][];
-            /** Page Number */
-            page_number: number;
-            /** Snippet */
-            snippet: string;
-        };
-        /** ExtractionOut */
-        ExtractionOut: {
-            /** Accepted At */
-            accepted_at: string | null;
-            /** Accepted Note */
-            accepted_note: string | null;
-            /** Attempt */
-            attempt: number;
-            /** Completed At */
-            completed_at: string | null;
-            /** Fields */
-            fields: components["schemas"]["FieldOut"][];
-            /** Gateway Outcome */
-            gateway_outcome: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            kind: components["schemas"]["DocumentKind"];
-            /** Kind Confidence */
-            kind_confidence: number;
-            kind_evidence: components["schemas"]["EvidenceOut"] | null;
-            /** Kind Label */
-            kind_label: string;
-            /** Model Name */
-            model_name: string | null;
-            /** Notes */
-            notes: string[];
-            /** Page Count */
-            page_count: number;
-            /** Prompt Id */
-            prompt_id: string | null;
-            /** Prompt Version */
-            prompt_version: number | null;
-            /** Review Threshold */
-            review_threshold: number;
-            /** Signals */
-            signals: components["schemas"]["SignalOut"][];
-            status: components["schemas"]["ExtractionStatus"];
-            /** Suggestions Discarded */
-            suggestions_discarded: number;
-            /** Text Source */
-            text_source: string;
-        };
-        /**
-         * ExtractionStatus
-         * @description Where a document has reached.
-         *
-         *     `manual_entry_required` exists so that an unreadable document is a state with
-         *     a working path out of it, rather than a failure a user can only stare at. A
-         *     scanned page with no text layer and no vision service configured is still a
-         *     real invoice that has to be paid.
-         * @enum {string}
-         */
-        ExtractionStatus: "pending" | "extracting" | "extracted" | "needs_review" | "accepted" | "manual_entry_required" | "failed";
-        /**
-         * FieldName
-         * @description The fields the platform reads from an invoice or estimate.
-         *
-         *     Bank details are deliberately absent. They appear on documents constantly and
-         *     are the single most attractive thing on the page to an attacker, so they are
-         *     never read into a field that could be used for payment; their presence is
-         *     recorded as a signal for a person to verify against the vendor master.
-         * @enum {string}
-         */
-        FieldName: "vendor_name" | "vendor_tax_id" | "document_number" | "document_date" | "due_date" | "currency" | "subtotal" | "tax_total" | "total" | "purchase_order_number" | "estimate_reference" | "payment_terms";
-        /**
-         * FieldOrigin
-         * @description Who produced a value. Recorded so a suggestion is never read back as a
-         *     finding, and a person's correction is never overwritten by a re-run.
-         * @enum {string}
-         */
-        FieldOrigin: "rule" | "model" | "human" | "absent";
-        /** FieldOut */
-        FieldOut: {
-            /** Adjustments */
-            adjustments: components["schemas"]["AdjustmentOut"][];
-            /** Amount Minor Units */
-            amount_minor_units: number | null;
-            band: components["schemas"]["ConfidenceBand"];
-            /** Confidence */
-            confidence: number;
-            /** Corrected At */
-            corrected_at: string | null;
-            /** Correction Reason */
-            correction_reason: string | null;
-            /** Currency */
-            currency: string | null;
-            evidence: components["schemas"]["EvidenceOut"] | null;
-            /** Label */
-            label: string;
-            name: components["schemas"]["FieldName"];
-            /** Needs Attention */
-            needs_attention: boolean;
-            /** Notes */
-            notes: string[];
-            origin: components["schemas"]["FieldOrigin"];
-            /** Reader Confidence */
-            reader_confidence: number | null;
-            /** Reader Text */
-            reader_text: string | null;
-            review: components["schemas"]["FieldReview"];
-            /** Text */
-            text: string;
-            /** Value Date */
-            value_date: string | null;
-        };
-        /**
-         * FieldReview
-         * @enum {string}
-         */
-        FieldReview: "unreviewed" | "confirmed" | "corrected" | "cleared";
-        /**
-         * PeriodStanding
-         * @description Where an accrual period is, derived from `locked_at`.
-         * @enum {string}
-         */
-        finora__domain__accruals__PeriodStanding: "open" | "locked";
-        /**
-         * PeriodStanding
-         * @description Where a statement period is, derived from `closed_at`.
-         * @enum {string}
-         */
-        finora__domain__credit_cards__PeriodStanding: "open" | "closed";
-        /** GlAccountCreateRequest */
-        GlAccountCreateRequest: {
-            /** Code */
-            code: string;
-            /** Name */
-            name: string;
-            /** Reason */
-            reason: string;
-        };
-        /** GlAccountOut */
-        GlAccountOut: {
-            /** Code */
-            code: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Is Active */
-            is_active: boolean;
-            /** Name */
-            name: string;
-        };
-        /** GlAccountUpdateRequest */
-        GlAccountUpdateRequest: {
-            /** Name */
-            name?: string | null;
-            /** Reason */
-            reason: string;
-        };
-        /** HTTPValidationError */
-        HTTPValidationError: {
-            /** Detail */
-            detail?: components["schemas"]["ValidationError"][];
-        };
-        /**
-         * IntakeSource
-         * @description How a message entered the platform.
-         * @enum {string}
-         */
-        IntakeSource: "imap" | "manual_upload";
-        /**
-         * IntakeStatus
-         * @description Lifecycle of an inbound message.
-         *
-         *     Nothing reaches `ready` until every attachment has a scan verdict, so a
-         *     downstream module cannot open a file that was never checked.
-         * @enum {string}
-         */
-        IntakeStatus: "received" | "scanning" | "quarantined" | "ready" | "failed";
-        /**
-         * InvoiceActionsOut
-         * @description What this caller may do to this invoice, decided by the server.
-         */
-        InvoiceActionsOut: {
-            /** May Cancel */
-            may_cancel: boolean;
-            /** May Decide */
-            may_decide: boolean;
-            /** May Decline */
-            may_decline: boolean;
-            /** May Edit */
-            may_edit: boolean;
-            /** May Recall */
-            may_recall: boolean;
-            /** May Request Sign Off */
-            may_request_sign_off: boolean;
-            /** May Sign Off */
-            may_sign_off: boolean;
-        };
-        /** InvoiceCreateRequest */
-        InvoiceCreateRequest: {
-            /** Document Id */
-            document_id?: string | null;
-        };
-        /** InvoiceDecisionRequest */
-        InvoiceDecisionRequest: {
-            /** Comment */
-            comment?: string | null;
-            level: components["schemas"]["ApprovalLevel"];
-            outcome: components["schemas"]["ApprovalOutcome"];
-            /** Step Order */
-            step_order: number;
-        };
-        /** InvoiceDetail */
-        InvoiceDetail: {
-            actions: components["schemas"]["InvoiceActionsOut"];
-            /** Awaiting Labels */
-            awaiting_labels: string[];
-            /** Awaiting Me */
-            awaiting_me: boolean;
-            /** Awaiting My Sign Off */
-            awaiting_my_sign_off: boolean;
-            /** Blocker Count */
-            blocker_count: number;
-            cost_centre: components["schemas"]["NamedRefOut"] | null;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Created By Label */
-            created_by_label: string;
-            /** Currency */
-            currency: string | null;
-            /** Days Until Due */
-            days_until_due: number | null;
-            /** Decided At */
-            decided_at: string | null;
-            /** Department */
-            department: string | null;
-            /** Description */
-            description: string;
-            /** Document Id */
-            document_id: string | null;
-            /** Due Date */
-            due_date: string | null;
-            estimate: components["schemas"]["LinkedEstimateOut"] | null;
-            gl_account: components["schemas"]["NamedRefOut"] | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Invoice Date */
-            invoice_date: string | null;
-            /** Invoice Number */
-            invoice_number: string | null;
-            /** Planned Route */
-            planned_route: components["schemas"]["PlannedStepOut"][] | null;
-            /** Planned Route Problem */
-            planned_route_problem: string | null;
-            /** Problem Count */
-            problem_count: number;
-            /** Problems */
-            problems: components["schemas"]["InvoiceProblemOut"][];
-            purchase_order: components["schemas"]["LinkedPurchaseOrderOut"] | null;
-            /** Reference */
-            reference: string;
-            /** Reminders Sent */
-            reminders_sent: number | null;
-            /** Requester Label */
-            requester_label: string | null;
-            route: components["schemas"]["RouteOut"] | null;
-            /** Route History */
-            route_history: components["schemas"]["RouteOut"][];
-            /** Route Summary */
-            route_summary: string | null;
-            sign_off: components["schemas"]["SignOffOut"];
-            /** Signed Off At */
-            signed_off_at: string | null;
-            state: components["schemas"]["WorkflowState"];
-            /** State Label */
-            state_label: string;
-            /** Submitted At */
-            submitted_at: string | null;
-            /** Suggested Requester Id */
-            suggested_requester_id: string | null;
-            /** Total Formatted */
-            total_formatted: string | null;
-            /** Total Minor Units */
-            total_minor_units: number | null;
-            /** Transitions */
-            transitions: components["schemas"]["TransitionOut"][];
-            /** Vendor Id */
-            vendor_id: string | null;
-            /** Vendor Name */
-            vendor_name: string;
-        };
-        /**
-         * InvoiceDraftRequest
-         * @description The complete editable state of a draft invoice, as with an estimate.
-         */
-        InvoiceDraftRequest: {
-            /** Cost Centre Id */
-            cost_centre_id?: string | null;
-            /** Currency */
-            currency?: string | null;
-            /** Description */
-            description: string;
-            /** Due Date */
-            due_date?: string | null;
-            /** Estimate Id */
-            estimate_id?: string | null;
-            /** Gl Account Id */
-            gl_account_id?: string | null;
-            /** Invoice Date */
-            invoice_date?: string | null;
-            /** Invoice Number */
-            invoice_number?: string | null;
-            /** Purchase Order Id */
-            purchase_order_id?: string | null;
-            /** Requester Id */
-            requester_id?: string | null;
-            /** Total Minor Units */
-            total_minor_units?: number | null;
-            /** Vendor Id */
-            vendor_id?: string | null;
-            /** Vendor Name */
-            vendor_name: string;
-        };
-        /** InvoicePage */
-        InvoicePage: {
-            /** Items */
-            items: components["schemas"]["InvoiceSummary"][];
-            /** Limit */
-            limit: number;
-            /** Offset */
-            offset: number;
-            /** Total */
-            total: number;
-        };
-        /**
-         * InvoiceProblem
-         * @description Why an invoice cannot proceed.
-         *
-         *     Enumerated for the same reasons as `EstimateProblem`: one wording per gap, a
-         *     field for the screen to point at, and a countable reason so "how many invoices
-         *     are held up waiting for a purchase order" is a question the data can answer.
-         * @enum {string}
-         */
-        InvoiceProblem: "vendor_missing" | "vendor_not_on_master" | "invoice_number_missing" | "invoice_date_missing" | "invoice_date_in_future" | "amount_missing" | "amount_not_positive" | "due_date_before_invoice_date" | "description_missing" | "cost_centre_missing" | "requester_missing" | "duplicate_invoice_number" | "estimate_not_approved" | "estimate_vendor_mismatch" | "estimate_currency_mismatch" | "exceeds_estimate" | "purchase_order_required" | "purchase_order_not_open" | "purchase_order_vendor_mismatch" | "purchase_order_currency_mismatch" | "exceeds_purchase_order";
-        /** InvoiceProblemOut */
-        InvoiceProblemOut: {
-            /** Explanation */
-            explanation: string;
-            /** Field */
-            field: string;
-            /** Is Blocking */
-            is_blocking: boolean;
-            problem: components["schemas"]["InvoiceProblem"];
-        };
-        /** InvoiceReasonRequest */
-        InvoiceReasonRequest: {
-            /** Reason */
-            reason: string;
-        };
-        /**
-         * InvoiceReferenceData
-         * @description The selectors an invoice form needs beyond the shared reference data.
-         *
-         *     Vendors, cost centres and accounts come from `/reference`, which the estimate
-         *     form already uses. These three are specific to linking an invoice: approved
-         *     estimates it may draw on, orders it may bill against, and the colleagues who
-         *     could be asked to confirm receipt.
-         */
-        InvoiceReferenceData: {
-            /** Approved Estimates */
-            approved_estimates: components["schemas"]["LinkedEstimateOut"][];
-            /** Open Purchase Orders */
-            open_purchase_orders: components["schemas"]["LinkedPurchaseOrderOut"][];
-            /** People */
-            people: components["schemas"]["NamedRefOut"][];
-        };
-        /** InvoiceSummary */
-        InvoiceSummary: {
-            /** Awaiting Labels */
-            awaiting_labels: string[];
-            /** Awaiting Me */
-            awaiting_me: boolean;
-            /** Awaiting My Sign Off */
-            awaiting_my_sign_off: boolean;
-            /** Blocker Count */
-            blocker_count: number;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Currency */
-            currency: string | null;
-            /** Days Until Due */
-            days_until_due: number | null;
-            /** Decided At */
-            decided_at: string | null;
-            /** Department */
-            department: string | null;
-            /** Description */
-            description: string;
-            /** Due Date */
-            due_date: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Invoice Date */
-            invoice_date: string | null;
-            /** Invoice Number */
-            invoice_number: string | null;
-            /** Problem Count */
-            problem_count: number;
-            /** Reference */
-            reference: string;
-            /** Reminders Sent */
-            reminders_sent: number | null;
-            /** Requester Label */
-            requester_label: string | null;
-            /** Route Summary */
-            route_summary: string | null;
-            /** Signed Off At */
-            signed_off_at: string | null;
-            state: components["schemas"]["WorkflowState"];
-            /** State Label */
-            state_label: string;
-            /** Submitted At */
-            submitted_at: string | null;
-            /** Total Formatted */
-            total_formatted: string | null;
-            /** Total Minor Units */
-            total_minor_units: number | null;
-            /** Vendor Name */
-            vendor_name: string;
-        };
-        /**
-         * JoinRefusal
-         * @description Why a particular invoice cannot go into a package.
-         * @enum {string}
-         */
-        JoinRefusal: "not_approved" | "already_in_a_package" | "package_is_closed" | "no_amount";
-        /** KillSwitchRequest */
-        KillSwitchRequest: {
-            /** Engaged */
-            engaged: boolean;
-            /** Reason */
-            reason: string;
-        };
-        /** KillSwitchResponse */
-        KillSwitchResponse: {
-            /** Engaged */
-            engaged: boolean;
-            /** Kill Switch Effective */
-            kill_switch_effective: boolean;
-        };
-        /** KindRequest */
-        KindRequest: {
-            kind: components["schemas"]["DocumentKind"];
-        };
-        /** KpiOut */
-        KpiOut: {
-            /** Hint */
-            hint: string;
-            /** Key */
-            key: string;
-            /** Label */
-            label: string;
-            money?: components["schemas"]["OverviewMoneyOut"] | null;
-            /** Tone */
-            tone: string;
-            /** Value */
-            value: number;
-        };
-        /**
-         * LinkedEstimateOut
-         * @description The approved spend this invoice draws on, as a screen needs to show it.
-         */
-        LinkedEstimateOut: {
-            /** Approved Total Formatted */
-            approved_total_formatted: string | null;
-            /** Approved Total Minor Units */
-            approved_total_minor_units: number | null;
-            /** Currency */
-            currency: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Reference */
-            reference: string;
-            /** Remaining Formatted */
-            remaining_formatted: string | null;
-            /** Remaining Minor Units */
-            remaining_minor_units: number | null;
-            state: components["schemas"]["WorkflowState"];
-            /** State Label */
-            state_label: string;
-            /** Vendor Name */
-            vendor_name: string;
-        };
-        /** LinkedPurchaseOrderOut */
-        LinkedPurchaseOrderOut: {
-            /** Billed By Others Formatted */
-            billed_by_others_formatted: string;
-            /** Billed By Others Minor Units */
-            billed_by_others_minor_units: number;
-            /** Currency */
-            currency: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Is Open */
-            is_open: boolean;
-            /** Number */
-            number: string;
-            /** Remaining Formatted */
-            remaining_formatted: string;
-            /** Remaining Minor Units */
-            remaining_minor_units: number;
-            /** State Label */
-            state_label: string;
-            /** Total Formatted */
-            total_formatted: string;
-            /** Total Minor Units */
-            total_minor_units: number;
-            /** Vendor Name */
-            vendor_name: string;
-        };
-        /** LivenessResponse */
-        LivenessResponse: {
-            /** Status */
-            status: string;
-            /** Version */
-            version: string;
-        };
-        /** MailboxReport */
-        MailboxReport: {
-            /** Authenticated */
-            authenticated: boolean;
-            /** Detail */
-            detail: string | null;
-            /** Quota Limit Kb */
-            quota_limit_kb: number | null;
-            /** Quota Supported */
-            quota_supported: boolean;
-            /** Quota Used Kb */
-            quota_used_kb: number | null;
-            /** Quota Used Percent */
-            quota_used_percent: number | null;
-            /** Reachable */
-            reachable: boolean;
-        };
-        /**
-         * ManifestOut
-         * @description The manifest as it stands, and how it compares with what was sent.
-         */
-        ManifestOut: {
-            /** Content */
-            content: string;
-            /** Digest */
-            digest: string;
-            /** Filename */
-            filename: string;
-            /** Line Count */
-            line_count: number;
-            /** Matches Submitted */
-            matches_submitted: boolean | null;
-            /** Submitted Digest */
-            submitted_digest: string | null;
-        };
-        /** MatrixAuditOut */
-        MatrixAuditOut: {
-            /** Faults */
-            faults: components["schemas"]["MatrixNoteOut"][];
-            /** Gaps */
-            gaps: components["schemas"]["MatrixNoteOut"][];
-            /** Is Coherent */
-            is_coherent: boolean;
-            /** Readings */
-            readings: components["schemas"]["MatrixReadingOut"][];
-        };
-        /**
-         * MatrixNoteOut
-         * @description A fault or a gap: a machine-readable kind and a sentence to show.
-         */
-        MatrixNoteOut: {
-            /** Kind */
-            kind: string;
-            /** Message */
-            message: string;
-        };
-        /** MatrixOut */
-        MatrixOut: {
-            audit: components["schemas"]["MatrixAuditOut"];
-            /** Record Type */
-            record_type: string;
-            /** Record Type Label */
-            record_type_label: string;
-            /** Rules */
-            rules: components["schemas"]["MatrixRuleOut"][];
-        };
-        /**
-         * MatrixReadingOut
-         * @description What the matrix does at one probe amount.
-         */
-        MatrixReadingOut: {
-            /** Amount Formatted */
-            amount_formatted: string;
-            /** Amount Minor Units */
-            amount_minor_units: number;
-            /** Currency */
-            currency: string;
-            /** Department */
-            department: string | null;
-            /** Steps */
-            steps: string[];
-            /** Unreachable */
-            unreachable: string | null;
-        };
-        /** MatrixRetireRequest */
-        MatrixRetireRequest: {
-            /** Reason */
-            reason: string;
-        };
-        /** MatrixRuleOut */
-        MatrixRuleOut: {
-            /** Band Label */
-            band_label: string;
-            /** Currency */
-            currency: string;
-            /** Department */
-            department: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Is Active */
-            is_active: boolean;
-            /** Is Parallel */
-            is_parallel: boolean;
-            level: components["schemas"]["ApprovalLevel"];
-            /** Level Label */
-            level_label: string;
-            /** Max Amount Minor Units */
-            max_amount_minor_units: number | null;
-            /** Min Amount Minor Units */
-            min_amount_minor_units: number;
-            /** Name */
-            name: string;
-            /** Record Type */
-            record_type: string;
-            /** Record Type Label */
-            record_type_label: string;
-            /** Retired At */
-            retired_at: string | null;
-            /** Step Order */
-            step_order: number;
-            /** Supersedes Id */
-            supersedes_id: string | null;
-        };
-        /** MatrixRuleRequest */
-        MatrixRuleRequest: {
-            /** Currency */
-            currency: string;
-            /** Department */
-            department?: string | null;
-            /**
-             * Is Parallel
-             * @default false
-             */
-            is_parallel: boolean;
-            level: components["schemas"]["ApprovalLevel"];
-            /** Max Amount Minor Units */
-            max_amount_minor_units?: number | null;
-            /** Min Amount Minor Units */
-            min_amount_minor_units: number;
-            /** Name */
-            name: string;
-            /** Reason */
-            reason: string;
-            /** Record Type */
-            record_type: string;
-            /** Step Order */
-            step_order: number;
-            /** Supersedes Id */
-            supersedes_id?: string | null;
-        };
-        /** MessageDetail */
-        MessageDetail: {
-            /** Attachment Count */
-            attachment_count: number;
-            /** Attachments */
-            attachments: components["schemas"]["AttachmentSummary"][];
-            /** Body Text */
-            body_text: string;
-            /** Cc Addresses */
-            cc_addresses: string[];
-            /** Failure Reason */
-            failure_reason: string | null;
-            /** Forwarded From Address */
-            forwarded_from_address: string | null;
-            /** Forwarded Shape */
-            forwarded_shape: string | null;
-            /** From Address */
-            from_address: string | null;
-            /** From Display Name */
-            from_display_name: string | null;
-            /** Has Warnings */
-            has_warnings: boolean;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Imap Folder */
-            imap_folder?: string | null;
-            /** Imap Uid */
-            imap_uid?: number | null;
-            /** Message Id */
-            message_id: string | null;
-            /** Parse Warnings */
-            parse_warnings: string[];
-            /** Quarantined Count */
-            quarantined_count: number;
-            /** Raw Sha256 */
-            raw_sha256: string;
-            /** Raw Size Bytes */
-            raw_size_bytes: number;
-            /**
-             * Received At
-             * Format: date-time
-             */
-            received_at: string;
-            /** Reply To Address */
-            reply_to_address: string | null;
-            /** Sent At */
-            sent_at: string | null;
-            source: components["schemas"]["IntakeSource"];
-            status: components["schemas"]["IntakeStatus"];
-            /** Subject */
-            subject: string;
-            /** To Addresses */
-            to_addresses: string[];
-        };
-        /** MessagePage */
-        MessagePage: {
-            /** Items */
-            items: components["schemas"]["MessageSummary"][];
-            /** Limit */
-            limit: number;
-            /** Offset */
-            offset: number;
-            /** Total */
-            total: number;
-        };
-        /** MessageSummary */
-        MessageSummary: {
-            /** Attachment Count */
-            attachment_count: number;
-            /** Forwarded From Address */
-            forwarded_from_address: string | null;
-            /** From Address */
-            from_address: string | null;
-            /** From Display Name */
-            from_display_name: string | null;
-            /** Has Warnings */
-            has_warnings: boolean;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Quarantined Count */
-            quarantined_count: number;
-            /**
-             * Received At
-             * Format: date-time
-             */
-            received_at: string;
-            /** Sent At */
-            sent_at: string | null;
-            source: components["schemas"]["IntakeSource"];
-            status: components["schemas"]["IntakeStatus"];
-            /** Subject */
-            subject: string;
-        };
-        /**
-         * MoneyOut
-         * @description One amount, always with the currency it is denominated in.
-         */
-        MoneyOut: {
-            /** Currency */
-            currency: string;
-            /** Formatted */
-            formatted: string;
-            /** Minor Units */
-            minor_units: number;
-        };
-        /** MonthlySpendOut */
-        MonthlySpendOut: {
-            /** Accruals */
-            accruals: number;
-            /** Credit Cards */
-            credit_cards: number;
-            /** Invoices */
-            invoices: number;
-            /** Label */
-            label: string;
-            /** Purchase Orders */
-            purchase_orders: number;
-        };
-        /**
-         * NamedRefOut
-         * @description A coded reference, resolved so a screen never shows a bare identifier.
-         */
-        NamedRefOut: {
-            /** Code */
-            code: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Name */
-            name: string;
-        };
-        /** OperationsReport */
-        OperationsReport: {
-            backlog: components["schemas"]["BacklogReport"];
-            /** Checkpoints */
-            checkpoints: components["schemas"]["CheckpointReport"][];
-            /** Concerns */
-            concerns: string[];
-            /**
-             * Generated At
-             * Format: date-time
-             */
-            generated_at: string;
-            mailbox: components["schemas"]["MailboxReport"] | null;
-            /** State */
-            state: string;
-        };
-        /** OverviewMoneyOut */
-        OverviewMoneyOut: {
-            /** Currency */
-            currency: string;
-            /** Formatted */
-            formatted: string;
-            /** Minor Units */
-            minor_units: number;
-        };
-        /** OverviewOut */
-        OverviewOut: {
-            /** Aging */
-            aging: components["schemas"]["SliceOut"][];
-            approval_performance: components["schemas"]["ApprovalPerformanceOut"];
-            /**
-             * Generated At
-             * Format: date-time
-             */
-            generated_at: string;
-            /** Invoice States */
-            invoice_states: components["schemas"]["SliceOut"][];
-            /** Kpis */
-            kpis: components["schemas"]["KpiOut"][];
-            /** Monthly Activity */
-            monthly_activity: components["schemas"]["TrendOut"][];
-            /** Monthly Spend */
-            monthly_spend: components["schemas"]["MonthlySpendOut"][];
-            /** Primary Currency */
-            primary_currency: string;
-            /** Recent Activity */
-            recent_activity: components["schemas"]["ActivityOut"][];
-            /** Spend Cards */
-            spend_cards: components["schemas"]["SpendCardOut"][];
-            /** Top Vendors */
-            top_vendors: components["schemas"]["VendorSpendOut"][];
-        };
-        /** PackageDraftRequest */
-        PackageDraftRequest: {
-            /**
-             * Description
-             * @default
-             */
-            description: string;
-            /** Intended Payment Date */
-            intended_payment_date?: string | null;
-            payment_method?: components["schemas"]["PaymentMethod"] | null;
-        };
-        /** PackageLineOut */
-        PackageLineOut: {
-            amount: components["schemas"]["MoneyOut"];
-            /** Due Date */
-            due_date: string | null;
-            /**
-             * Invoice Id
-             * Format: uuid
-             */
-            invoice_id: string;
-            /** Invoice Number */
-            invoice_number: string | null;
-            /** Invoice Reference */
-            invoice_reference: string;
-            invoice_state: components["schemas"]["WorkflowState"];
-            /** Invoice State Label */
-            invoice_state_label: string;
-            /** Is Still Payable */
-            is_still_payable: boolean;
-            /** Vendor Name */
-            vendor_name: string;
-        };
-        /**
-         * PackageProblem
-         * @description Why a package cannot be submitted as it stands.
-         * @enum {string}
-         */
-        PackageProblem: "nothing_in_it" | "payment_method_missing" | "payment_date_missing" | "payment_date_in_the_past" | "line_no_longer_payable" | "repeated_invoice_number";
-        /** PackageProblemOut */
-        PackageProblemOut: {
-            /** Explanation */
-            explanation: string;
-            /** Field */
-            field: string;
-            /** Is Blocking */
-            is_blocking: boolean;
-            problem: components["schemas"]["PackageProblem"];
-        };
-        /** PackageReasonRequest */
-        PackageReasonRequest: {
-            /** Reason */
-            reason: string;
-        };
-        /**
-         * PackageStanding
-         * @description Where a package is in its short life, derived rather than stored.
-         * @enum {string}
-         */
-        PackageStanding: "open" | "submitted" | "cancelled";
-        /** PackageSubmitRequest */
-        PackageSubmitRequest: {
-            /** Submission Reference */
-            submission_reference: string;
-        };
-        /** PackageSubmitResponse */
-        PackageSubmitResponse: {
-            manifest: components["schemas"]["ManifestOut"];
-            package: components["schemas"]["PaymentPackageDetail"];
-        };
-        /**
-         * PaymentMethod
-         * @description How the money leaves.
-         *
-         *     Named rather than free text because it changes what the bank needs and what
-         *     the manifest has to carry, and because "how do we pay this supplier" is a
-         *     question a report should be able to group by.
-         * @enum {string}
-         */
-        PaymentMethod: "bank_transfer" | "cheque" | "wire" | "direct_debit";
-        /** PaymentPackageDetail */
-        PaymentPackageDetail: {
-            /** Blockers */
-            blockers: components["schemas"]["PackageProblemOut"][];
-            /** Can Cancel */
-            can_cancel: boolean;
-            /** Can Edit */
-            can_edit: boolean;
-            /** Can Submit */
-            can_submit: boolean;
-            /** Cancelled At */
-            cancelled_at: string | null;
-            /** Cancelled Reason */
-            cancelled_reason: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Created By Label */
-            created_by_label: string;
-            /** Description */
-            description: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Intended Payment Date */
-            intended_payment_date: string | null;
-            /** Lines */
-            lines: components["schemas"]["PackageLineOut"][];
-            /** Manifest Line Count */
-            manifest_line_count: number | null;
-            /** Manifest Sha256 */
-            manifest_sha256: string | null;
-            payment_method: components["schemas"]["PaymentMethod"] | null;
-            /** Payment Method Label */
-            payment_method_label: string | null;
-            /** Problems */
-            problems: components["schemas"]["PackageProblemOut"][];
-            /** Reference */
-            reference: string;
-            standing: components["schemas"]["PackageStanding"];
-            /** Standing Description */
-            standing_description: string;
-            /** Standing Label */
-            standing_label: string;
-            /** Submission Reference */
-            submission_reference: string | null;
-            /** Submitted At */
-            submitted_at: string | null;
-            /** Submitted By Label */
-            submitted_by_label: string | null;
-            /** Totals */
-            totals: components["schemas"]["MoneyOut"][];
-            /** Vendor Count */
-            vendor_count: number;
-            /** Version */
-            version: number;
-        };
-        /** PaymentPackagePage */
-        PaymentPackagePage: {
-            /** Page */
-            page: number;
-            /** Page Size */
-            page_size: number;
-            /** Rows */
-            rows: components["schemas"]["PaymentPackageSummary"][];
-            /** Total */
-            total: number;
-        };
-        /** PaymentPackageSummary */
-        PaymentPackageSummary: {
-            /** Blocker Count */
-            blocker_count: number;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Description */
-            description: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Intended Payment Date */
-            intended_payment_date: string | null;
-            /** Invoice Count */
-            invoice_count: number;
-            payment_method: components["schemas"]["PaymentMethod"] | null;
-            /** Payment Method Label */
-            payment_method_label: string | null;
-            /** Reference */
-            reference: string;
-            standing: components["schemas"]["PackageStanding"];
-            /** Standing Label */
-            standing_label: string;
-            /** Submission Reference */
-            submission_reference: string | null;
-            /** Submitted At */
-            submitted_at: string | null;
-            /** Totals */
-            totals: components["schemas"]["MoneyOut"][];
-            /** Vendor Count */
-            vendor_count: number;
-        };
-        /** PlannedStepOut */
-        PlannedStepOut: {
-            level: components["schemas"]["ApprovalLevel"];
-            /** Level Label */
-            level_label: string;
-            /** Step Order */
-            step_order: number;
-        };
-        /** PurchaseOrderAmendRequest */
-        PurchaseOrderAmendRequest: {
-            /** Reason */
-            reason: string;
-            /** Total Minor Units */
-            total_minor_units: number;
-        };
-        /** PurchaseOrderDecisionRequest */
-        PurchaseOrderDecisionRequest: {
-            /** Comment */
-            comment?: string | null;
-            level: components["schemas"]["ApprovalLevel"];
-            outcome: components["schemas"]["ApprovalOutcome"];
-            /** Step Order */
-            step_order: number;
-        };
-        /** PurchaseOrderDetail */
-        PurchaseOrderDetail: {
-            /** Billed Formatted */
-            billed_formatted: string | null;
-            /** Billed Minor Units */
-            billed_minor_units: number | null;
-            /** Blockers */
-            blockers: components["schemas"]["PurchaseOrderProblemOut"][];
-            /** Can Amend */
-            can_amend: boolean;
-            /** Can Cancel */
-            can_cancel: boolean;
-            /** Can Close */
-            can_close: boolean;
-            /** Can Decide */
-            can_decide: boolean;
-            /** Can Edit */
-            can_edit: boolean;
-            /** Can Submit */
-            can_submit: boolean;
-            /** Can Withdraw */
-            can_withdraw: boolean;
-            /** Closed At */
-            closed_at: string | null;
-            /** Closed By Label */
-            closed_by_label: string | null;
-            /** Closed Reason */
-            closed_reason: string | null;
-            cost_centre: components["schemas"]["NamedRefOut"] | null;
-            /** Currency */
-            currency: string | null;
-            /** Department */
-            department: string | null;
-            /** Description */
-            description: string;
-            /** Estimate Id */
-            estimate_id: string | null;
-            /** Estimate Reference */
-            estimate_reference: string | null;
-            gl_account: components["schemas"]["NamedRefOut"] | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Is Open */
-            is_open: boolean;
-            /** Needs Approval */
-            needs_approval: boolean;
-            /** Number */
-            number: string;
-            /** Opened At */
-            opened_at: string | null;
-            /** Planned Route */
-            planned_route: components["schemas"]["PlannedStepOut"][];
-            /** Problems */
-            problems: components["schemas"]["PurchaseOrderProblemOut"][];
-            /** Raised By Label */
-            raised_by_label: string;
-            /** Remaining Formatted */
-            remaining_formatted: string | null;
-            /** Remaining Minor Units */
-            remaining_minor_units: number | null;
-            route: components["schemas"]["RouteOut"] | null;
-            /** Route Unavailable */
-            route_unavailable: string | null;
-            state: components["schemas"]["WorkflowState"];
-            /** State Label */
-            state_label: string;
-            /** Submitted At */
-            submitted_at: string | null;
-            /** Total Formatted */
-            total_formatted: string | null;
-            /** Total Minor Units */
-            total_minor_units: number | null;
-            /** Transitions */
-            transitions: components["schemas"]["TransitionOut"][];
-            vendor: components["schemas"]["NamedRefOut"] | null;
-            /** Version */
-            version: number;
-        };
-        /** PurchaseOrderDraftRequest */
-        PurchaseOrderDraftRequest: {
-            /** Cost Centre Id */
-            cost_centre_id?: string | null;
-            /** Currency */
-            currency?: string | null;
-            /**
-             * Description
-             * @default
-             */
-            description: string;
-            /** Estimate Id */
-            estimate_id?: string | null;
-            /** Gl Account Id */
-            gl_account_id?: string | null;
-            /** Total Minor Units */
-            total_minor_units?: number | null;
-            /** Vendor Id */
-            vendor_id?: string | null;
-        };
-        /** PurchaseOrderPage */
-        PurchaseOrderPage: {
-            /** Page */
-            page: number;
-            /** Page Size */
-            page_size: number;
-            /** Rows */
-            rows: components["schemas"]["PurchaseOrderSummary"][];
-            /** Total */
-            total: number;
-        };
-        /**
-         * PurchaseOrderProblem
-         * @description Why an order cannot be sent for approval as it stands.
-         * @enum {string}
-         */
-        PurchaseOrderProblem: "vendor_missing" | "description_missing" | "amount_missing" | "amount_not_positive" | "cost_centre_missing" | "below_what_is_billed" | "estimate_not_approved" | "estimate_vendor_mismatch" | "estimate_currency_mismatch" | "exceeds_estimate";
-        /** PurchaseOrderProblemOut */
-        PurchaseOrderProblemOut: {
-            /** Explanation */
-            explanation: string;
-            /** Field */
-            field: string;
-            /** Is Blocking */
-            is_blocking: boolean;
-            problem: components["schemas"]["PurchaseOrderProblem"];
-        };
-        /** PurchaseOrderReasonRequest */
-        PurchaseOrderReasonRequest: {
-            /** Reason */
-            reason: string;
-        };
-        /** PurchaseOrderReferenceData */
-        PurchaseOrderReferenceData: {
-            /** Approved Estimates */
-            approved_estimates: components["schemas"]["NamedRefOut"][];
-            /** Cost Centres */
-            cost_centres: components["schemas"]["NamedRefOut"][];
-            /** Gl Accounts */
-            gl_accounts: components["schemas"]["NamedRefOut"][];
-            /** Vendors */
-            vendors: components["schemas"]["NamedRefOut"][];
-        };
-        /** PurchaseOrderSummary */
-        PurchaseOrderSummary: {
-            /** Awaiting */
-            awaiting: string[];
-            /** Billed Formatted */
-            billed_formatted: string | null;
-            /** Blocker Count */
-            blocker_count: number;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Currency */
-            currency: string | null;
-            /** Department */
-            department: string | null;
-            /** Description */
-            description: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Is Awaiting Me */
-            is_awaiting_me: boolean;
-            /** Is Open */
-            is_open: boolean;
-            /** Number */
-            number: string;
-            /** Raised By Label */
-            raised_by_label: string;
-            /** Remaining Formatted */
-            remaining_formatted: string | null;
-            /** Remaining Minor Units */
-            remaining_minor_units: number | null;
-            state: components["schemas"]["WorkflowState"];
-            /** State Label */
-            state_label: string;
-            /** Total Formatted */
-            total_formatted: string | null;
-            /** Total Minor Units */
-            total_minor_units: number | null;
-            /** Vendor Name */
-            vendor_name: string | null;
-        };
-        /**
-         * RaisedRecordOut
-         * @description A record already raised from this document.
-         *
-         *     Sent so the workspace can send a reader to it instead of offering to raise a
-         *     second one and refusing. A document becomes at most one estimate, and the
-         *     person looking at an accepted reading usually wants whatever it became.
-         */
-        RaisedRecordOut: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /**
-             * Kind
-             * @constant
-             */
-            kind: "estimate";
-            /** Reference */
-            reference: string;
-            /** State Label */
-            state_label: string;
-        };
-        /** RaiseRequest */
-        RaiseRequest: {
-            /**
-             * Package Id
-             * Format: uuid
-             */
-            package_id: string;
-        };
-        /** RaiseResponse */
-        RaiseResponse: {
-            /** Already Raised */
-            already_raised: string[];
-            /** Raised */
-            raised: components["schemas"]["CheckInSummary"][];
-        };
-        /** ReadinessResponse */
-        ReadinessResponse: {
-            /** Dependencies */
-            dependencies: components["schemas"]["DependencyReport"][];
-            /** Environment */
-            environment: string;
-            /** Ready */
-            ready: boolean;
-            /** Version */
-            version: string;
-        };
-        /** ReadRequested */
-        ReadRequested: {
-            /** Detail */
-            detail: string;
-            /** Documents Queued */
-            documents_queued: number;
-        };
-        /**
-         * ReceiptStatus
-         * @description Whether a receipt is on the line.
-         * @enum {string}
-         */
-        ReceiptStatus: "missing" | "matched" | "waived";
-        /**
-         * RecordAnswerRequest
-         * @description A member of staff writing down what a supplier told them another way.
-         */
-        RecordAnswerRequest: {
-            claim: components["schemas"]["ClaimOutcome"];
-            /**
-             * Note
-             * @default
-             */
-            note: string;
-            /** Respondent Name */
-            respondent_name: string;
-        };
-        /**
-         * ReferenceData
-         * @description Everything the estimate form needs to render its selectors.
-         *
-         *     One request rather than four. The form cannot be used until all of it has
-         *     arrived, so four requests would only add three ways for it to half-load.
-         */
-        ReferenceData: {
-            /** Cost Centres */
-            cost_centres: components["schemas"]["NamedRefOut"][];
-            /** Currencies */
-            currencies: string[];
-            /** Gl Accounts */
-            gl_accounts: components["schemas"]["NamedRefOut"][];
-            /** Vendors */
-            vendors: components["schemas"]["NamedRefOut"][];
-        };
-        /** RefusedOut */
-        RefusedOut: {
-            /** Explanation */
-            explanation: string;
-            /**
-             * Invoice Id
-             * Format: uuid
-             */
-            invoice_id: string;
-            /** Invoice Reference */
-            invoice_reference: string;
-            refusal: components["schemas"]["JoinRefusal"];
-        };
-        /**
-         * RegisterSliceOut
-         * @description One wedge of a register's status donut.
-         */
-        RegisterSliceOut: {
-            /** Count */
-            count: number;
-            /** Label */
-            label: string;
-            /** Tone */
-            tone: string;
-        };
-        /**
-         * RegisterStatOut
-         * @description One headline figure in a register's stat band, already display-ready.
-         *
-         *     The value is a formatted string rather than a number so a stat band can mix
-         *     money, counts and durations without the client re-deciding how each is
-         *     written. The tone is advisory colour only; the label beside it carries the
-         *     meaning.
-         */
-        RegisterStatOut: {
-            /** Key */
-            key: string;
-            /** Label */
-            label: string;
-            /**
-             * Tone
-             * @default neutral
-             */
-            tone: string;
-            /** Value */
-            value: string;
-        };
-        /**
-         * RegisterSummaryOut
-         * @description A register's whole-dataset headline figures and status mix.
-         *
-         *     Every figure is counted or summed from the same records the register lists,
-         *     under the same visibility rules, so a stat band never claims more than the
-         *     caller could reach by opening the table behind it. An empty register returns
-         *     zeros, never a blank or a guess.
-         */
-        RegisterSummaryOut: {
-            /** Count */
-            count: number;
-            /** Stats */
-            stats: components["schemas"]["RegisterStatOut"][];
-            /** Status Mix */
-            status_mix: components["schemas"]["RegisterSliceOut"][];
-        };
-        /**
-         * ReminderPurpose
-         * @description What a record is being chased for.
-         *
-         *     Kept distinct because they run on the same clock but climb different ladders.
-         *     A sign-off is chased towards the requester and then their management line; an
-         *     approval is chased towards whoever the matrix put on the step.
-         *
-         *     `payment_check_in` is the odd one and is marked as such wherever it is used:
-         *     the party being chased is a supplier outside the organisation, so it climbs
-         *     no ladder at all — there is nobody senior to them here to copy in — and it
-         *     runs on a policy measured in days rather than working hours. Chasing a
-         *     supplier about our own payment every three hours would be both rude and a
-         *     reliable way to have the platform's mail classified as spam, after which the
-         *     messages that matter go there too.
-         * @enum {string}
-         */
-        ReminderPurpose: "sign_off" | "approval" | "payment_check_in";
-        /**
-         * ResolvedOut
-         * @description Where a link points, and nothing more.
-         *
-         *     No permission, no state, no signal that the holder may act. The screen the
-         *     caller lands on fetches the record through the ordinary authenticated endpoint,
-         *     which is where authority is decided.
-         */
-        ResolvedOut: {
-            purpose: components["schemas"]["ReminderPurpose"];
-            /**
-             * Record Id
-             * Format: uuid
-             */
-            record_id: string;
-            /** Record Type */
-            record_type: string;
-        };
-        /** ResolveRequest */
-        ResolveRequest: {
-            /** Token */
-            token: string;
-        };
-        /** RetentionPolicyOut */
-        RetentionPolicyOut: {
-            /** Description */
-            description: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Is Active */
-            is_active: boolean;
-            /** Record Class */
-            record_class: string;
-            /** Retention Days */
-            retention_days: number;
-        };
-        /** RetentionUpdateRequest */
-        RetentionUpdateRequest: {
-            /** Reason */
-            reason: string;
-            /** Retention Days */
-            retention_days: number;
-        };
-        /**
-         * ReviewOutcome
-         * @description What somebody inside the organisation concluded.
-         * @enum {string}
-         */
-        ReviewOutcome: "paid" | "outstanding";
-        /** ReviewRequest */
-        ReviewRequest: {
-            review: components["schemas"]["FieldReview"];
-        };
-        /**
-         * Role
-         * @enum {string}
-         */
-        Role: "requester" | "approver" | "payment_coordinator" | "finance" | "administrator" | "operations" | "auditor";
-        /** RouteOut */
-        RouteOut: {
-            /** Amount Formatted */
-            amount_formatted: string;
-            /** Amount Minor Units */
-            amount_minor_units: number;
-            /** Attempt */
-            attempt: number;
-            /** Closed At */
-            closed_at: string | null;
-            /** Currency */
-            currency: string;
-            /** Department */
-            department: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /**
-             * Opened At
-             * Format: date-time
-             */
-            opened_at: string;
-            state: components["schemas"]["RouteState"];
-            /** State Label */
-            state_label: string;
-            /** Steps */
-            steps: components["schemas"]["StepOut"][];
-            /** Summary */
-            summary: string;
-        };
-        /** RoutePreviewOut */
-        RoutePreviewOut: {
-            /** Amount Formatted */
-            amount_formatted: string;
-            /** Department */
-            department: string | null;
-            /** Record Type */
-            record_type: string;
-            /** Steps */
-            steps: string[];
-            /** Unreachable */
-            unreachable: string | null;
-        };
-        /**
-         * RouteState
-         * @enum {string}
-         */
-        RouteState: "open" | "approved" | "rejected" | "withdrawn";
-        /** SavedViewCreateRequest */
-        SavedViewCreateRequest: {
-            /** Definition */
-            definition: {
-                [key: string]: unknown;
-            };
-            /**
-             * Is Default
-             * @default false
-             */
-            is_default: boolean;
-            /** Name */
-            name: string;
-            /** Scope */
-            scope: string;
-        };
-        /** SavedViewOut */
-        SavedViewOut: {
-            /** Definition */
-            definition: {
-                [key: string]: unknown;
-            };
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Is Default */
-            is_default: boolean;
-            /** Name */
-            name: string;
-            /** Scope */
-            scope: string;
-        };
-        /** SavedViewUpdateRequest */
-        SavedViewUpdateRequest: {
-            /** Definition */
-            definition?: {
-                [key: string]: unknown;
-            } | null;
-            /** Is Default */
-            is_default?: boolean | null;
-            /** Name */
-            name?: string | null;
-        };
-        /**
-         * ScanVerdict
-         * @enum {string}
-         */
-        ScanVerdict: "clean" | "infected" | "unscannable" | "error";
-        /** SearchHitOut */
-        SearchHitOut: {
-            /** Amount Formatted */
-            amount_formatted?: string | null;
-            /**
-             * Record Id
-             * Format: uuid
-             */
-            record_id: string;
-            /** Record Path */
-            record_path: string;
-            record_type: components["schemas"]["SearchRecordType"];
-            /** Reference */
-            reference: string;
-            /** State */
-            state?: string | null;
-            /** Subtitle */
-            subtitle: string;
-            /** Title */
-            title: string;
-            /** Type Label */
-            type_label: string;
-        };
-        /**
-         * SearchRecordType
-         * @enum {string}
-         */
-        SearchRecordType: "estimate" | "invoice" | "purchase_order" | "payment_package" | "document" | "vendor_check_in";
-        /** SearchResponse */
-        SearchResponse: {
-            /** Items */
-            items: components["schemas"]["SearchHitOut"][];
-            /** Query */
-            query: string;
-            /** Total */
-            total: number;
-        };
-        /** SignalOut */
-        SignalOut: {
-            /** Acknowledged */
-            acknowledged: boolean;
-            /** Explanation */
-            explanation: string;
-            /** Requires Acknowledgement */
-            requires_acknowledgement: boolean;
-            /** Signal */
-            signal: string;
-        };
-        /** SignedUrlResponse */
-        SignedUrlResponse: {
-            /** Expires In Seconds */
-            expires_in_seconds: number;
-            /** Filename */
-            filename: string;
-            /** Url */
-            url: string;
-        };
-        /** SignInRequest */
-        SignInRequest: {
-            /**
-             * Email
-             * Format: email
-             */
-            email: string;
-        };
-        /**
-         * SignOffOut
-         * @description Where receipt confirmation stands, for the panel that shows it.
-         */
-        SignOffOut: {
-            /** Escalation Level */
-            escalation_level: number;
-            /** Is Mine To Sign */
-            is_mine_to_sign: boolean;
-            /** Next Reminder At */
-            next_reminder_at: string | null;
-            /** Note */
-            note: string | null;
-            /** Reminders Sent */
-            reminders_sent: number;
-            /** Requested At */
-            requested_at: string | null;
-            /** Requester Email */
-            requester_email: string | null;
-            /** Requester Id */
-            requester_id: string | null;
-            /** Requester Label */
-            requester_label: string | null;
-            /** Signed Off At */
-            signed_off_at: string | null;
-            /** Signed Off By Label */
-            signed_off_by_label: string | null;
-        };
-        /** SignOffRequest */
-        SignOffRequest: {
-            /** Note */
-            note?: string | null;
-        };
-        /** SliceOut */
-        SliceOut: {
-            /** Count */
-            count: number;
-            /** Label */
-            label: string;
-            /** Tone */
-            tone: string;
-        };
-        /** SpendCardOut */
-        SpendCardOut: {
-            /** Count */
-            count?: number | null;
-            /** Delta Pct */
-            delta_pct?: number | null;
-            /** Hint */
-            hint: string;
-            /** Key */
-            key: string;
-            /** Label */
-            label: string;
-            money?: components["schemas"]["OverviewMoneyOut"] | null;
-            month_money?: components["schemas"]["OverviewMoneyOut"] | null;
-            previous_money?: components["schemas"]["OverviewMoneyOut"] | null;
-            /**
-             * Series
-             * @default []
-             */
-            series: number[];
-            /** Tone */
-            tone: string;
-        };
-        /** StepOut */
-        StepOut: {
-            /** Comment */
-            comment: string | null;
-            /** Decided At */
-            decided_at: string | null;
-            /** Decided By Label */
-            decided_by_label: string | null;
-            /** Is Mine To Decide */
-            is_mine_to_decide: boolean;
-            level: components["schemas"]["ApprovalLevel"];
-            /** Level Label */
-            level_label: string;
-            /** On Behalf Of Label */
-            on_behalf_of_label: string | null;
-            state: components["schemas"]["StepState"];
-            /** Step Order */
-            step_order: number;
-            /** Would Act For */
-            would_act_for: string | null;
-        };
-        /**
-         * StepState
-         * @enum {string}
-         */
-        StepState: "waiting" | "ready" | "approved" | "rejected" | "withdrawn";
-        /**
-         * SuggestionDisposition
-         * @description What a person did with an assistive proposal.
-         * @enum {string}
-         */
-        SuggestionDisposition: "pending" | "accepted" | "edited" | "rejected";
-        /**
-         * SuggestionOut
-         * @description What the evidence looks like, and why. Never applied by anything.
-         *
-         *     Carried as `outcome` plus `because` rather than as a pre-selected value on
-         *     the form, so a reviewer has to choose. A radio button arriving already
-         *     filled in is a decision the platform made and attributed to a person.
-         */
-        SuggestionOut: {
-            /** Because */
-            because: string;
-            outcome: components["schemas"]["ReviewOutcome"] | null;
-            /** Outcome Label */
-            outcome_label: string | null;
-        };
-        /** ThresholdOut */
-        ThresholdOut: {
-            /** Applies Above Minor Units */
-            applies_above_minor_units: number;
-            /** Currency */
-            currency: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Is Active */
-            is_active: boolean;
-        };
-        /** ThresholdUpsertRequest */
-        ThresholdUpsertRequest: {
-            /** Applies Above Minor Units */
-            applies_above_minor_units: number;
-            /** Currency */
-            currency: string;
-            /** Reason */
-            reason: string;
-        };
-        /** TransitionOut */
-        TransitionOut: {
-            /** Actor Label */
-            actor_label: string | null;
-            from_state: components["schemas"]["WorkflowState"] | null;
-            /**
-             * Occurred At
-             * Format: date-time
-             */
-            occurred_at: string;
-            /** Reason */
-            reason: string | null;
-            to_state: components["schemas"]["WorkflowState"];
-            /** To State Label */
-            to_state_label: string;
-        };
-        /** TrendOut */
-        TrendOut: {
-            /** Estimates */
-            estimates: number;
-            /** Invoices */
-            invoices: number;
-            /** Label */
-            label: string;
-        };
-        /** UploadAccepted */
-        UploadAccepted: {
-            /** Enrolled Documents */
-            enrolled_documents: number;
-            /**
-             * Message Id
-             * Format: uuid
-             */
-            message_id: string;
-            /** Quarantined Attachments */
-            quarantined_attachments: number;
-            /** Rejected Attachments */
-            rejected_attachments: number;
-            status: components["schemas"]["IntakeStatus"];
-            /** Stored Attachments */
-            stored_attachments: number;
-            /** Warnings */
-            warnings?: string[];
-        };
-        /** UserActiveRequest */
-        UserActiveRequest: {
-            /** Is Active */
-            is_active: boolean;
-            /** Reason */
-            reason: string;
-        };
-        /** UserCreateRequest */
-        UserCreateRequest: {
-            /** Department */
-            department?: string | null;
-            /** Display Name */
-            display_name: string;
-            /** Email */
-            email: string;
-            /** Reason */
-            reason: string;
-            /** Roles */
-            roles: components["schemas"]["Role"][];
-        };
-        /** UserOut */
-        UserOut: {
-            /** Department */
-            department: string | null;
-            /** Display Name */
-            display_name: string;
-            /** Email */
-            email: string;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Is Active */
-            is_active: boolean;
-            /** Permissions */
-            permissions: string[];
-            /** Roles */
-            roles: string[];
-        };
-        /** UserRolesRequest */
-        UserRolesRequest: {
-            /** Reason */
-            reason: string;
-            /** Roles */
-            roles: components["schemas"]["Role"][];
-        };
-        /** ValidationError */
-        ValidationError: {
-            /** Context */
-            ctx?: Record<string, never>;
-            /** Input */
-            input?: unknown;
-            /** Location */
-            loc: (string | number)[];
-            /** Message */
-            msg: string;
-            /** Error Type */
-            type: string;
-        };
-        /** VendorAnswerRequest */
-        VendorAnswerRequest: {
-            claim: components["schemas"]["ClaimOutcome"];
-            /**
-             * Note
-             * @default
-             */
-            note: string;
-            /** Respondent Name */
-            respondent_name: string;
-        };
-        /** VendorAnswerResponse */
-        VendorAnswerResponse: {
-            /** Message */
-            message: string;
-            /** Recorded */
-            recorded: boolean;
-        };
-        /** VendorCreateRequest */
-        VendorCreateRequest: {
-            /** Code */
-            code: string;
-            /**
-             * Default Currency
-             * @default JMD
-             */
-            default_currency: string;
-            /** Email */
-            email?: string | null;
-            /** Name */
-            name: string;
-            /** Payment Terms Days */
-            payment_terms_days?: number | null;
-            /** Phone */
-            phone?: string | null;
-            /** Reason */
-            reason: string;
-        };
-        /** VendorLineOut */
-        VendorLineOut: {
-            amount: components["schemas"]["MoneyOut"];
-            /** Due Date */
-            due_date: string | null;
-            /** Invoice Number */
-            invoice_number: string | null;
-            /** Our Reference */
-            our_reference: string;
-        };
-        /** VendorOut */
-        VendorOut: {
-            /** Code */
-            code: string;
-            /** Default Currency */
-            default_currency: string;
-            /** Email */
-            email: string | null;
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Is Active */
-            is_active: boolean;
-            /** Name */
-            name: string;
-            /** Payment Terms Days */
-            payment_terms_days: number | null;
-            /** Phone */
-            phone: string | null;
-        };
-        /**
-         * VendorQuestionOut
-         * @description What a supplier sees. Everything here is theirs already.
-         *
-         *     No internal reference, no workflow state, no name of anybody here, and
-         *     nothing about any other supplier. A page reachable without signing in should
-         *     disclose only what the person holding the link was already sent.
-         */
-        VendorQuestionOut: {
-            /** Already Answered */
-            already_answered: boolean;
-            /** Answered At */
-            answered_at: string | null;
-            /** Lines */
-            lines: components["schemas"]["VendorLineOut"][];
-            /** Paid On */
-            paid_on: string | null;
-            /** Reference */
-            reference: string;
-            /** Totals */
-            totals: components["schemas"]["MoneyOut"][];
-            /** Vendor Name */
-            vendor_name: string;
-        };
-        /** VendorSpendOut */
-        VendorSpendOut: {
-            money: components["schemas"]["OverviewMoneyOut"];
-            /** Name */
-            name: string;
-            /** Share */
-            share: number;
-        };
-        /** VendorUpdateRequest */
-        VendorUpdateRequest: {
-            /** Default Currency */
-            default_currency?: string | null;
-            /** Email */
-            email?: string | null;
-            /** Name */
-            name?: string | null;
-            /** Payment Terms Days */
-            payment_terms_days?: number | null;
-            /** Phone */
-            phone?: string | null;
-            /** Reason */
-            reason: string;
-        };
-        /** VerifyRequest */
-        VerifyRequest: {
-            /** Limit */
-            limit?: number | null;
-            /**
-             * Start Sequence
-             * @default 1
-             */
-            start_sequence: number;
-        };
-        /**
-         * VerifyResponse
-         * @description Whether a contiguous slice of the chain still holds together.
-         */
-        VerifyResponse: {
-            /** Checked Count */
-            checked_count: number;
-            /** First Bad Sequence */
-            first_bad_sequence: number | null;
-            /** Message */
-            message: string;
-            /** Ok */
-            ok: boolean;
-            /** Reason */
-            reason?: string | null;
-        };
-        /** ViewerUrl */
-        ViewerUrl: {
-            /** Content Type */
-            content_type: string;
-            /** Expires In Seconds */
-            expires_in_seconds: number;
-            /** Filename */
-            filename: string;
-            /** Url */
-            url: string;
-        };
-        /**
-         * WorkBadgesOut
-         * @description Counts keyed exactly as the web navigation badge slots expect.
-         */
-        WorkBadgesOut: {
-            /** Awaitingmyapproval */
-            awaitingMyApproval: number;
-            /** Documentsneedingreview */
-            documentsNeedingReview: number;
-            /** Intakeunprocessed */
-            intakeUnprocessed: number;
-            /** Mywork */
-            myWork: number;
-            /** Operationalalerts */
-            operationalAlerts: number;
-            /** Vendorneedingreview */
-            vendorNeedingReview: number;
-        };
-        /**
-         * WorkflowState
-         * @enum {string}
-         */
-        WorkflowState: "draft" | "pending_sign_off" | "pending_approval" | "approved" | "ready_for_submission" | "submitted" | "paid" | "outstanding" | "exception" | "accrual_needed" | "rejected" | "cancelled";
-        /** WorkItemOut */
-        WorkItemOut: {
-            /** Amount Formatted */
-            amount_formatted?: string | null;
-            /** Detail */
-            detail?: string | null;
-            kind: components["schemas"]["WorkKind"];
-            /** Kind Label */
-            kind_label: string;
-            /**
-             * Record Id
-             * Format: uuid
-             */
-            record_id: string;
-            /** Record Path */
-            record_path: string;
-            /** Reference */
-            reference: string;
-            /** Subtitle */
-            subtitle: string;
-            /** Title */
-            title: string;
-            /** Waiting Hours */
-            waiting_hours: number;
-            /**
-             * Waiting Since
-             * Format: date-time
-             */
-            waiting_since: string;
-        };
-        /**
-         * WorkKind
-         * @description What kind of action this row is asking for.
-         * @enum {string}
-         */
-        WorkKind: "approval" | "sign_off" | "document_review" | "vendor_review" | "intake";
-        /** WorkQueueOut */
-        WorkQueueOut: {
-            /** Counts By Kind */
-            counts_by_kind: {
-                [key: string]: number;
-            };
-            /** Items */
-            items: components["schemas"]["WorkItemOut"][];
-            /** Total */
-            total: number;
-        };
+  schemas: {
+    /** AcceptRequest */
+    AcceptRequest: {
+      /** Note */
+      note?: string | null;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    /** AccrualCandidateOut */
+    AccrualCandidateOut: {
+      amount: components["schemas"]["AccrualMoneyOut"];
+      cost_centre: components["schemas"]["AccrualReferenceRef"] | null;
+      /** Currency */
+      currency: string;
+      /** Department */
+      department: string | null;
+      /** Description */
+      description: string;
+      /** Edit Reason */
+      edit_reason: string | null;
+      /** Finalized At */
+      finalized_at: string | null;
+      gl_account: components["schemas"]["AccrualReferenceRef"] | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Invoice Id */
+      invoice_id: string | null;
+      /** Invoice Number */
+      invoice_number: string | null;
+      /** Invoice Reference */
+      invoice_reference: string | null;
+      /** Note */
+      note: string | null;
+      original_amount: components["schemas"]["AccrualMoneyOut"];
+      /** Reference */
+      reference: string;
+      standing: components["schemas"]["CandidateStanding"];
+      /** Standing Label */
+      standing_label: string;
+      /** Vendor Name */
+      vendor_name: string;
+      /** Version */
+      version: number;
+    };
+    /** AccrualEditCandidateBody */
+    AccrualEditCandidateBody: {
+      /** Amount Minor */
+      amount_minor?: number | null;
+      /**
+       * Currency
+       * @default JMD
+       */
+      currency: string;
+      /** Description */
+      description?: string | null;
+      /**
+       * Exclude
+       * @default false
+       */
+      exclude: boolean;
+      /** Expected Version */
+      expected_version?: number | null;
+      /** Note */
+      note?: string | null;
+      /** Reason */
+      reason: string;
+    };
+    /** AccrualExportBody */
+    AccrualExportBody: {
+      /**
+       * Format
+       * @default csv
+       * @enum {string}
+       */
+      format: "csv" | "xlsx";
+      /**
+       * Official
+       * @default false
+       */
+      official: boolean;
+    };
+    /** AccrualExportOut */
+    AccrualExportOut: {
+      /** Byte Size */
+      byte_size: number;
+      /** Filename */
+      filename: string;
+      /** Format */
+      format: string;
+      /**
+       * Generated At
+       * Format: date-time
+       */
+      generated_at: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Official */
+      official: boolean;
+      /** Row Count */
+      row_count: number;
+      /** Sha256 */
+      sha256: string;
+      /** Version */
+      version: number;
+    };
+    /** AccrualFinalizeCandidateBody */
+    AccrualFinalizeCandidateBody: {
+      /** Expected Version */
+      expected_version?: number | null;
+    };
+    /** AccrualLockBody */
+    AccrualLockBody: {
+      /** Expected Version */
+      expected_version?: number | null;
+      /** Reason */
+      reason: string;
+    };
+    /** AccrualMoneyOut */
+    AccrualMoneyOut: {
+      /** Currency */
+      currency: string;
+      /** Formatted */
+      formatted: string;
+      /** Minor Units */
+      minor_units: number;
+    };
+    /** AccrualOpenBody */
+    AccrualOpenBody: {
+      /**
+       * Label
+       * @default
+       */
+      label: string;
+      /**
+       * Period End
+       * Format: date
+       */
+      period_end: string;
+      /**
+       * Period Start
+       * Format: date
+       */
+      period_start: string;
+    };
+    /** AccrualPeriodDetail */
+    AccrualPeriodDetail: {
+      /** Actions */
+      actions: {
+        [key: string]: boolean;
+      };
+      /** Candidate Count */
+      candidate_count: number;
+      /** Candidates */
+      candidates: components["schemas"]["AccrualCandidateOut"][];
+      /** Exports */
+      exports: components["schemas"]["AccrualExportOut"][];
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Label */
+      label: string;
+      /** Lock Reason */
+      lock_reason: string | null;
+      /** Locked At */
+      locked_at: string | null;
+      /** Open Candidate Count */
+      open_candidate_count: number;
+      /**
+       * Period End
+       * Format: date
+       */
+      period_end: string;
+      /**
+       * Period Start
+       * Format: date
+       */
+      period_start: string;
+      /** Reference */
+      reference: string;
+      standing: components["schemas"]["finora__domain__accruals__PeriodStanding"];
+      /** Standing Description */
+      standing_description: string;
+      /** Standing Label */
+      standing_label: string;
+    };
+    /** AccrualPeriodSummary */
+    AccrualPeriodSummary: {
+      /** Candidate Count */
+      candidate_count: number;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Label */
+      label: string;
+      /** Lock Reason */
+      lock_reason: string | null;
+      /** Locked At */
+      locked_at: string | null;
+      /** Open Candidate Count */
+      open_candidate_count: number;
+      /**
+       * Period End
+       * Format: date
+       */
+      period_end: string;
+      /**
+       * Period Start
+       * Format: date
+       */
+      period_start: string;
+      /** Reference */
+      reference: string;
+      standing: components["schemas"]["finora__domain__accruals__PeriodStanding"];
+      /** Standing Description */
+      standing_description: string;
+      /** Standing Label */
+      standing_label: string;
+    };
+    /** AccrualReferenceRef */
+    AccrualReferenceRef: {
+      /** Code */
+      code: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Name */
+      name: string;
+    };
+    /** AcknowledgeRequest */
+    AcknowledgeRequest: {
+      signal: components["schemas"]["DocumentSignal"];
+    };
+    /** ActiveRequest */
+    ActiveRequest: {
+      /** Is Active */
+      is_active: boolean;
+      /** Reason */
+      reason: string;
+    };
+    /** ActivityOut */
+    ActivityOut: {
+      /** Amount Formatted */
+      amount_formatted?: string | null;
+      /** Kind */
+      kind: string;
+      /** Kind Label */
+      kind_label: string;
+      /** Reference */
+      reference: string;
+      /** State Label */
+      state_label: string;
+      /** Title */
+      title: string;
+      /** Tone */
+      tone: string;
+      /**
+       * When
+       * Format: date-time
+       */
+      when: string;
+    };
+    /**
+     * ActorType
+     * @enum {string}
+     */
+    ActorType:
+      "user" | "service" | "scheduler" | "ai" | "external_vendor" | "anonymous";
+    /** AddLinesRequest */
+    AddLinesRequest: {
+      /** Invoice Ids */
+      invoice_ids: string[];
+    };
+    /**
+     * AddLinesResponse
+     * @description What went in and what did not, with the package as it now stands.
+     */
+    AddLinesResponse: {
+      /** Added */
+      added: string[];
+      package: components["schemas"]["PaymentPackageDetail"];
+      /** Refused */
+      refused: components["schemas"]["RefusedOut"][];
+    };
+    /**
+     * AdjustmentOut
+     * @description One named reason a confidence is not what the match alone would give.
+     */
+    AdjustmentOut: {
+      /** Delta */
+      delta: number;
+      /** Reason */
+      reason: string;
+    };
+    /** ApprovalAssignmentOut */
+    ApprovalAssignmentOut: {
+      /** Department */
+      department: string | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Is Active */
+      is_active: boolean;
+      /** Is Covered By Id */
+      is_covered_by_id: string | null;
+      /** Is Covered By Name */
+      is_covered_by_name: string | null;
+      level: components["schemas"]["ApprovalLevel"];
+      /** Level Label */
+      level_label: string;
+      /** User Email */
+      user_email: string;
+      /**
+       * User Id
+       * Format: uuid
+       */
+      user_id: string;
+      /** User Name */
+      user_name: string;
+    };
+    /** ApprovalAssignRequest */
+    ApprovalAssignRequest: {
+      /** Department */
+      department?: string | null;
+      level: components["schemas"]["ApprovalLevel"];
+      /**
+       * User Id
+       * Format: uuid
+       */
+      user_id: string;
+    };
+    /**
+     * ApprovalCoverRequest
+     * @description Empty on both fields means "I am back", which is always allowed.
+     */
+    ApprovalCoverRequest: {
+      /** Delegate To Id */
+      delegate_to_id?: string | null;
+      /** Out Of Office Until */
+      out_of_office_until?: string | null;
+    };
+    /** ApprovalDelegationOut */
+    ApprovalDelegationOut: {
+      /** Delegate To Id */
+      delegate_to_id: string | null;
+      /** Delegate To Name */
+      delegate_to_name: string | null;
+      /** Is In Effect */
+      is_in_effect: boolean;
+      /** Out Of Office Until */
+      out_of_office_until: string | null;
+      /**
+       * User Id
+       * Format: uuid
+       */
+      user_id: string;
+      /** User Name */
+      user_name: string;
+    };
+    /**
+     * ApprovalLevel
+     * @description Approval matrix tiers named by the master prompt. The amount bands that
+     *     map to each tier are configuration, pending the requirements document.
+     * @enum {string}
+     */
+    ApprovalLevel: "unit_head" | "manager" | "hod" | "coo";
+    /**
+     * ApprovalOutcome
+     * @description What an approver decided. There is no third option.
+     *
+     *     Abstention is deliberately not available. A step that can be neither
+     *     approved nor rejected is a step that stalls indefinitely with nobody
+     *     accountable; an approver who should not decide is handled by reassignment,
+     *     which is a recorded act by a named person.
+     * @enum {string}
+     */
+    ApprovalOutcome: "approved" | "rejected";
+    /** ApprovalPerformanceOut */
+    ApprovalPerformanceOut: {
+      /** Approval Rate */
+      approval_rate?: number | null;
+      /** Avg Hours */
+      avg_hours?: number | null;
+      /** Decided */
+      decided: number;
+    };
+    /**
+     * ApprovalPersonOut
+     * @description Somebody who could be put at a level, or named as cover.
+     */
+    ApprovalPersonOut: {
+      /** Department */
+      department: string | null;
+      /** Email */
+      email: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** May Decide */
+      may_decide: boolean;
+      /** Name */
+      name: string;
+    };
+    /**
+     * ApprovalQueueItemOut
+     * @description One thing waiting on this approver.
+     */
+    ApprovalQueueItemOut: {
+      /** Amount Formatted */
+      amount_formatted: string;
+      /** Amount Minor Units */
+      amount_minor_units: number;
+      /** Attempt */
+      attempt: number;
+      /** Awaiting Labels */
+      awaiting_labels: string[];
+      /** Currency */
+      currency: string;
+      /** Department */
+      department: string | null;
+      /** Description */
+      description: string;
+      /** My Levels */
+      my_levels: string[];
+      /**
+       * Opened At
+       * Format: date-time
+       */
+      opened_at: string;
+      /**
+       * Record Id
+       * Format: uuid
+       */
+      record_id: string;
+      /** Record Path */
+      record_path: string;
+      /** Record Type */
+      record_type: string;
+      /** Record Type Label */
+      record_type_label: string;
+      /** Reference */
+      reference: string;
+      /**
+       * Request Id
+       * Format: uuid
+       */
+      request_id: string;
+      /** Requester Label */
+      requester_label: string | null;
+      /** Vendor Name */
+      vendor_name: string;
+      /** Waiting Hours */
+      waiting_hours: number;
+    };
+    /** ApprovalQueueOut */
+    ApprovalQueueOut: {
+      /** Counts By Type */
+      counts_by_type: {
+        [key: string]: number;
+      };
+      /** Items */
+      items: components["schemas"]["ApprovalQueueItemOut"][];
+      /** Total */
+      total: number;
+    };
+    /** AttachmentSummary */
+    AttachmentSummary: {
+      /** Can Download */
+      can_download: boolean;
+      /** Content Type */
+      content_type: string;
+      /** Filename */
+      filename: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Inline */
+      inline: boolean;
+      /** Is Quarantined */
+      is_quarantined: boolean;
+      /** Rejection Detail */
+      rejection_detail: string | null;
+      /** Rejection Reason */
+      rejection_reason: string | null;
+      /** Scan Detail */
+      scan_detail: string | null;
+      scan_verdict: components["schemas"]["ScanVerdict"] | null;
+      /** Sha256 */
+      sha256: string;
+      /** Size Bytes */
+      size_bytes: number;
+    };
+    /** AttemptSummary */
+    AttemptSummary: {
+      /** Accepted At */
+      accepted_at: string | null;
+      /** Attempt */
+      attempt: number;
+      /** Completed At */
+      completed_at: string | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      kind: components["schemas"]["DocumentKind"];
+      /** Model Name */
+      model_name: string | null;
+      status: components["schemas"]["ExtractionStatus"];
+    };
+    /**
+     * AuditAction
+     * @enum {string}
+     */
+    AuditAction:
+      | "sign_in"
+      | "sign_in_failed"
+      | "sign_out"
+      | "permission_denied"
+      | "record_created"
+      | "record_updated"
+      | "state_changed"
+      | "document_stored"
+      | "document_viewed"
+      | "document_downloaded"
+      | "document_quarantined"
+      | "document_released"
+      | "message_ingested"
+      | "message_duplicate_detected"
+      | "intake_retried"
+      | "scan_completed"
+      | "extraction_completed"
+      | "extraction_corrected"
+      | "extraction_accepted"
+      | "ai_suggestion_produced"
+      | "ai_suggestion_accepted"
+      | "ai_suggestion_rejected"
+      | "ai_kill_switch_changed"
+      | "approval_requested"
+      | "approval_withdrawn"
+      | "sign_off_requested"
+      | "signed_off"
+      | "sign_off_declined"
+      | "approved"
+      | "rejected"
+      | "delegated"
+      | "overridden"
+      | "package_submitted"
+      | "marked_paid"
+      | "vendor_confirmation_received"
+      | "vendor_confirmation_reviewed"
+      | "vendor_confirmation_requested"
+      | "credit_card_statement_imported"
+      | "credit_card_transaction_coded"
+      | "credit_card_receipt_matched"
+      | "credit_card_period_closed"
+      | "accrual_period_opened"
+      | "accrual_candidates_generated"
+      | "accrual_candidate_edited"
+      | "accrual_candidate_finalized"
+      | "period_locked"
+      | "export_generated"
+      | "mail_sent"
+      | "mail_failed"
+      | "reminder_sent"
+      | "escalated"
+      | "link_issued"
+      | "link_followed"
+      | "link_refused"
+      | "configuration_changed"
+      | "role_assigned";
+    /** AuditEntryOut */
+    AuditEntryOut: {
+      action: components["schemas"]["AuditAction"];
+      /** Actor Id */
+      actor_id: string | null;
+      /** Actor Label */
+      actor_label: string;
+      actor_type: components["schemas"]["ActorType"];
+      /** Correlation Id */
+      correlation_id: string | null;
+      /** Detail */
+      detail: {
+        [key: string]: unknown;
+      };
+      /** Entry Hash */
+      entry_hash: string;
+      /**
+       * Occurred At
+       * Format: date-time
+       */
+      occurred_at: string;
+      /** Previous Hash */
+      previous_hash: string;
+      /** Sequence */
+      sequence: number;
+      /** Subject Id */
+      subject_id: string | null;
+      /** Subject Type */
+      subject_type: string;
+    };
+    /** AuditEntryPage */
+    AuditEntryPage: {
+      /** Items */
+      items: components["schemas"]["AuditEntryOut"][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /** AuthMethodsResponse */
+    AuthMethodsResponse: {
+      /** Environment */
+      environment: string;
+      /** Local Accounts Enabled */
+      local_accounts_enabled: boolean;
+      /** Oidc Authorize Url */
+      oidc_authorize_url: string | null;
+      /** Oidc Enabled */
+      oidc_enabled: boolean;
+    };
+    /** BacklogReport */
+    BacklogReport: {
+      /** Counts By Status */
+      counts_by_status: {
+        [key: string]: number;
+      };
+      /** Failed */
+      failed: number;
+      /** In Flight */
+      in_flight: number;
+      /** Needs Attention */
+      needs_attention: number;
+      /** Oldest Unresolved Age Seconds */
+      oldest_unresolved_age_seconds: number | null;
+      /** Oldest Unresolved At */
+      oldest_unresolved_at: string | null;
+      /** Quarantined */
+      quarantined: number;
+      /** Total */
+      total: number;
+    };
+    /** Body_import_statement_api_v1_credit_cards_cards__card_id__statements_post */
+    Body_import_statement_api_v1_credit_cards_cards__card_id__statements_post: {
+      /** File */
+      file: string;
+      /**
+       * Period End
+       * Format: date
+       */
+      period_end: string;
+      /**
+       * Period Start
+       * Format: date
+       */
+      period_start: string;
+      /**
+       * Statement Date
+       * Format: date
+       */
+      statement_date: string;
+    };
+    /** Body_upload_document_api_v1_intake_uploads_post */
+    Body_upload_document_api_v1_intake_uploads_post: {
+      /**
+       * File
+       * @description The document to ingest.
+       */
+      file: string;
+      /** Note */
+      note?: string | null;
+    };
+    /**
+     * BoxOut
+     * @description A rectangle on a page, in PDF points from the top-left corner.
+     */
+    BoxOut: {
+      /** Height */
+      height: number;
+      /** Width */
+      width: number;
+      /** X */
+      x: number;
+      /** Y */
+      y: number;
+    };
+    /**
+     * CandidateStanding
+     * @description Where a candidate is in the review.
+     * @enum {string}
+     */
+    CandidateStanding: "proposed" | "adjusted" | "finalized" | "excluded";
+    /** CheckInDetailOut */
+    CheckInDetailOut: {
+      /** Answered At */
+      answered_at: string | null;
+      /** Can Record Answer */
+      can_record_answer: boolean;
+      /** Can Review */
+      can_review: boolean;
+      /** Can Send */
+      can_send: boolean;
+      claim: components["schemas"]["ClaimOutcome"] | null;
+      claim_channel: components["schemas"]["ClaimChannel"] | null;
+      /** Claim Channel Label */
+      claim_channel_label: string | null;
+      /** Claim Description */
+      claim_description: string | null;
+      /** Claim Label */
+      claim_label: string | null;
+      /** Confirmed Paid */
+      confirmed_paid: boolean;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Lines */
+      lines: components["schemas"]["CheckInLineOut"][];
+      /**
+       * Package Id
+       * Format: uuid
+       */
+      package_id: string;
+      /** Package Reference */
+      package_reference: string;
+      /** Package Submitted At */
+      package_submitted_at: string | null;
+      /** Reference */
+      reference: string;
+      /** Respondent Name */
+      respondent_name: string | null;
+      /** Respondent Note */
+      respondent_note: string | null;
+      /** Review Note */
+      review_note: string | null;
+      review_outcome: components["schemas"]["ReviewOutcome"] | null;
+      /** Review Outcome Label */
+      review_outcome_label: string | null;
+      /** Reviewed At */
+      reviewed_at: string | null;
+      /** Reviewed By Label */
+      reviewed_by_label: string | null;
+      /** Sent At */
+      sent_at: string | null;
+      standing: components["schemas"]["CheckInStanding"];
+      /** Standing Description */
+      standing_description: string;
+      /** Standing Label */
+      standing_label: string;
+      /** Submission Reference */
+      submission_reference: string | null;
+      suggestion: components["schemas"]["SuggestionOut"];
+      /** Totals */
+      totals: components["schemas"]["MoneyOut"][];
+      /** Vendor Email */
+      vendor_email: string | null;
+      /** Vendor Name */
+      vendor_name: string;
+      /** Version */
+      version: number;
+    };
+    /** CheckInLineOut */
+    CheckInLineOut: {
+      amount: components["schemas"]["MoneyOut"];
+      /** Due Date */
+      due_date: string | null;
+      /** Invoice Number */
+      invoice_number: string | null;
+      /** Invoice Reference */
+      invoice_reference: string;
+      invoice_state: components["schemas"]["WorkflowState"];
+      /** Invoice State Label */
+      invoice_state_label: string;
+    };
+    /** CheckInPage */
+    CheckInPage: {
+      /** Page */
+      page: number;
+      /** Page Size */
+      page_size: number;
+      /** Rows */
+      rows: components["schemas"]["CheckInSummary"][];
+      /** Total */
+      total: number;
+    };
+    /**
+     * CheckInReviewRequest
+     * @description Named for the thing it reviews.
+     *
+     *     A plain `ReviewRequest` collides with the document reader's, and the schema
+     *     generator resolves a collision by qualifying both with their module paths —
+     *     which quietly renames a type the web app already imports. Distinct names
+     *     here keep the generated contract readable.
+     */
+    CheckInReviewRequest: {
+      /**
+       * Note
+       * @default
+       */
+      note: string;
+      outcome: components["schemas"]["ReviewOutcome"];
+    };
+    /**
+     * CheckInStanding
+     * @description Where a check-in is, derived from its timestamps rather than stored.
+     *
+     *     Same reasoning as a payment package: this is a conversation with a supplier,
+     *     not a financial record with a lifecycle anybody signs off. The invoices it
+     *     concerns are on the state machine; the conversation is not.
+     * @enum {string}
+     */
+    CheckInStanding:
+      "not_sent" | "awaiting_vendor" | "vendor_answered" | "reviewed";
+    /** CheckInSummary */
+    CheckInSummary: {
+      /** Answered At */
+      answered_at: string | null;
+      claim: components["schemas"]["ClaimOutcome"] | null;
+      /** Claim Label */
+      claim_label: string | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Invoice Count */
+      invoice_count: number;
+      /** Package Reference */
+      package_reference: string;
+      /** Reference */
+      reference: string;
+      review_outcome: components["schemas"]["ReviewOutcome"] | null;
+      /** Review Outcome Label */
+      review_outcome_label: string | null;
+      /** Reviewed At */
+      reviewed_at: string | null;
+      /** Sent At */
+      sent_at: string | null;
+      standing: components["schemas"]["CheckInStanding"];
+      /** Standing Label */
+      standing_label: string;
+      /** Totals */
+      totals: components["schemas"]["MoneyOut"][];
+      /** Vendor Email */
+      vendor_email: string | null;
+      /** Vendor Name */
+      vendor_name: string;
+    };
+    /** CheckpointReport */
+    CheckpointReport: {
+      /** Folder */
+      folder: string;
+      /** Is Stalled */
+      is_stalled: boolean;
+      /** Last Polled At */
+      last_polled_at: string | null;
+      /** Last Reset At */
+      last_reset_at: string | null;
+      /** Last Reset Reason */
+      last_reset_reason: string | null;
+      /** Last Seen Uid */
+      last_seen_uid: number;
+      /** Seconds Since Poll */
+      seconds_since_poll: number | null;
+      /** Uid Validity */
+      uid_validity: number;
+    };
+    /**
+     * ClaimChannel
+     * @description How the answer reached us, which is part of how much it is worth.
+     *
+     *     A link answer came from whoever held the link. A reply came from whatever
+     *     address the mail claimed to be from. Somebody phoning in came through a
+     *     member of staff who typed it. None of the three is authentication, and
+     *     keeping them apart is what lets a reviewer weigh them differently.
+     * @enum {string}
+     */
+    ClaimChannel: "signed_link" | "email_reply" | "recorded_by_staff";
+    /**
+     * ClaimOutcome
+     * @description What the supplier said.
+     *
+     *     Three answers rather than two, because "some of it" is what a supplier
+     *     actually says when a batch payment is short, and forcing that into "no"
+     *     loses the only useful thing about the reply.
+     * @enum {string}
+     */
+    ClaimOutcome: "received" | "partly_received" | "not_received";
+    /**
+     * CodingStanding
+     * @description Whether a transaction has been explained.
+     * @enum {string}
+     */
+    CodingStanding: "uncoded" | "coded" | "excepted";
+    /**
+     * ConfidenceBand
+     * @enum {string}
+     */
+    ConfidenceBand: "high" | "medium" | "low" | "none";
+    /** CorrectionRequest */
+    CorrectionRequest: {
+      /** Reason */
+      reason?: string | null;
+      /** Text */
+      text: string;
+    };
+    /** CostCentreCreateRequest */
+    CostCentreCreateRequest: {
+      /** Code */
+      code: string;
+      /** Department */
+      department?: string | null;
+      /** Name */
+      name: string;
+      /** Reason */
+      reason: string;
+    };
+    /** CostCentreOut */
+    CostCentreOut: {
+      /** Code */
+      code: string;
+      /** Department */
+      department: string | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Is Active */
+      is_active: boolean;
+      /** Name */
+      name: string;
+    };
+    /** CostCentreUpdateRequest */
+    CostCentreUpdateRequest: {
+      /** Department */
+      department?: string | null;
+      /** Name */
+      name?: string | null;
+      /** Reason */
+      reason: string;
+    };
+    /** CreditCardCloseBody */
+    CreditCardCloseBody: {
+      /** Reason */
+      reason: string;
+    };
+    /** CreditCardCodeBody */
+    CreditCardCodeBody: {
+      /** Category */
+      category?: string | null;
+      /** Cost Centre Id */
+      cost_centre_id?: string | null;
+      /** Exception Reason */
+      exception_reason?: string | null;
+      /** Expected Version */
+      expected_version?: number | null;
+      /** Gl Account Id */
+      gl_account_id?: string | null;
+    };
+    /** CreditCardCreate */
+    CreditCardCreate: {
+      /** Cardholder Name */
+      cardholder_name: string;
+      /**
+       * Currency
+       * @default JMD
+       */
+      currency: string;
+      /** Label */
+      label: string;
+      /** Last Four */
+      last_four: string;
+    };
+    /** CreditCardDisposeBody */
+    CreditCardDisposeBody: {
+      disposition: components["schemas"]["SuggestionDisposition"];
+    };
+    /** CreditCardMoneyOut */
+    CreditCardMoneyOut: {
+      /** Currency */
+      currency: string;
+      /** Formatted */
+      formatted: string;
+      /** Minor Units */
+      minor_units: number;
+    };
+    /** CreditCardPeriodDetail */
+    CreditCardPeriodDetail: {
+      /** Actions */
+      actions: {
+        [key: string]: boolean;
+      };
+      card: components["schemas"]["CreditCardSummary"];
+      /** Close Reason */
+      close_reason: string | null;
+      /** Closed At */
+      closed_at: string | null;
+      /** Currency */
+      currency: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Missing Receipt Count */
+      missing_receipt_count: number;
+      /**
+       * Period End
+       * Format: date
+       */
+      period_end: string;
+      /**
+       * Period Start
+       * Format: date
+       */
+      period_start: string;
+      /** Reference */
+      reference: string;
+      /** Source Filename */
+      source_filename: string;
+      standing: components["schemas"]["finora__domain__credit_cards__PeriodStanding"];
+      /** Standing Description */
+      standing_description: string;
+      /** Standing Label */
+      standing_label: string;
+      /**
+       * Statement Date
+       * Format: date
+       */
+      statement_date: string;
+      /** Transaction Count */
+      transaction_count: number;
+      /** Transactions */
+      transactions: components["schemas"]["CreditCardTransactionOut"][];
+      /** Uncoded Count */
+      uncoded_count: number;
+    };
+    /** CreditCardPeriodSummary */
+    CreditCardPeriodSummary: {
+      card: components["schemas"]["CreditCardSummary"];
+      /** Closed At */
+      closed_at: string | null;
+      /** Currency */
+      currency: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Missing Receipt Count */
+      missing_receipt_count: number;
+      /**
+       * Period End
+       * Format: date
+       */
+      period_end: string;
+      /**
+       * Period Start
+       * Format: date
+       */
+      period_start: string;
+      /** Reference */
+      reference: string;
+      /** Source Filename */
+      source_filename: string;
+      standing: components["schemas"]["finora__domain__credit_cards__PeriodStanding"];
+      /** Standing Description */
+      standing_description: string;
+      /** Standing Label */
+      standing_label: string;
+      /**
+       * Statement Date
+       * Format: date
+       */
+      statement_date: string;
+      /** Transaction Count */
+      transaction_count: number;
+      /** Uncoded Count */
+      uncoded_count: number;
+    };
+    /** CreditCardReceiptBody */
+    CreditCardReceiptBody: {
+      /** Confidence */
+      confidence?: number | null;
+      /** Document Id */
+      document_id?: string | null;
+      /**
+       * Waived
+       * @default false
+       */
+      waived: boolean;
+      /** Waiver Reason */
+      waiver_reason?: string | null;
+    };
+    /** CreditCardReferenceRef */
+    CreditCardReferenceRef: {
+      /** Code */
+      code: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Name */
+      name: string;
+    };
+    /** CreditCardSuggestionBody */
+    CreditCardSuggestionBody: {
+      /** Cost Centre Id */
+      cost_centre_id?: string | null;
+      /** Evidence */
+      evidence?: {
+        [key: string]: unknown;
+      };
+      /** Gl Account Id */
+      gl_account_id?: string | null;
+      /** Receipt Document Id */
+      receipt_document_id?: string | null;
+    };
+    /** CreditCardSummary */
+    CreditCardSummary: {
+      /** Cardholder Name */
+      cardholder_name: string;
+      /** Currency */
+      currency: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Is Active */
+      is_active: boolean;
+      /** Label */
+      label: string;
+      /** Last Four */
+      last_four: string;
+    };
+    /** CreditCardTransactionOut */
+    CreditCardTransactionOut: {
+      amount: components["schemas"]["CreditCardMoneyOut"];
+      /** Cardholder */
+      cardholder: string;
+      /** Category */
+      category: string | null;
+      /** Coding Label */
+      coding_label: string;
+      coding_standing: components["schemas"]["CodingStanding"];
+      cost_centre: components["schemas"]["CreditCardReferenceRef"] | null;
+      /** Description */
+      description: string | null;
+      /** Exception Reason */
+      exception_reason: string | null;
+      /** External Reference */
+      external_reference: string | null;
+      gl_account: components["schemas"]["CreditCardReferenceRef"] | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Merchant */
+      merchant: string;
+      /**
+       * Posted On
+       * Format: date
+       */
+      posted_on: string;
+      /** Receipt Document Id */
+      receipt_document_id: string | null;
+      /** Receipt Label */
+      receipt_label: string;
+      /** Receipt Match Confidence */
+      receipt_match_confidence: number | null;
+      receipt_status: components["schemas"]["ReceiptStatus"];
+      /** Receipt Waived */
+      receipt_waived: boolean;
+      /** Receipt Waiver Reason */
+      receipt_waiver_reason: string | null;
+      /** Source Row */
+      source_row: number;
+      /** Suggested Cost Centre Id */
+      suggested_cost_centre_id: string | null;
+      /** Suggested Gl Account Id */
+      suggested_gl_account_id: string | null;
+      suggestion_disposition:
+        components["schemas"]["SuggestionDisposition"] | null;
+      /** Suggestion Evidence */
+      suggestion_evidence: {
+        [key: string]: unknown;
+      } | null;
+      /** Version */
+      version: number;
+    };
+    /** CurrentUserResponse */
+    CurrentUserResponse: {
+      /** Department */
+      department: string | null;
+      /** Display Name */
+      display_name: string;
+      /** Email */
+      email: string;
+      /** Id */
+      id: string;
+      /** Permissions */
+      permissions: string[];
+      /** Roles */
+      roles: string[];
+    };
+    /** DependencyReport */
+    DependencyReport: {
+      /** Detail */
+      detail?: string | null;
+      /** Name */
+      name: string;
+      state: components["schemas"]["DependencyState"];
+    };
+    /**
+     * DependencyState
+     * @enum {string}
+     */
+    DependencyState: "up" | "down" | "degraded" | "not_configured";
+    /** DocumentDetail */
+    DocumentDetail: {
+      /** Acceptance Blockers */
+      acceptance_blockers: string[];
+      /** Content Type */
+      content_type: string;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      extraction: components["schemas"]["ExtractionOut"] | null;
+      /** Fields Needing Attention */
+      fields_needing_attention: number;
+      /** Filename */
+      filename: string;
+      /** From Address */
+      from_address: string | null;
+      /** History */
+      history: components["schemas"]["AttemptSummary"][];
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      kind: components["schemas"]["DocumentKind"];
+      /** Kind Label */
+      kind_label: string;
+      /** Lowest Confidence */
+      lowest_confidence: number | null;
+      /**
+       * Message Id
+       * Format: uuid
+       */
+      message_id: string;
+      raised_as: components["schemas"]["RaisedRecordOut"] | null;
+      /** Sha256 */
+      sha256: string;
+      /** Signal Count */
+      signal_count: number;
+      /** Size Bytes */
+      size_bytes: number;
+      status: components["schemas"]["ExtractionStatus"];
+      /** Subject */
+      subject: string | null;
+    };
+    /**
+     * DocumentKind
+     * @description What kind of document this is.
+     *
+     *     `unknown` is a real answer and is used whenever the evidence does not decide.
+     *     Guessing `invoice` because most documents are invoices would put a quotation
+     *     into the payment path, which is the expensive direction to be wrong in.
+     * @enum {string}
+     */
+    DocumentKind:
+      | "invoice"
+      | "estimate"
+      | "credit_note"
+      | "receipt"
+      | "purchase_order"
+      | "statement"
+      | "remittance_advice"
+      | "unknown";
+    /** DocumentPage */
+    DocumentPage: {
+      /** Items */
+      items: components["schemas"]["DocumentSummary"][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /**
+     * DocumentSignal
+     * @description Things about a document that a person needs to be told.
+     *
+     *     These are not extraction failures. A document can be read perfectly and still
+     *     carry every one of these, and each of them changes what the reviewer should
+     *     do next. They are enumerated rather than assembled as free text so that the
+     *     same condition always reads the same way and can be counted across documents.
+     * @enum {string}
+     */
+    DocumentSignal:
+      | "no_text_layer"
+      | "scanned_and_unreadable"
+      | "encrypted"
+      | "truncated_pages"
+      | "bank_details_present"
+      | "prompt_injection_suspected"
+      | "amounts_do_not_add_up"
+      | "ambiguous_date"
+      | "multiple_currencies"
+      | "kind_undetermined"
+      | "model_unavailable"
+      | "model_output_rejected"
+      | "model_assisted"
+      | "required_field_missing"
+      | "negative_total"
+      | "due_before_document_date";
+    /** DocumentSummary */
+    DocumentSummary: {
+      /** Content Type */
+      content_type: string;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Fields Needing Attention */
+      fields_needing_attention: number;
+      /** Filename */
+      filename: string;
+      /** From Address */
+      from_address: string | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      kind: components["schemas"]["DocumentKind"];
+      /** Kind Label */
+      kind_label: string;
+      /** Lowest Confidence */
+      lowest_confidence: number | null;
+      /**
+       * Message Id
+       * Format: uuid
+       */
+      message_id: string;
+      /** Signal Count */
+      signal_count: number;
+      /** Size Bytes */
+      size_bytes: number;
+      status: components["schemas"]["ExtractionStatus"];
+      /** Subject */
+      subject: string | null;
+    };
+    /**
+     * EligibleInvoiceOut
+     * @description An approved invoice that could go into a package.
+     */
+    EligibleInvoiceOut: {
+      amount: components["schemas"]["MoneyOut"];
+      /** Department */
+      department: string | null;
+      /** Due Date */
+      due_date: string | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Invoice Number */
+      invoice_number: string | null;
+      /** Reference */
+      reference: string;
+      /** Vendor Name */
+      vendor_name: string;
+    };
+    /**
+     * EstimateActionsOut
+     * @description What this caller may do to this estimate, decided by the server.
+     *
+     *     Every field is the outcome of the same check the corresponding endpoint
+     *     performs, so a disabled button and a refused request always agree.
+     */
+    EstimateActionsOut: {
+      /** May Cancel */
+      may_cancel: boolean;
+      /** May Decide */
+      may_decide: boolean;
+      /** May Edit */
+      may_edit: boolean;
+      /** May Submit */
+      may_submit: boolean;
+      /** May Withdraw */
+      may_withdraw: boolean;
+    };
+    /** EstimateCreateRequest */
+    EstimateCreateRequest: {
+      /** Document Id */
+      document_id?: string | null;
+    };
+    /** EstimateDecisionRequest */
+    EstimateDecisionRequest: {
+      /** Comment */
+      comment?: string | null;
+      level: components["schemas"]["ApprovalLevel"];
+      outcome: components["schemas"]["ApprovalOutcome"];
+      /** Step Order */
+      step_order: number;
+    };
+    /** EstimateDetail */
+    EstimateDetail: {
+      actions: components["schemas"]["EstimateActionsOut"];
+      /** Awaiting Labels */
+      awaiting_labels: string[];
+      /** Awaiting Me */
+      awaiting_me: boolean;
+      cost_centre: components["schemas"]["NamedRefOut"] | null;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Currency */
+      currency: string | null;
+      /** Decided At */
+      decided_at: string | null;
+      /** Department */
+      department: string | null;
+      /** Description */
+      description: string;
+      /** Document Id */
+      document_id: string | null;
+      /** Estimate Date */
+      estimate_date: string | null;
+      /** Estimate Number */
+      estimate_number: string | null;
+      gl_account: components["schemas"]["NamedRefOut"] | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Justification */
+      justification: string;
+      /** Needed By */
+      needed_by: string | null;
+      /** Planned Route */
+      planned_route: components["schemas"]["PlannedStepOut"][] | null;
+      /** Planned Route Problem */
+      planned_route_problem: string | null;
+      /** Problem Count */
+      problem_count: number;
+      /** Problems */
+      problems: components["schemas"]["EstimateProblemOut"][];
+      /** Reference */
+      reference: string;
+      /** Requester Label */
+      requester_label: string;
+      route: components["schemas"]["RouteOut"] | null;
+      /** Route History */
+      route_history: components["schemas"]["RouteOut"][];
+      /** Route Summary */
+      route_summary: string | null;
+      state: components["schemas"]["WorkflowState"];
+      /** State Label */
+      state_label: string;
+      /** Submitted At */
+      submitted_at: string | null;
+      /** Total Formatted */
+      total_formatted: string | null;
+      /** Total Minor Units */
+      total_minor_units: number | null;
+      /** Transitions */
+      transitions: components["schemas"]["TransitionOut"][];
+      /** Vendor Id */
+      vendor_id: string | null;
+      /** Vendor Name */
+      vendor_name: string;
+    };
+    /**
+     * EstimateDraftRequest
+     * @description The complete editable state of a draft, not a set of changes.
+     *
+     *     A PUT rather than a PATCH because `null` then means "this estimate has no
+     *     such value" without a second sentinel, and because the form sends every field
+     *     it owns anyway.
+     */
+    EstimateDraftRequest: {
+      /** Cost Centre Id */
+      cost_centre_id?: string | null;
+      /** Currency */
+      currency?: string | null;
+      /** Description */
+      description: string;
+      /** Estimate Date */
+      estimate_date?: string | null;
+      /** Estimate Number */
+      estimate_number?: string | null;
+      /** Gl Account Id */
+      gl_account_id?: string | null;
+      /** Justification */
+      justification: string;
+      /** Needed By */
+      needed_by?: string | null;
+      /** Total Minor Units */
+      total_minor_units?: number | null;
+      /** Vendor Id */
+      vendor_id?: string | null;
+      /** Vendor Name */
+      vendor_name: string;
+    };
+    /** EstimatePage */
+    EstimatePage: {
+      /** Items */
+      items: components["schemas"]["EstimateSummary"][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /**
+     * EstimateProblem
+     * @description Why an estimate is not ready to be sent for approval.
+     *
+     *     Enumerated rather than assembled as free text so the same gap always reads
+     *     the same way, the screen can point at the field responsible, and "how often
+     *     do estimates arrive without a cost centre" is a question the data can answer.
+     * @enum {string}
+     */
+    EstimateProblem:
+      | "vendor_missing"
+      | "description_missing"
+      | "amount_missing"
+      | "amount_not_positive"
+      | "estimate_date_missing"
+      | "estimate_date_in_future"
+      | "cost_centre_missing"
+      | "justification_missing"
+      | "needed_by_before_estimate_date";
+    /** EstimateProblemOut */
+    EstimateProblemOut: {
+      /** Explanation */
+      explanation: string;
+      /** Field */
+      field: string;
+      problem: components["schemas"]["EstimateProblem"];
+    };
+    /** EstimateReasonRequest */
+    EstimateReasonRequest: {
+      /** Reason */
+      reason: string;
+    };
+    /** EstimateSummary */
+    EstimateSummary: {
+      /** Awaiting Labels */
+      awaiting_labels: string[];
+      /** Awaiting Me */
+      awaiting_me: boolean;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Currency */
+      currency: string | null;
+      /** Decided At */
+      decided_at: string | null;
+      /** Department */
+      department: string | null;
+      /** Description */
+      description: string;
+      /** Estimate Date */
+      estimate_date: string | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Needed By */
+      needed_by: string | null;
+      /** Problem Count */
+      problem_count: number;
+      /** Reference */
+      reference: string;
+      /** Requester Label */
+      requester_label: string;
+      /** Route Summary */
+      route_summary: string | null;
+      state: components["schemas"]["WorkflowState"];
+      /** State Label */
+      state_label: string;
+      /** Submitted At */
+      submitted_at: string | null;
+      /** Total Formatted */
+      total_formatted: string | null;
+      /** Total Minor Units */
+      total_minor_units: number | null;
+      /** Vendor Name */
+      vendor_name: string;
+    };
+    /** EvidenceOut */
+    EvidenceOut: {
+      /** Boxes */
+      boxes: components["schemas"]["BoxOut"][];
+      /** Page Number */
+      page_number: number;
+      /** Snippet */
+      snippet: string;
+    };
+    /** ExtractionOut */
+    ExtractionOut: {
+      /** Accepted At */
+      accepted_at: string | null;
+      /** Accepted Note */
+      accepted_note: string | null;
+      /** Attempt */
+      attempt: number;
+      /** Completed At */
+      completed_at: string | null;
+      /** Fields */
+      fields: components["schemas"]["FieldOut"][];
+      /** Gateway Outcome */
+      gateway_outcome: string | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      kind: components["schemas"]["DocumentKind"];
+      /** Kind Confidence */
+      kind_confidence: number;
+      kind_evidence: components["schemas"]["EvidenceOut"] | null;
+      /** Kind Label */
+      kind_label: string;
+      /** Model Name */
+      model_name: string | null;
+      /** Notes */
+      notes: string[];
+      /** Page Count */
+      page_count: number;
+      /** Prompt Id */
+      prompt_id: string | null;
+      /** Prompt Version */
+      prompt_version: number | null;
+      /** Review Threshold */
+      review_threshold: number;
+      /** Signals */
+      signals: components["schemas"]["SignalOut"][];
+      status: components["schemas"]["ExtractionStatus"];
+      /** Suggestions Discarded */
+      suggestions_discarded: number;
+      /** Text Source */
+      text_source: string;
+    };
+    /**
+     * ExtractionStatus
+     * @description Where a document has reached.
+     *
+     *     `manual_entry_required` exists so that an unreadable document is a state with
+     *     a working path out of it, rather than a failure a user can only stare at. A
+     *     scanned page with no text layer and no vision service configured is still a
+     *     real invoice that has to be paid.
+     * @enum {string}
+     */
+    ExtractionStatus:
+      | "pending"
+      | "extracting"
+      | "extracted"
+      | "needs_review"
+      | "accepted"
+      | "manual_entry_required"
+      | "failed";
+    /**
+     * FieldName
+     * @description The fields the platform reads from an invoice or estimate.
+     *
+     *     Bank details are deliberately absent. They appear on documents constantly and
+     *     are the single most attractive thing on the page to an attacker, so they are
+     *     never read into a field that could be used for payment; their presence is
+     *     recorded as a signal for a person to verify against the vendor master.
+     * @enum {string}
+     */
+    FieldName:
+      | "vendor_name"
+      | "vendor_tax_id"
+      | "document_number"
+      | "document_date"
+      | "due_date"
+      | "currency"
+      | "subtotal"
+      | "tax_total"
+      | "total"
+      | "purchase_order_number"
+      | "estimate_reference"
+      | "payment_terms";
+    /**
+     * FieldOrigin
+     * @description Who produced a value. Recorded so a suggestion is never read back as a
+     *     finding, and a person's correction is never overwritten by a re-run.
+     * @enum {string}
+     */
+    FieldOrigin: "rule" | "model" | "human" | "absent";
+    /** FieldOut */
+    FieldOut: {
+      /** Adjustments */
+      adjustments: components["schemas"]["AdjustmentOut"][];
+      /** Amount Minor Units */
+      amount_minor_units: number | null;
+      band: components["schemas"]["ConfidenceBand"];
+      /** Confidence */
+      confidence: number;
+      /** Corrected At */
+      corrected_at: string | null;
+      /** Correction Reason */
+      correction_reason: string | null;
+      /** Currency */
+      currency: string | null;
+      evidence: components["schemas"]["EvidenceOut"] | null;
+      /** Label */
+      label: string;
+      name: components["schemas"]["FieldName"];
+      /** Needs Attention */
+      needs_attention: boolean;
+      /** Notes */
+      notes: string[];
+      origin: components["schemas"]["FieldOrigin"];
+      /** Reader Confidence */
+      reader_confidence: number | null;
+      /** Reader Text */
+      reader_text: string | null;
+      review: components["schemas"]["FieldReview"];
+      /** Text */
+      text: string;
+      /** Value Date */
+      value_date: string | null;
+    };
+    /**
+     * FieldReview
+     * @enum {string}
+     */
+    FieldReview: "unreviewed" | "confirmed" | "corrected" | "cleared";
+    /**
+     * PeriodStanding
+     * @description Where an accrual period is, derived from `locked_at`.
+     * @enum {string}
+     */
+    finora__domain__accruals__PeriodStanding: "open" | "locked";
+    /**
+     * PeriodStanding
+     * @description Where a statement period is, derived from `closed_at`.
+     * @enum {string}
+     */
+    finora__domain__credit_cards__PeriodStanding: "open" | "closed";
+    /** GlAccountCreateRequest */
+    GlAccountCreateRequest: {
+      /** Code */
+      code: string;
+      /** Name */
+      name: string;
+      /** Reason */
+      reason: string;
+    };
+    /** GlAccountOut */
+    GlAccountOut: {
+      /** Code */
+      code: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Is Active */
+      is_active: boolean;
+      /** Name */
+      name: string;
+    };
+    /** GlAccountUpdateRequest */
+    GlAccountUpdateRequest: {
+      /** Name */
+      name?: string | null;
+      /** Reason */
+      reason: string;
+    };
+    /** HTTPValidationError */
+    HTTPValidationError: {
+      /** Detail */
+      detail?: components["schemas"]["ValidationError"][];
+    };
+    /**
+     * IntakeSource
+     * @description How a message entered the platform.
+     * @enum {string}
+     */
+    IntakeSource: "imap" | "manual_upload";
+    /**
+     * IntakeStatus
+     * @description Lifecycle of an inbound message.
+     *
+     *     Nothing reaches `ready` until every attachment has a scan verdict, so a
+     *     downstream module cannot open a file that was never checked.
+     * @enum {string}
+     */
+    IntakeStatus: "received" | "scanning" | "quarantined" | "ready" | "failed";
+    /**
+     * InvoiceActionsOut
+     * @description What this caller may do to this invoice, decided by the server.
+     */
+    InvoiceActionsOut: {
+      /** May Cancel */
+      may_cancel: boolean;
+      /** May Decide */
+      may_decide: boolean;
+      /** May Decline */
+      may_decline: boolean;
+      /** May Edit */
+      may_edit: boolean;
+      /** May Recall */
+      may_recall: boolean;
+      /** May Request Sign Off */
+      may_request_sign_off: boolean;
+      /** May Sign Off */
+      may_sign_off: boolean;
+    };
+    /** InvoiceCreateRequest */
+    InvoiceCreateRequest: {
+      /** Document Id */
+      document_id?: string | null;
+    };
+    /** InvoiceDecisionRequest */
+    InvoiceDecisionRequest: {
+      /** Comment */
+      comment?: string | null;
+      level: components["schemas"]["ApprovalLevel"];
+      outcome: components["schemas"]["ApprovalOutcome"];
+      /** Step Order */
+      step_order: number;
+    };
+    /** InvoiceDetail */
+    InvoiceDetail: {
+      actions: components["schemas"]["InvoiceActionsOut"];
+      /** Awaiting Labels */
+      awaiting_labels: string[];
+      /** Awaiting Me */
+      awaiting_me: boolean;
+      /** Awaiting My Sign Off */
+      awaiting_my_sign_off: boolean;
+      /** Blocker Count */
+      blocker_count: number;
+      cost_centre: components["schemas"]["NamedRefOut"] | null;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Created By Label */
+      created_by_label: string;
+      /** Currency */
+      currency: string | null;
+      /** Days Until Due */
+      days_until_due: number | null;
+      /** Decided At */
+      decided_at: string | null;
+      /** Department */
+      department: string | null;
+      /** Description */
+      description: string;
+      /** Document Id */
+      document_id: string | null;
+      /** Due Date */
+      due_date: string | null;
+      estimate: components["schemas"]["LinkedEstimateOut"] | null;
+      gl_account: components["schemas"]["NamedRefOut"] | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Invoice Date */
+      invoice_date: string | null;
+      /** Invoice Number */
+      invoice_number: string | null;
+      /** Planned Route */
+      planned_route: components["schemas"]["PlannedStepOut"][] | null;
+      /** Planned Route Problem */
+      planned_route_problem: string | null;
+      /** Problem Count */
+      problem_count: number;
+      /** Problems */
+      problems: components["schemas"]["InvoiceProblemOut"][];
+      purchase_order: components["schemas"]["LinkedPurchaseOrderOut"] | null;
+      /** Reference */
+      reference: string;
+      /** Reminders Sent */
+      reminders_sent: number | null;
+      /** Requester Label */
+      requester_label: string | null;
+      route: components["schemas"]["RouteOut"] | null;
+      /** Route History */
+      route_history: components["schemas"]["RouteOut"][];
+      /** Route Summary */
+      route_summary: string | null;
+      sign_off: components["schemas"]["SignOffOut"];
+      /** Signed Off At */
+      signed_off_at: string | null;
+      state: components["schemas"]["WorkflowState"];
+      /** State Label */
+      state_label: string;
+      /** Submitted At */
+      submitted_at: string | null;
+      /** Suggested Requester Id */
+      suggested_requester_id: string | null;
+      /** Total Formatted */
+      total_formatted: string | null;
+      /** Total Minor Units */
+      total_minor_units: number | null;
+      /** Transitions */
+      transitions: components["schemas"]["TransitionOut"][];
+      /** Vendor Id */
+      vendor_id: string | null;
+      /** Vendor Name */
+      vendor_name: string;
+    };
+    /**
+     * InvoiceDraftRequest
+     * @description The complete editable state of a draft invoice, as with an estimate.
+     */
+    InvoiceDraftRequest: {
+      /** Cost Centre Id */
+      cost_centre_id?: string | null;
+      /** Currency */
+      currency?: string | null;
+      /** Description */
+      description: string;
+      /** Due Date */
+      due_date?: string | null;
+      /** Estimate Id */
+      estimate_id?: string | null;
+      /** Gl Account Id */
+      gl_account_id?: string | null;
+      /** Invoice Date */
+      invoice_date?: string | null;
+      /** Invoice Number */
+      invoice_number?: string | null;
+      /** Purchase Order Id */
+      purchase_order_id?: string | null;
+      /** Requester Id */
+      requester_id?: string | null;
+      /** Total Minor Units */
+      total_minor_units?: number | null;
+      /** Vendor Id */
+      vendor_id?: string | null;
+      /** Vendor Name */
+      vendor_name: string;
+    };
+    /** InvoicePage */
+    InvoicePage: {
+      /** Items */
+      items: components["schemas"]["InvoiceSummary"][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /**
+     * InvoiceProblem
+     * @description Why an invoice cannot proceed.
+     *
+     *     Enumerated for the same reasons as `EstimateProblem`: one wording per gap, a
+     *     field for the screen to point at, and a countable reason so "how many invoices
+     *     are held up waiting for a purchase order" is a question the data can answer.
+     * @enum {string}
+     */
+    InvoiceProblem:
+      | "vendor_missing"
+      | "vendor_not_on_master"
+      | "invoice_number_missing"
+      | "invoice_date_missing"
+      | "invoice_date_in_future"
+      | "amount_missing"
+      | "amount_not_positive"
+      | "due_date_before_invoice_date"
+      | "description_missing"
+      | "cost_centre_missing"
+      | "requester_missing"
+      | "duplicate_invoice_number"
+      | "estimate_not_approved"
+      | "estimate_vendor_mismatch"
+      | "estimate_currency_mismatch"
+      | "exceeds_estimate"
+      | "purchase_order_required"
+      | "purchase_order_not_open"
+      | "purchase_order_vendor_mismatch"
+      | "purchase_order_currency_mismatch"
+      | "exceeds_purchase_order";
+    /** InvoiceProblemOut */
+    InvoiceProblemOut: {
+      /** Explanation */
+      explanation: string;
+      /** Field */
+      field: string;
+      /** Is Blocking */
+      is_blocking: boolean;
+      problem: components["schemas"]["InvoiceProblem"];
+    };
+    /** InvoiceReasonRequest */
+    InvoiceReasonRequest: {
+      /** Reason */
+      reason: string;
+    };
+    /**
+     * InvoiceReferenceData
+     * @description The selectors an invoice form needs beyond the shared reference data.
+     *
+     *     Vendors, cost centres and accounts come from `/reference`, which the estimate
+     *     form already uses. These three are specific to linking an invoice: approved
+     *     estimates it may draw on, orders it may bill against, and the colleagues who
+     *     could be asked to confirm receipt.
+     */
+    InvoiceReferenceData: {
+      /** Approved Estimates */
+      approved_estimates: components["schemas"]["LinkedEstimateOut"][];
+      /** Open Purchase Orders */
+      open_purchase_orders: components["schemas"]["LinkedPurchaseOrderOut"][];
+      /** People */
+      people: components["schemas"]["NamedRefOut"][];
+    };
+    /** InvoiceSummary */
+    InvoiceSummary: {
+      /** Awaiting Labels */
+      awaiting_labels: string[];
+      /** Awaiting Me */
+      awaiting_me: boolean;
+      /** Awaiting My Sign Off */
+      awaiting_my_sign_off: boolean;
+      /** Blocker Count */
+      blocker_count: number;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Currency */
+      currency: string | null;
+      /** Days Until Due */
+      days_until_due: number | null;
+      /** Decided At */
+      decided_at: string | null;
+      /** Department */
+      department: string | null;
+      /** Description */
+      description: string;
+      /** Due Date */
+      due_date: string | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Invoice Date */
+      invoice_date: string | null;
+      /** Invoice Number */
+      invoice_number: string | null;
+      /** Problem Count */
+      problem_count: number;
+      /** Reference */
+      reference: string;
+      /** Reminders Sent */
+      reminders_sent: number | null;
+      /** Requester Label */
+      requester_label: string | null;
+      /** Route Summary */
+      route_summary: string | null;
+      /** Signed Off At */
+      signed_off_at: string | null;
+      state: components["schemas"]["WorkflowState"];
+      /** State Label */
+      state_label: string;
+      /** Submitted At */
+      submitted_at: string | null;
+      /** Total Formatted */
+      total_formatted: string | null;
+      /** Total Minor Units */
+      total_minor_units: number | null;
+      /** Vendor Name */
+      vendor_name: string;
+    };
+    /**
+     * JoinRefusal
+     * @description Why a particular invoice cannot go into a package.
+     * @enum {string}
+     */
+    JoinRefusal:
+      | "not_approved"
+      | "already_in_a_package"
+      | "package_is_closed"
+      | "no_amount";
+    /** KillSwitchRequest */
+    KillSwitchRequest: {
+      /** Engaged */
+      engaged: boolean;
+      /** Reason */
+      reason: string;
+    };
+    /** KillSwitchResponse */
+    KillSwitchResponse: {
+      /** Engaged */
+      engaged: boolean;
+      /** Kill Switch Effective */
+      kill_switch_effective: boolean;
+    };
+    /** KindRequest */
+    KindRequest: {
+      kind: components["schemas"]["DocumentKind"];
+    };
+    /** KpiOut */
+    KpiOut: {
+      /** Hint */
+      hint: string;
+      /** Key */
+      key: string;
+      /** Label */
+      label: string;
+      money?: components["schemas"]["OverviewMoneyOut"] | null;
+      /** Tone */
+      tone: string;
+      /** Value */
+      value: number;
+    };
+    /**
+     * LinkedEstimateOut
+     * @description The approved spend this invoice draws on, as a screen needs to show it.
+     */
+    LinkedEstimateOut: {
+      /** Approved Total Formatted */
+      approved_total_formatted: string | null;
+      /** Approved Total Minor Units */
+      approved_total_minor_units: number | null;
+      /** Currency */
+      currency: string | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Reference */
+      reference: string;
+      /** Remaining Formatted */
+      remaining_formatted: string | null;
+      /** Remaining Minor Units */
+      remaining_minor_units: number | null;
+      state: components["schemas"]["WorkflowState"];
+      /** State Label */
+      state_label: string;
+      /** Vendor Name */
+      vendor_name: string;
+    };
+    /** LinkedPurchaseOrderOut */
+    LinkedPurchaseOrderOut: {
+      /** Billed By Others Formatted */
+      billed_by_others_formatted: string;
+      /** Billed By Others Minor Units */
+      billed_by_others_minor_units: number;
+      /** Currency */
+      currency: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Is Open */
+      is_open: boolean;
+      /** Number */
+      number: string;
+      /** Remaining Formatted */
+      remaining_formatted: string;
+      /** Remaining Minor Units */
+      remaining_minor_units: number;
+      /** State Label */
+      state_label: string;
+      /** Total Formatted */
+      total_formatted: string;
+      /** Total Minor Units */
+      total_minor_units: number;
+      /** Vendor Name */
+      vendor_name: string;
+    };
+    /** LivenessResponse */
+    LivenessResponse: {
+      /** Status */
+      status: string;
+      /** Version */
+      version: string;
+    };
+    /** MailboxReport */
+    MailboxReport: {
+      /** Authenticated */
+      authenticated: boolean;
+      /** Detail */
+      detail: string | null;
+      /** Quota Limit Kb */
+      quota_limit_kb: number | null;
+      /** Quota Supported */
+      quota_supported: boolean;
+      /** Quota Used Kb */
+      quota_used_kb: number | null;
+      /** Quota Used Percent */
+      quota_used_percent: number | null;
+      /** Reachable */
+      reachable: boolean;
+    };
+    /**
+     * ManifestOut
+     * @description The manifest as it stands, and how it compares with what was sent.
+     */
+    ManifestOut: {
+      /** Content */
+      content: string;
+      /** Digest */
+      digest: string;
+      /** Filename */
+      filename: string;
+      /** Line Count */
+      line_count: number;
+      /** Matches Submitted */
+      matches_submitted: boolean | null;
+      /** Submitted Digest */
+      submitted_digest: string | null;
+    };
+    /** MatrixAuditOut */
+    MatrixAuditOut: {
+      /** Faults */
+      faults: components["schemas"]["MatrixNoteOut"][];
+      /** Gaps */
+      gaps: components["schemas"]["MatrixNoteOut"][];
+      /** Is Coherent */
+      is_coherent: boolean;
+      /** Readings */
+      readings: components["schemas"]["MatrixReadingOut"][];
+    };
+    /**
+     * MatrixNoteOut
+     * @description A fault or a gap: a machine-readable kind and a sentence to show.
+     */
+    MatrixNoteOut: {
+      /** Kind */
+      kind: string;
+      /** Message */
+      message: string;
+    };
+    /** MatrixOut */
+    MatrixOut: {
+      audit: components["schemas"]["MatrixAuditOut"];
+      /** Record Type */
+      record_type: string;
+      /** Record Type Label */
+      record_type_label: string;
+      /** Rules */
+      rules: components["schemas"]["MatrixRuleOut"][];
+    };
+    /**
+     * MatrixReadingOut
+     * @description What the matrix does at one probe amount.
+     */
+    MatrixReadingOut: {
+      /** Amount Formatted */
+      amount_formatted: string;
+      /** Amount Minor Units */
+      amount_minor_units: number;
+      /** Currency */
+      currency: string;
+      /** Department */
+      department: string | null;
+      /** Steps */
+      steps: string[];
+      /** Unreachable */
+      unreachable: string | null;
+    };
+    /** MatrixRetireRequest */
+    MatrixRetireRequest: {
+      /** Reason */
+      reason: string;
+    };
+    /** MatrixRuleOut */
+    MatrixRuleOut: {
+      /** Band Label */
+      band_label: string;
+      /** Currency */
+      currency: string;
+      /** Department */
+      department: string | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Is Active */
+      is_active: boolean;
+      /** Is Parallel */
+      is_parallel: boolean;
+      level: components["schemas"]["ApprovalLevel"];
+      /** Level Label */
+      level_label: string;
+      /** Max Amount Minor Units */
+      max_amount_minor_units: number | null;
+      /** Min Amount Minor Units */
+      min_amount_minor_units: number;
+      /** Name */
+      name: string;
+      /** Record Type */
+      record_type: string;
+      /** Record Type Label */
+      record_type_label: string;
+      /** Retired At */
+      retired_at: string | null;
+      /** Step Order */
+      step_order: number;
+      /** Supersedes Id */
+      supersedes_id: string | null;
+    };
+    /** MatrixRuleRequest */
+    MatrixRuleRequest: {
+      /** Currency */
+      currency: string;
+      /** Department */
+      department?: string | null;
+      /**
+       * Is Parallel
+       * @default false
+       */
+      is_parallel: boolean;
+      level: components["schemas"]["ApprovalLevel"];
+      /** Max Amount Minor Units */
+      max_amount_minor_units?: number | null;
+      /** Min Amount Minor Units */
+      min_amount_minor_units: number;
+      /** Name */
+      name: string;
+      /** Reason */
+      reason: string;
+      /** Record Type */
+      record_type: string;
+      /** Step Order */
+      step_order: number;
+      /** Supersedes Id */
+      supersedes_id?: string | null;
+    };
+    /** MessageDetail */
+    MessageDetail: {
+      /** Attachment Count */
+      attachment_count: number;
+      /** Attachments */
+      attachments: components["schemas"]["AttachmentSummary"][];
+      /** Body Text */
+      body_text: string;
+      /** Cc Addresses */
+      cc_addresses: string[];
+      /** Failure Reason */
+      failure_reason: string | null;
+      /** Forwarded From Address */
+      forwarded_from_address: string | null;
+      /** Forwarded Shape */
+      forwarded_shape: string | null;
+      /** From Address */
+      from_address: string | null;
+      /** From Display Name */
+      from_display_name: string | null;
+      /** Has Warnings */
+      has_warnings: boolean;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Imap Folder */
+      imap_folder?: string | null;
+      /** Imap Uid */
+      imap_uid?: number | null;
+      /** Message Id */
+      message_id: string | null;
+      /** Parse Warnings */
+      parse_warnings: string[];
+      /** Quarantined Count */
+      quarantined_count: number;
+      /** Raw Sha256 */
+      raw_sha256: string;
+      /** Raw Size Bytes */
+      raw_size_bytes: number;
+      /**
+       * Received At
+       * Format: date-time
+       */
+      received_at: string;
+      /** Reply To Address */
+      reply_to_address: string | null;
+      /** Sent At */
+      sent_at: string | null;
+      source: components["schemas"]["IntakeSource"];
+      status: components["schemas"]["IntakeStatus"];
+      /** Subject */
+      subject: string;
+      /** To Addresses */
+      to_addresses: string[];
+    };
+    /** MessagePage */
+    MessagePage: {
+      /** Items */
+      items: components["schemas"]["MessageSummary"][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /** MessageSummary */
+    MessageSummary: {
+      /** Attachment Count */
+      attachment_count: number;
+      /** Forwarded From Address */
+      forwarded_from_address: string | null;
+      /** From Address */
+      from_address: string | null;
+      /** From Display Name */
+      from_display_name: string | null;
+      /** Has Warnings */
+      has_warnings: boolean;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Quarantined Count */
+      quarantined_count: number;
+      /**
+       * Received At
+       * Format: date-time
+       */
+      received_at: string;
+      /** Sent At */
+      sent_at: string | null;
+      source: components["schemas"]["IntakeSource"];
+      status: components["schemas"]["IntakeStatus"];
+      /** Subject */
+      subject: string;
+    };
+    /**
+     * MoneyOut
+     * @description One amount, always with the currency it is denominated in.
+     */
+    MoneyOut: {
+      /** Currency */
+      currency: string;
+      /** Formatted */
+      formatted: string;
+      /** Minor Units */
+      minor_units: number;
+    };
+    /** MonthlySpendOut */
+    MonthlySpendOut: {
+      /** Accruals */
+      accruals: number;
+      /** Credit Cards */
+      credit_cards: number;
+      /** Invoices */
+      invoices: number;
+      /** Label */
+      label: string;
+      /** Purchase Orders */
+      purchase_orders: number;
+    };
+    /**
+     * NamedRefOut
+     * @description A coded reference, resolved so a screen never shows a bare identifier.
+     */
+    NamedRefOut: {
+      /** Code */
+      code: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Name */
+      name: string;
+    };
+    /** OperationsReport */
+    OperationsReport: {
+      backlog: components["schemas"]["BacklogReport"];
+      /** Checkpoints */
+      checkpoints: components["schemas"]["CheckpointReport"][];
+      /** Concerns */
+      concerns: string[];
+      /**
+       * Generated At
+       * Format: date-time
+       */
+      generated_at: string;
+      mailbox: components["schemas"]["MailboxReport"] | null;
+      /** State */
+      state: string;
+    };
+    /** OverviewMoneyOut */
+    OverviewMoneyOut: {
+      /** Currency */
+      currency: string;
+      /** Formatted */
+      formatted: string;
+      /** Minor Units */
+      minor_units: number;
+    };
+    /** OverviewOut */
+    OverviewOut: {
+      /** Aging */
+      aging: components["schemas"]["SliceOut"][];
+      approval_performance: components["schemas"]["ApprovalPerformanceOut"];
+      /**
+       * Generated At
+       * Format: date-time
+       */
+      generated_at: string;
+      /** Invoice States */
+      invoice_states: components["schemas"]["SliceOut"][];
+      /** Kpis */
+      kpis: components["schemas"]["KpiOut"][];
+      /** Monthly Activity */
+      monthly_activity: components["schemas"]["TrendOut"][];
+      /** Monthly Spend */
+      monthly_spend: components["schemas"]["MonthlySpendOut"][];
+      /** Primary Currency */
+      primary_currency: string;
+      /** Recent Activity */
+      recent_activity: components["schemas"]["ActivityOut"][];
+      /** Spend Cards */
+      spend_cards: components["schemas"]["SpendCardOut"][];
+      /** Top Vendors */
+      top_vendors: components["schemas"]["VendorSpendOut"][];
+    };
+    /** PackageDraftRequest */
+    PackageDraftRequest: {
+      /**
+       * Description
+       * @default
+       */
+      description: string;
+      /** Intended Payment Date */
+      intended_payment_date?: string | null;
+      payment_method?: components["schemas"]["PaymentMethod"] | null;
+    };
+    /** PackageLineOut */
+    PackageLineOut: {
+      amount: components["schemas"]["MoneyOut"];
+      /** Due Date */
+      due_date: string | null;
+      /**
+       * Invoice Id
+       * Format: uuid
+       */
+      invoice_id: string;
+      /** Invoice Number */
+      invoice_number: string | null;
+      /** Invoice Reference */
+      invoice_reference: string;
+      invoice_state: components["schemas"]["WorkflowState"];
+      /** Invoice State Label */
+      invoice_state_label: string;
+      /** Is Still Payable */
+      is_still_payable: boolean;
+      /** Vendor Name */
+      vendor_name: string;
+    };
+    /**
+     * PackageProblem
+     * @description Why a package cannot be submitted as it stands.
+     * @enum {string}
+     */
+    PackageProblem:
+      | "nothing_in_it"
+      | "payment_method_missing"
+      | "payment_date_missing"
+      | "payment_date_in_the_past"
+      | "line_no_longer_payable"
+      | "repeated_invoice_number";
+    /** PackageProblemOut */
+    PackageProblemOut: {
+      /** Explanation */
+      explanation: string;
+      /** Field */
+      field: string;
+      /** Is Blocking */
+      is_blocking: boolean;
+      problem: components["schemas"]["PackageProblem"];
+    };
+    /** PackageReasonRequest */
+    PackageReasonRequest: {
+      /** Reason */
+      reason: string;
+    };
+    /**
+     * PackageStanding
+     * @description Where a package is in its short life, derived rather than stored.
+     * @enum {string}
+     */
+    PackageStanding: "open" | "submitted" | "cancelled";
+    /** PackageSubmitRequest */
+    PackageSubmitRequest: {
+      /** Submission Reference */
+      submission_reference: string;
+    };
+    /** PackageSubmitResponse */
+    PackageSubmitResponse: {
+      manifest: components["schemas"]["ManifestOut"];
+      package: components["schemas"]["PaymentPackageDetail"];
+    };
+    /**
+     * PaymentMethod
+     * @description How the money leaves.
+     *
+     *     Named rather than free text because it changes what the bank needs and what
+     *     the manifest has to carry, and because "how do we pay this supplier" is a
+     *     question a report should be able to group by.
+     * @enum {string}
+     */
+    PaymentMethod: "bank_transfer" | "cheque" | "wire" | "direct_debit";
+    /** PaymentPackageDetail */
+    PaymentPackageDetail: {
+      /** Blockers */
+      blockers: components["schemas"]["PackageProblemOut"][];
+      /** Can Cancel */
+      can_cancel: boolean;
+      /** Can Edit */
+      can_edit: boolean;
+      /** Can Submit */
+      can_submit: boolean;
+      /** Cancelled At */
+      cancelled_at: string | null;
+      /** Cancelled Reason */
+      cancelled_reason: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Created By Label */
+      created_by_label: string;
+      /** Description */
+      description: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Intended Payment Date */
+      intended_payment_date: string | null;
+      /** Lines */
+      lines: components["schemas"]["PackageLineOut"][];
+      /** Manifest Line Count */
+      manifest_line_count: number | null;
+      /** Manifest Sha256 */
+      manifest_sha256: string | null;
+      payment_method: components["schemas"]["PaymentMethod"] | null;
+      /** Payment Method Label */
+      payment_method_label: string | null;
+      /** Problems */
+      problems: components["schemas"]["PackageProblemOut"][];
+      /** Reference */
+      reference: string;
+      standing: components["schemas"]["PackageStanding"];
+      /** Standing Description */
+      standing_description: string;
+      /** Standing Label */
+      standing_label: string;
+      /** Submission Reference */
+      submission_reference: string | null;
+      /** Submitted At */
+      submitted_at: string | null;
+      /** Submitted By Label */
+      submitted_by_label: string | null;
+      /** Totals */
+      totals: components["schemas"]["MoneyOut"][];
+      /** Vendor Count */
+      vendor_count: number;
+      /** Version */
+      version: number;
+    };
+    /** PaymentPackagePage */
+    PaymentPackagePage: {
+      /** Page */
+      page: number;
+      /** Page Size */
+      page_size: number;
+      /** Rows */
+      rows: components["schemas"]["PaymentPackageSummary"][];
+      /** Total */
+      total: number;
+    };
+    /** PaymentPackageSummary */
+    PaymentPackageSummary: {
+      /** Blocker Count */
+      blocker_count: number;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Description */
+      description: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Intended Payment Date */
+      intended_payment_date: string | null;
+      /** Invoice Count */
+      invoice_count: number;
+      payment_method: components["schemas"]["PaymentMethod"] | null;
+      /** Payment Method Label */
+      payment_method_label: string | null;
+      /** Reference */
+      reference: string;
+      standing: components["schemas"]["PackageStanding"];
+      /** Standing Label */
+      standing_label: string;
+      /** Submission Reference */
+      submission_reference: string | null;
+      /** Submitted At */
+      submitted_at: string | null;
+      /** Totals */
+      totals: components["schemas"]["MoneyOut"][];
+      /** Vendor Count */
+      vendor_count: number;
+    };
+    /** PlannedStepOut */
+    PlannedStepOut: {
+      level: components["schemas"]["ApprovalLevel"];
+      /** Level Label */
+      level_label: string;
+      /** Step Order */
+      step_order: number;
+    };
+    /** PurchaseOrderAmendRequest */
+    PurchaseOrderAmendRequest: {
+      /** Reason */
+      reason: string;
+      /** Total Minor Units */
+      total_minor_units: number;
+    };
+    /** PurchaseOrderDecisionRequest */
+    PurchaseOrderDecisionRequest: {
+      /** Comment */
+      comment?: string | null;
+      level: components["schemas"]["ApprovalLevel"];
+      outcome: components["schemas"]["ApprovalOutcome"];
+      /** Step Order */
+      step_order: number;
+    };
+    /** PurchaseOrderDetail */
+    PurchaseOrderDetail: {
+      /** Billed Formatted */
+      billed_formatted: string | null;
+      /** Billed Minor Units */
+      billed_minor_units: number | null;
+      /** Blockers */
+      blockers: components["schemas"]["PurchaseOrderProblemOut"][];
+      /** Can Amend */
+      can_amend: boolean;
+      /** Can Cancel */
+      can_cancel: boolean;
+      /** Can Close */
+      can_close: boolean;
+      /** Can Decide */
+      can_decide: boolean;
+      /** Can Edit */
+      can_edit: boolean;
+      /** Can Submit */
+      can_submit: boolean;
+      /** Can Withdraw */
+      can_withdraw: boolean;
+      /** Closed At */
+      closed_at: string | null;
+      /** Closed By Label */
+      closed_by_label: string | null;
+      /** Closed Reason */
+      closed_reason: string | null;
+      cost_centre: components["schemas"]["NamedRefOut"] | null;
+      /** Currency */
+      currency: string | null;
+      /** Department */
+      department: string | null;
+      /** Description */
+      description: string;
+      /** Estimate Id */
+      estimate_id: string | null;
+      /** Estimate Reference */
+      estimate_reference: string | null;
+      gl_account: components["schemas"]["NamedRefOut"] | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Is Open */
+      is_open: boolean;
+      /** Needs Approval */
+      needs_approval: boolean;
+      /** Number */
+      number: string;
+      /** Opened At */
+      opened_at: string | null;
+      /** Planned Route */
+      planned_route: components["schemas"]["PlannedStepOut"][];
+      /** Problems */
+      problems: components["schemas"]["PurchaseOrderProblemOut"][];
+      /** Raised By Label */
+      raised_by_label: string;
+      /** Remaining Formatted */
+      remaining_formatted: string | null;
+      /** Remaining Minor Units */
+      remaining_minor_units: number | null;
+      route: components["schemas"]["RouteOut"] | null;
+      /** Route Unavailable */
+      route_unavailable: string | null;
+      state: components["schemas"]["WorkflowState"];
+      /** State Label */
+      state_label: string;
+      /** Submitted At */
+      submitted_at: string | null;
+      /** Total Formatted */
+      total_formatted: string | null;
+      /** Total Minor Units */
+      total_minor_units: number | null;
+      /** Transitions */
+      transitions: components["schemas"]["TransitionOut"][];
+      vendor: components["schemas"]["NamedRefOut"] | null;
+      /** Version */
+      version: number;
+    };
+    /** PurchaseOrderDraftRequest */
+    PurchaseOrderDraftRequest: {
+      /** Cost Centre Id */
+      cost_centre_id?: string | null;
+      /** Currency */
+      currency?: string | null;
+      /**
+       * Description
+       * @default
+       */
+      description: string;
+      /** Estimate Id */
+      estimate_id?: string | null;
+      /** Gl Account Id */
+      gl_account_id?: string | null;
+      /** Total Minor Units */
+      total_minor_units?: number | null;
+      /** Vendor Id */
+      vendor_id?: string | null;
+    };
+    /** PurchaseOrderPage */
+    PurchaseOrderPage: {
+      /** Page */
+      page: number;
+      /** Page Size */
+      page_size: number;
+      /** Rows */
+      rows: components["schemas"]["PurchaseOrderSummary"][];
+      /** Total */
+      total: number;
+    };
+    /**
+     * PurchaseOrderProblem
+     * @description Why an order cannot be sent for approval as it stands.
+     * @enum {string}
+     */
+    PurchaseOrderProblem:
+      | "vendor_missing"
+      | "description_missing"
+      | "amount_missing"
+      | "amount_not_positive"
+      | "cost_centre_missing"
+      | "below_what_is_billed"
+      | "estimate_not_approved"
+      | "estimate_vendor_mismatch"
+      | "estimate_currency_mismatch"
+      | "exceeds_estimate";
+    /** PurchaseOrderProblemOut */
+    PurchaseOrderProblemOut: {
+      /** Explanation */
+      explanation: string;
+      /** Field */
+      field: string;
+      /** Is Blocking */
+      is_blocking: boolean;
+      problem: components["schemas"]["PurchaseOrderProblem"];
+    };
+    /** PurchaseOrderReasonRequest */
+    PurchaseOrderReasonRequest: {
+      /** Reason */
+      reason: string;
+    };
+    /** PurchaseOrderReferenceData */
+    PurchaseOrderReferenceData: {
+      /** Approved Estimates */
+      approved_estimates: {
+        id: string;
+        reference: string;
+        currency: string;
+        total_minor_units: number;
+        vendor_name: string;
+      }[];
+      /** Cost Centres */
+      cost_centres: components["schemas"]["NamedRefOut"][];
+      /** Gl Accounts */
+      gl_accounts: components["schemas"]["NamedRefOut"][];
+      /** Vendors */
+      vendors: components["schemas"]["NamedRefOut"][];
+    };
+    /** PurchaseOrderSummary */
+    PurchaseOrderSummary: {
+      /** Awaiting */
+      awaiting: string[];
+      /** Billed Formatted */
+      billed_formatted: string | null;
+      /** Blocker Count */
+      blocker_count: number;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Currency */
+      currency: string | null;
+      /** Department */
+      department: string | null;
+      /** Description */
+      description: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Is Awaiting Me */
+      is_awaiting_me: boolean;
+      /** Is Open */
+      is_open: boolean;
+      /** Number */
+      number: string;
+      /** Raised By Label */
+      raised_by_label: string;
+      /** Remaining Formatted */
+      remaining_formatted: string | null;
+      /** Remaining Minor Units */
+      remaining_minor_units: number | null;
+      state: components["schemas"]["WorkflowState"];
+      /** State Label */
+      state_label: string;
+      /** Total Formatted */
+      total_formatted: string | null;
+      /** Total Minor Units */
+      total_minor_units: number | null;
+      /** Vendor Name */
+      vendor_name: string | null;
+    };
+    /**
+     * RaisedRecordOut
+     * @description A record already raised from this document.
+     *
+     *     Sent so the workspace can send a reader to it instead of offering to raise a
+     *     second one and refusing. A document becomes at most one estimate, and the
+     *     person looking at an accepted reading usually wants whatever it became.
+     */
+    RaisedRecordOut: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Kind
+       * @constant
+       */
+      kind: "estimate";
+      /** Reference */
+      reference: string;
+      /** State Label */
+      state_label: string;
+    };
+    /** RaiseRequest */
+    RaiseRequest: {
+      /**
+       * Package Id
+       * Format: uuid
+       */
+      package_id: string;
+    };
+    /** RaiseResponse */
+    RaiseResponse: {
+      /** Already Raised */
+      already_raised: string[];
+      /** Raised */
+      raised: components["schemas"]["CheckInSummary"][];
+    };
+    /** ReadinessResponse */
+    ReadinessResponse: {
+      /** Dependencies */
+      dependencies: components["schemas"]["DependencyReport"][];
+      /** Environment */
+      environment: string;
+      /** Ready */
+      ready: boolean;
+      /** Version */
+      version: string;
+    };
+    /** ReadRequested */
+    ReadRequested: {
+      /** Detail */
+      detail: string;
+      /** Documents Queued */
+      documents_queued: number;
+    };
+    /**
+     * ReceiptStatus
+     * @description Whether a receipt is on the line.
+     * @enum {string}
+     */
+    ReceiptStatus: "missing" | "matched" | "waived";
+    /**
+     * RecordAnswerRequest
+     * @description A member of staff writing down what a supplier told them another way.
+     */
+    RecordAnswerRequest: {
+      claim: components["schemas"]["ClaimOutcome"];
+      /**
+       * Note
+       * @default
+       */
+      note: string;
+      /** Respondent Name */
+      respondent_name: string;
+    };
+    /**
+     * ReferenceData
+     * @description Everything the estimate form needs to render its selectors.
+     *
+     *     One request rather than four. The form cannot be used until all of it has
+     *     arrived, so four requests would only add three ways for it to half-load.
+     */
+    ReferenceData: {
+      /** Cost Centres */
+      cost_centres: components["schemas"]["NamedRefOut"][];
+      /** Currencies */
+      currencies: string[];
+      /** Gl Accounts */
+      gl_accounts: components["schemas"]["NamedRefOut"][];
+      /** Vendors */
+      vendors: components["schemas"]["NamedRefOut"][];
+    };
+    /** RefusedOut */
+    RefusedOut: {
+      /** Explanation */
+      explanation: string;
+      /**
+       * Invoice Id
+       * Format: uuid
+       */
+      invoice_id: string;
+      /** Invoice Reference */
+      invoice_reference: string;
+      refusal: components["schemas"]["JoinRefusal"];
+    };
+    /**
+     * RegisterSliceOut
+     * @description One wedge of a register's status donut.
+     */
+    RegisterSliceOut: {
+      /** Count */
+      count: number;
+      /** Label */
+      label: string;
+      /** Tone */
+      tone: string;
+    };
+    /**
+     * RegisterStatOut
+     * @description One headline figure in a register's stat band, already display-ready.
+     *
+     *     The value is a formatted string rather than a number so a stat band can mix
+     *     money, counts and durations without the client re-deciding how each is
+     *     written. The tone is advisory colour only; the label beside it carries the
+     *     meaning.
+     */
+    RegisterStatOut: {
+      /** Key */
+      key: string;
+      /** Label */
+      label: string;
+      /**
+       * Tone
+       * @default neutral
+       */
+      tone: string;
+      /** Value */
+      value: string;
+    };
+    /**
+     * RegisterSummaryOut
+     * @description A register's whole-dataset headline figures and status mix.
+     *
+     *     Every figure is counted or summed from the same records the register lists,
+     *     under the same visibility rules, so a stat band never claims more than the
+     *     caller could reach by opening the table behind it. An empty register returns
+     *     zeros, never a blank or a guess.
+     */
+    RegisterSummaryOut: {
+      /** Count */
+      count: number;
+      /** Stats */
+      stats: components["schemas"]["RegisterStatOut"][];
+      /** Status Mix */
+      status_mix: components["schemas"]["RegisterSliceOut"][];
+    };
+    /**
+     * ReminderPurpose
+     * @description What a record is being chased for.
+     *
+     *     Kept distinct because they run on the same clock but climb different ladders.
+     *     A sign-off is chased towards the requester and then their management line; an
+     *     approval is chased towards whoever the matrix put on the step.
+     *
+     *     `payment_check_in` is the odd one and is marked as such wherever it is used:
+     *     the party being chased is a supplier outside the organisation, so it climbs
+     *     no ladder at all — there is nobody senior to them here to copy in — and it
+     *     runs on a policy measured in days rather than working hours. Chasing a
+     *     supplier about our own payment every three hours would be both rude and a
+     *     reliable way to have the platform's mail classified as spam, after which the
+     *     messages that matter go there too.
+     * @enum {string}
+     */
+    ReminderPurpose: "sign_off" | "approval" | "payment_check_in";
+    /**
+     * ResolvedOut
+     * @description Where a link points, and nothing more.
+     *
+     *     No permission, no state, no signal that the holder may act. The screen the
+     *     caller lands on fetches the record through the ordinary authenticated endpoint,
+     *     which is where authority is decided.
+     */
+    ResolvedOut: {
+      purpose: components["schemas"]["ReminderPurpose"];
+      /**
+       * Record Id
+       * Format: uuid
+       */
+      record_id: string;
+      /** Record Type */
+      record_type: string;
+    };
+    /** ResolveRequest */
+    ResolveRequest: {
+      /** Token */
+      token: string;
+    };
+    /** RetentionPolicyOut */
+    RetentionPolicyOut: {
+      /** Description */
+      description: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Is Active */
+      is_active: boolean;
+      /** Record Class */
+      record_class: string;
+      /** Retention Days */
+      retention_days: number;
+    };
+    /** RetentionUpdateRequest */
+    RetentionUpdateRequest: {
+      /** Reason */
+      reason: string;
+      /** Retention Days */
+      retention_days: number;
+    };
+    /**
+     * ReviewOutcome
+     * @description What somebody inside the organisation concluded.
+     * @enum {string}
+     */
+    ReviewOutcome: "paid" | "outstanding";
+    /** ReviewRequest */
+    ReviewRequest: {
+      review: components["schemas"]["FieldReview"];
+    };
+    /**
+     * Role
+     * @enum {string}
+     */
+    Role:
+      | "requester"
+      | "approver"
+      | "payment_coordinator"
+      | "finance"
+      | "administrator"
+      | "operations"
+      | "auditor";
+    /** RouteOut */
+    RouteOut: {
+      /** Amount Formatted */
+      amount_formatted: string;
+      /** Amount Minor Units */
+      amount_minor_units: number;
+      /** Attempt */
+      attempt: number;
+      /** Closed At */
+      closed_at: string | null;
+      /** Currency */
+      currency: string;
+      /** Department */
+      department: string | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /**
+       * Opened At
+       * Format: date-time
+       */
+      opened_at: string;
+      state: components["schemas"]["RouteState"];
+      /** State Label */
+      state_label: string;
+      /** Steps */
+      steps: components["schemas"]["StepOut"][];
+      /** Summary */
+      summary: string;
+    };
+    /** RoutePreviewOut */
+    RoutePreviewOut: {
+      /** Amount Formatted */
+      amount_formatted: string;
+      /** Department */
+      department: string | null;
+      /** Record Type */
+      record_type: string;
+      /** Steps */
+      steps: string[];
+      /** Unreachable */
+      unreachable: string | null;
+    };
+    /**
+     * RouteState
+     * @enum {string}
+     */
+    RouteState: "open" | "approved" | "rejected" | "withdrawn";
+    /** SavedViewCreateRequest */
+    SavedViewCreateRequest: {
+      /** Definition */
+      definition: {
+        [key: string]: unknown;
+      };
+      /**
+       * Is Default
+       * @default false
+       */
+      is_default: boolean;
+      /** Name */
+      name: string;
+      /** Scope */
+      scope: string;
+    };
+    /** SavedViewOut */
+    SavedViewOut: {
+      /** Definition */
+      definition: {
+        [key: string]: unknown;
+      };
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Is Default */
+      is_default: boolean;
+      /** Name */
+      name: string;
+      /** Scope */
+      scope: string;
+    };
+    /** SavedViewUpdateRequest */
+    SavedViewUpdateRequest: {
+      /** Definition */
+      definition?: {
+        [key: string]: unknown;
+      } | null;
+      /** Is Default */
+      is_default?: boolean | null;
+      /** Name */
+      name?: string | null;
+    };
+    /**
+     * ScanVerdict
+     * @enum {string}
+     */
+    ScanVerdict: "clean" | "infected" | "unscannable" | "error";
+    /** SearchHitOut */
+    SearchHitOut: {
+      /** Amount Formatted */
+      amount_formatted?: string | null;
+      /**
+       * Record Id
+       * Format: uuid
+       */
+      record_id: string;
+      /** Record Path */
+      record_path: string;
+      record_type: components["schemas"]["SearchRecordType"];
+      /** Reference */
+      reference: string;
+      /** State */
+      state?: string | null;
+      /** Subtitle */
+      subtitle: string;
+      /** Title */
+      title: string;
+      /** Type Label */
+      type_label: string;
+    };
+    /**
+     * SearchRecordType
+     * @enum {string}
+     */
+    SearchRecordType:
+      | "estimate"
+      | "invoice"
+      | "purchase_order"
+      | "payment_package"
+      | "document"
+      | "vendor_check_in";
+    /** SearchResponse */
+    SearchResponse: {
+      /** Items */
+      items: components["schemas"]["SearchHitOut"][];
+      /** Query */
+      query: string;
+      /** Total */
+      total: number;
+    };
+    /** SignalOut */
+    SignalOut: {
+      /** Acknowledged */
+      acknowledged: boolean;
+      /** Explanation */
+      explanation: string;
+      /** Requires Acknowledgement */
+      requires_acknowledgement: boolean;
+      /** Signal */
+      signal: string;
+    };
+    /** SignedUrlResponse */
+    SignedUrlResponse: {
+      /** Expires In Seconds */
+      expires_in_seconds: number;
+      /** Filename */
+      filename: string;
+      /** Url */
+      url: string;
+    };
+    /** SignInRequest */
+    SignInRequest: {
+      /**
+       * Email
+       * Format: email
+       */
+      email: string;
+    };
+    /**
+     * SignOffOut
+     * @description Where receipt confirmation stands, for the panel that shows it.
+     */
+    SignOffOut: {
+      /** Escalation Level */
+      escalation_level: number;
+      /** Is Mine To Sign */
+      is_mine_to_sign: boolean;
+      /** Next Reminder At */
+      next_reminder_at: string | null;
+      /** Note */
+      note: string | null;
+      /** Reminders Sent */
+      reminders_sent: number;
+      /** Requested At */
+      requested_at: string | null;
+      /** Requester Email */
+      requester_email: string | null;
+      /** Requester Id */
+      requester_id: string | null;
+      /** Requester Label */
+      requester_label: string | null;
+      /** Signed Off At */
+      signed_off_at: string | null;
+      /** Signed Off By Label */
+      signed_off_by_label: string | null;
+    };
+    /** SignOffRequest */
+    SignOffRequest: {
+      /** Note */
+      note?: string | null;
+    };
+    /** SliceOut */
+    SliceOut: {
+      /** Count */
+      count: number;
+      /** Label */
+      label: string;
+      /** Tone */
+      tone: string;
+    };
+    /** SpendCardOut */
+    SpendCardOut: {
+      /** Count */
+      count?: number | null;
+      /** Delta Pct */
+      delta_pct?: number | null;
+      /** Hint */
+      hint: string;
+      /** Key */
+      key: string;
+      /** Label */
+      label: string;
+      money?: components["schemas"]["OverviewMoneyOut"] | null;
+      month_money?: components["schemas"]["OverviewMoneyOut"] | null;
+      previous_money?: components["schemas"]["OverviewMoneyOut"] | null;
+      /**
+       * Series
+       * @default []
+       */
+      series: number[];
+      /** Tone */
+      tone: string;
+    };
+    /** StepOut */
+    StepOut: {
+      /** Comment */
+      comment: string | null;
+      /** Decided At */
+      decided_at: string | null;
+      /** Decided By Label */
+      decided_by_label: string | null;
+      /** Is Mine To Decide */
+      is_mine_to_decide: boolean;
+      level: components["schemas"]["ApprovalLevel"];
+      /** Level Label */
+      level_label: string;
+      /** On Behalf Of Label */
+      on_behalf_of_label: string | null;
+      state: components["schemas"]["StepState"];
+      /** Step Order */
+      step_order: number;
+      /** Would Act For */
+      would_act_for: string | null;
+    };
+    /**
+     * StepState
+     * @enum {string}
+     */
+    StepState: "waiting" | "ready" | "approved" | "rejected" | "withdrawn";
+    /**
+     * SuggestionDisposition
+     * @description What a person did with an assistive proposal.
+     * @enum {string}
+     */
+    SuggestionDisposition: "pending" | "accepted" | "edited" | "rejected";
+    /**
+     * SuggestionOut
+     * @description What the evidence looks like, and why. Never applied by anything.
+     *
+     *     Carried as `outcome` plus `because` rather than as a pre-selected value on
+     *     the form, so a reviewer has to choose. A radio button arriving already
+     *     filled in is a decision the platform made and attributed to a person.
+     */
+    SuggestionOut: {
+      /** Because */
+      because: string;
+      outcome: components["schemas"]["ReviewOutcome"] | null;
+      /** Outcome Label */
+      outcome_label: string | null;
+    };
+    /** ThresholdOut */
+    ThresholdOut: {
+      /** Applies Above Minor Units */
+      applies_above_minor_units: number;
+      /** Currency */
+      currency: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Is Active */
+      is_active: boolean;
+    };
+    /** ThresholdUpsertRequest */
+    ThresholdUpsertRequest: {
+      /** Applies Above Minor Units */
+      applies_above_minor_units: number;
+      /** Currency */
+      currency: string;
+      /** Reason */
+      reason: string;
+    };
+    /** TransitionOut */
+    TransitionOut: {
+      /** Actor Label */
+      actor_label: string | null;
+      from_state: components["schemas"]["WorkflowState"] | null;
+      /**
+       * Occurred At
+       * Format: date-time
+       */
+      occurred_at: string;
+      /** Reason */
+      reason: string | null;
+      to_state: components["schemas"]["WorkflowState"];
+      /** To State Label */
+      to_state_label: string;
+    };
+    /** TrendOut */
+    TrendOut: {
+      /** Estimates */
+      estimates: number;
+      /** Invoices */
+      invoices: number;
+      /** Label */
+      label: string;
+    };
+    /** UploadAccepted */
+    UploadAccepted: {
+      /** Enrolled Documents */
+      enrolled_documents: number;
+      /**
+       * Message Id
+       * Format: uuid
+       */
+      message_id: string;
+      /** Quarantined Attachments */
+      quarantined_attachments: number;
+      /** Rejected Attachments */
+      rejected_attachments: number;
+      status: components["schemas"]["IntakeStatus"];
+      /** Stored Attachments */
+      stored_attachments: number;
+      /** Warnings */
+      warnings?: string[];
+    };
+    /** UserActiveRequest */
+    UserActiveRequest: {
+      /** Is Active */
+      is_active: boolean;
+      /** Reason */
+      reason: string;
+    };
+    /** UserCreateRequest */
+    UserCreateRequest: {
+      /** Department */
+      department?: string | null;
+      /** Display Name */
+      display_name: string;
+      /** Email */
+      email: string;
+      /** Reason */
+      reason: string;
+      /** Roles */
+      roles: components["schemas"]["Role"][];
+    };
+    /** UserOut */
+    UserOut: {
+      /** Department */
+      department: string | null;
+      /** Display Name */
+      display_name: string;
+      /** Email */
+      email: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Is Active */
+      is_active: boolean;
+      /** Permissions */
+      permissions: string[];
+      /** Roles */
+      roles: string[];
+    };
+    /** UserRolesRequest */
+    UserRolesRequest: {
+      /** Reason */
+      reason: string;
+      /** Roles */
+      roles: components["schemas"]["Role"][];
+    };
+    /** ValidationError */
+    ValidationError: {
+      /** Context */
+      ctx?: Record<string, never>;
+      /** Input */
+      input?: unknown;
+      /** Location */
+      loc: (string | number)[];
+      /** Message */
+      msg: string;
+      /** Error Type */
+      type: string;
+    };
+    /** VendorAnswerRequest */
+    VendorAnswerRequest: {
+      claim: components["schemas"]["ClaimOutcome"];
+      /**
+       * Note
+       * @default
+       */
+      note: string;
+      /** Respondent Name */
+      respondent_name: string;
+    };
+    /** VendorAnswerResponse */
+    VendorAnswerResponse: {
+      /** Message */
+      message: string;
+      /** Recorded */
+      recorded: boolean;
+    };
+    /** VendorCreateRequest */
+    VendorCreateRequest: {
+      /** Code */
+      code: string;
+      /**
+       * Default Currency
+       * @default JMD
+       */
+      default_currency: string;
+      /** Email */
+      email?: string | null;
+      /** Name */
+      name: string;
+      /** Payment Terms Days */
+      payment_terms_days?: number | null;
+      /** Phone */
+      phone?: string | null;
+      /** Reason */
+      reason: string;
+    };
+    /** VendorLineOut */
+    VendorLineOut: {
+      amount: components["schemas"]["MoneyOut"];
+      /** Due Date */
+      due_date: string | null;
+      /** Invoice Number */
+      invoice_number: string | null;
+      /** Our Reference */
+      our_reference: string;
+    };
+    /** VendorOut */
+    VendorOut: {
+      /** Code */
+      code: string;
+      /** Default Currency */
+      default_currency: string;
+      /** Email */
+      email: string | null;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Is Active */
+      is_active: boolean;
+      /** Name */
+      name: string;
+      /** Payment Terms Days */
+      payment_terms_days: number | null;
+      /** Phone */
+      phone: string | null;
+    };
+    /**
+     * VendorQuestionOut
+     * @description What a supplier sees. Everything here is theirs already.
+     *
+     *     No internal reference, no workflow state, no name of anybody here, and
+     *     nothing about any other supplier. A page reachable without signing in should
+     *     disclose only what the person holding the link was already sent.
+     */
+    VendorQuestionOut: {
+      /** Already Answered */
+      already_answered: boolean;
+      /** Answered At */
+      answered_at: string | null;
+      /** Lines */
+      lines: components["schemas"]["VendorLineOut"][];
+      /** Paid On */
+      paid_on: string | null;
+      /** Reference */
+      reference: string;
+      /** Totals */
+      totals: components["schemas"]["MoneyOut"][];
+      /** Vendor Name */
+      vendor_name: string;
+    };
+    /** VendorSpendOut */
+    VendorSpendOut: {
+      money: components["schemas"]["OverviewMoneyOut"];
+      /** Name */
+      name: string;
+      /** Share */
+      share: number;
+    };
+    /** VendorUpdateRequest */
+    VendorUpdateRequest: {
+      /** Default Currency */
+      default_currency?: string | null;
+      /** Email */
+      email?: string | null;
+      /** Name */
+      name?: string | null;
+      /** Payment Terms Days */
+      payment_terms_days?: number | null;
+      /** Phone */
+      phone?: string | null;
+      /** Reason */
+      reason: string;
+    };
+    /** VerifyRequest */
+    VerifyRequest: {
+      /** Limit */
+      limit?: number | null;
+      /**
+       * Start Sequence
+       * @default 1
+       */
+      start_sequence: number;
+    };
+    /**
+     * VerifyResponse
+     * @description Whether a contiguous slice of the chain still holds together.
+     */
+    VerifyResponse: {
+      /** Checked Count */
+      checked_count: number;
+      /** First Bad Sequence */
+      first_bad_sequence: number | null;
+      /** Message */
+      message: string;
+      /** Ok */
+      ok: boolean;
+      /** Reason */
+      reason?: string | null;
+    };
+    /** ViewerUrl */
+    ViewerUrl: {
+      /** Content Type */
+      content_type: string;
+      /** Expires In Seconds */
+      expires_in_seconds: number;
+      /** Filename */
+      filename: string;
+      /** Url */
+      url: string;
+    };
+    /**
+     * WorkBadgesOut
+     * @description Counts keyed exactly as the web navigation badge slots expect.
+     */
+    WorkBadgesOut: {
+      /** Awaitingmyapproval */
+      awaitingMyApproval: number;
+      /** Documentsneedingreview */
+      documentsNeedingReview: number;
+      /** Intakeunprocessed */
+      intakeUnprocessed: number;
+      /** Mywork */
+      myWork: number;
+      /** Operationalalerts */
+      operationalAlerts: number;
+      /** Vendorneedingreview */
+      vendorNeedingReview: number;
+    };
+    /**
+     * WorkflowState
+     * @enum {string}
+     */
+    WorkflowState:
+      | "draft"
+      | "pending_sign_off"
+      | "pending_approval"
+      | "approved"
+      | "ready_for_submission"
+      | "submitted"
+      | "paid"
+      | "outstanding"
+      | "exception"
+      | "accrual_needed"
+      | "rejected"
+      | "cancelled";
+    /** WorkItemOut */
+    WorkItemOut: {
+      /** Amount Formatted */
+      amount_formatted?: string | null;
+      /** Detail */
+      detail?: string | null;
+      kind: components["schemas"]["WorkKind"];
+      /** Kind Label */
+      kind_label: string;
+      /**
+       * Record Id
+       * Format: uuid
+       */
+      record_id: string;
+      /** Record Path */
+      record_path: string;
+      /** Reference */
+      reference: string;
+      /** Subtitle */
+      subtitle: string;
+      /** Title */
+      title: string;
+      /** Waiting Hours */
+      waiting_hours: number;
+      /**
+       * Waiting Since
+       * Format: date-time
+       */
+      waiting_since: string;
+    };
+    /**
+     * WorkKind
+     * @description What kind of action this row is asking for.
+     * @enum {string}
+     */
+    WorkKind:
+      "approval" | "sign_off" | "document_review" | "vendor_review" | "intake";
+    /** WorkQueueOut */
+    WorkQueueOut: {
+      /** Counts By Kind */
+      counts_by_kind: {
+        [key: string]: number;
+      };
+      /** Items */
+      items: components["schemas"]["WorkItemOut"][];
+      /** Total */
+      total: number;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    edit_candidate_api_v1_accruals_candidates__candidate_id__patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                candidate_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AccrualEditCandidateBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccrualCandidateOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    finalize_candidate_api_v1_accruals_candidates__candidate_id__finalize_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                candidate_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AccrualFinalizeCandidateBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccrualCandidateOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_periods_api_v1_accruals_periods_get: {
-        parameters: {
-            query?: {
-                standing?: components["schemas"]["finora__domain__accruals__PeriodStanding"] | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccrualPeriodSummary"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    open_period_api_v1_accruals_periods_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AccrualOpenBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccrualPeriodDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_period_api_v1_accruals_periods__period_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                period_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccrualPeriodDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    generate_candidates_api_v1_accruals_periods__period_id__candidates_generate_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                period_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccrualPeriodDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    export_period_api_v1_accruals_periods__period_id__export_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                period_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AccrualExportBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    lock_period_api_v1_accruals_periods__period_id__lock_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                period_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AccrualLockBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccrualPeriodDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_assignments_api_v1_admin_assignments_get: {
-        parameters: {
-            query?: {
-                level?: components["schemas"]["ApprovalLevel"] | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApprovalAssignmentOut"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    assign_level_api_v1_admin_assignments_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ApprovalAssignRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApprovalAssignmentOut"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    unassign_level_api_v1_admin_assignments__assignment_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                assignment_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApprovalAssignmentOut"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_delegations_api_v1_admin_delegations_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApprovalDelegationOut"][];
-                };
-            };
-        };
-    };
-    set_cover_api_v1_admin_delegations__user_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ApprovalCoverRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApprovalDelegationOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_matrix_api_v1_admin_matrix__record_type__get: {
-        parameters: {
-            query?: {
-                include_retired?: boolean;
-            };
-            header?: never;
-            path: {
-                record_type: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MatrixOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    preview_route_api_v1_admin_matrix__record_type__preview_get: {
-        parameters: {
-            query: {
-                amount_minor_units: number;
-                currency: string;
-                department?: string | null;
-            };
-            header?: never;
-            path: {
-                record_type: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RoutePreviewOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    add_rule_api_v1_admin_matrix_rules_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MatrixRuleRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MatrixOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    retire_rule_api_v1_admin_matrix_rules__rule_id__retire_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                rule_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MatrixRetireRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MatrixOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_operational_settings_api_v1_admin_operational_settings_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-        };
-    };
-    post_ai_kill_switch_api_v1_admin_operational_settings_ai_kill_switch_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["KillSwitchRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KillSwitchResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_people_api_v1_admin_people_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApprovalPersonOut"][];
-                };
-            };
-        };
-    };
-    list_cost_centres_api_v1_admin_reference_cost_centres_get: {
-        parameters: {
-            query?: {
-                include_inactive?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CostCentreOut"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_cost_centre_api_v1_admin_reference_cost_centres_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CostCentreCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CostCentreOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_cost_centre_api_v1_admin_reference_cost_centres__centre_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                centre_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CostCentreUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CostCentreOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    set_cost_centre_active_api_v1_admin_reference_cost_centres__centre_id__active_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                centre_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ActiveRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CostCentreOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_gl_accounts_api_v1_admin_reference_gl_accounts_get: {
-        parameters: {
-            query?: {
-                include_inactive?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GlAccountOut"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_gl_account_api_v1_admin_reference_gl_accounts_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["GlAccountCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GlAccountOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_gl_account_api_v1_admin_reference_gl_accounts__account_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                account_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["GlAccountUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GlAccountOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    set_gl_account_active_api_v1_admin_reference_gl_accounts__account_id__active_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                account_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ActiveRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GlAccountOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_vendors_api_v1_admin_reference_vendors_get: {
-        parameters: {
-            query?: {
-                include_inactive?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["VendorOut"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_vendor_api_v1_admin_reference_vendors_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["VendorCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["VendorOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_vendor_api_v1_admin_reference_vendors__vendor_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                vendor_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["VendorUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["VendorOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    set_vendor_active_api_v1_admin_reference_vendors__vendor_id__active_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                vendor_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ActiveRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["VendorOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_policies_api_v1_admin_retention_get: {
-        parameters: {
-            query?: {
-                include_inactive?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RetentionPolicyOut"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_policy_api_v1_admin_retention__policy_id__patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                policy_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RetentionUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RetentionPolicyOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    set_policy_active_api_v1_admin_retention__policy_id__active_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                policy_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ActiveRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RetentionPolicyOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_thresholds_api_v1_admin_thresholds_get: {
-        parameters: {
-            query?: {
-                include_inactive?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ThresholdOut"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    upsert_threshold_api_v1_admin_thresholds_put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ThresholdUpsertRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ThresholdOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    set_threshold_active_api_v1_admin_thresholds__threshold_id__active_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                threshold_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ActiveRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ThresholdOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_users_api_v1_admin_users_get: {
-        parameters: {
-            query?: {
-                include_inactive?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserOut"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_user_api_v1_admin_users_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_user_api_v1_admin_users__user_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    set_active_api_v1_admin_users__user_id__active_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserActiveRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    set_roles_api_v1_admin_users__user_id__roles_put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserRolesRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_queue_api_v1_approvals_queue_get: {
-        parameters: {
-            query?: {
-                limit?: number;
-                offset?: number;
-                /** @description Limit to these record types */
-                record_type?: string[] | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApprovalQueueOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_entries_api_v1_audit_entries_get: {
-        parameters: {
-            query?: {
-                action?: components["schemas"]["AuditAction"] | null;
-                actor_id?: string | null;
-                limit?: number;
-                offset?: number;
-                subject_id?: string | null;
-                subject_type?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuditEntryPage"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_entry_api_v1_audit_entries__sequence__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                sequence: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuditEntryOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    verify_chain_api_v1_audit_verify_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["VerifyRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["VerifyResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    local_sign_in_api_v1_auth_local_sign_in_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SignInRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CurrentUserResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    current_user_api_v1_auth_me_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CurrentUserResponse"];
-                };
-            };
-        };
-    };
-    auth_methods_api_v1_auth_methods_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthMethodsResponse"];
-                };
-            };
-        };
-    };
-    oidc_callback_api_v1_auth_oidc_callback_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
-    sign_out_api_v1_auth_sign_out_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    list_cards_api_v1_credit_cards_cards_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CreditCardSummary"][];
-                };
-            };
-        };
-    };
-    create_card_api_v1_credit_cards_cards_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreditCardCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CreditCardSummary"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    import_statement_api_v1_credit_cards_cards__card_id__statements_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                card_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["Body_import_statement_api_v1_credit_cards_cards__card_id__statements_post"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CreditCardPeriodDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_periods_api_v1_credit_cards_periods_get: {
-        parameters: {
-            query?: {
-                card_id?: string | null;
-                standing?: components["schemas"]["finora__domain__credit_cards__PeriodStanding"] | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CreditCardPeriodSummary"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_period_api_v1_credit_cards_periods__period_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                period_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CreditCardPeriodDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    close_period_api_v1_credit_cards_periods__period_id__close_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                period_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreditCardCloseBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CreditCardPeriodDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    code_transaction_api_v1_credit_cards_transactions__transaction_id__code_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreditCardCodeBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CreditCardTransactionOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    match_receipt_api_v1_credit_cards_transactions__transaction_id__receipt_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreditCardReceiptBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CreditCardTransactionOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    record_suggestion_api_v1_credit_cards_transactions__transaction_id__suggestion_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreditCardSuggestionBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CreditCardTransactionOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    dispose_suggestion_api_v1_credit_cards_transactions__transaction_id__suggestion_dispose_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                transaction_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreditCardDisposeBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CreditCardTransactionOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_documents_api_v1_documents_get: {
-        parameters: {
-            query?: {
-                kind?: components["schemas"]["DocumentKind"] | null;
-                limit?: number;
-                offset?: number;
-                status?: components["schemas"]["ExtractionStatus"] | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DocumentPage"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_document_api_v1_documents__document_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                document_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DocumentDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    accept_document_api_v1_documents__document_id__accept_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                document_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AcceptRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DocumentDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    acknowledge_signal_api_v1_documents__document_id__acknowledge_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                document_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AcknowledgeRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DocumentDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    correct_field_api_v1_documents__document_id__fields__field_name__patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                document_id: string;
-                field_name: components["schemas"]["FieldName"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CorrectionRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DocumentDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    review_field_api_v1_documents__document_id__fields__field_name__review_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                document_id: string;
-                field_name: components["schemas"]["FieldName"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReviewRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DocumentDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    set_kind_api_v1_documents__document_id__kind_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                document_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["KindRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DocumentDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    reread_document_api_v1_documents__document_id__read_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                document_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DocumentDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    viewer_url_api_v1_documents__document_id__viewer_url_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                document_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ViewerUrl"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_pending_api_v1_documents_read_pending_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReadRequested"];
-                };
-            };
-        };
-    };
-    list_estimates_api_v1_estimates_get: {
-        parameters: {
-            query?: {
-                /** @description Only estimates awaiting this caller */
-                awaiting_me?: boolean;
-                limit?: number;
-                /** @description Only estimates this caller raised */
-                mine?: boolean;
-                offset?: number;
-                search?: string | null;
-                state?: components["schemas"]["WorkflowState"][] | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EstimatePage"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_estimate_api_v1_estimates_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EstimateCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EstimateDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_estimate_api_v1_estimates__estimate_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                estimate_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EstimateDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_estimate_api_v1_estimates__estimate_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                estimate_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EstimateDraftRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EstimateDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    cancel_estimate_api_v1_estimates__estimate_id__cancel_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                estimate_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EstimateReasonRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EstimateDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    decide_estimate_api_v1_estimates__estimate_id__decision_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                estimate_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EstimateDecisionRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EstimateDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    submit_estimate_api_v1_estimates__estimate_id__submit_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                estimate_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EstimateDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    withdraw_estimate_api_v1_estimates__estimate_id__withdraw_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                estimate_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EstimateReasonRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EstimateDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    liveness_api_v1_health_live_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LivenessResponse"];
-                };
-            };
-        };
-    };
-    readiness_api_v1_health_ready_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReadinessResponse"];
-                };
-            };
-        };
-    };
-    attachment_download_url_api_v1_intake_attachments__attachment_id__download_url_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                attachment_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SignedUrlResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_messages_api_v1_intake_messages_get: {
-        parameters: {
-            query?: {
-                limit?: number;
-                offset?: number;
-                status?: components["schemas"]["IntakeStatus"] | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MessagePage"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_message_api_v1_intake_messages__message_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                message_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MessageDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    intake_operations_api_v1_intake_operations_get: {
-        parameters: {
-            query?: {
-                /** @description Also open a live mailbox connection to check credentials and quota. */
-                probe_mailbox?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OperationsReport"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    upload_document_api_v1_intake_uploads_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["Body_upload_document_api_v1_intake_uploads_post"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UploadAccepted"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_invoices_api_v1_invoices_get: {
-        parameters: {
-            query?: {
-                /** @description Only invoices awaiting this caller */
-                awaiting_me?: boolean;
-                /** @description Only invoices awaiting this caller's receipt confirmation */
-                awaiting_my_sign_off?: boolean;
-                limit?: number;
-                /** @description Only invoices assigned to this caller */
-                mine?: boolean;
-                offset?: number;
-                /** @description Only invoices past their payment due date */
-                overdue?: boolean;
-                search?: string | null;
-                state?: components["schemas"]["WorkflowState"][] | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoicePage"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_invoice_api_v1_invoices_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["InvoiceCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_invoice_api_v1_invoices__invoice_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                invoice_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_invoice_api_v1_invoices__invoice_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                invoice_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["InvoiceDraftRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    cancel_invoice_api_v1_invoices__invoice_id__cancel_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                invoice_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["InvoiceReasonRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    decide_invoice_api_v1_invoices__invoice_id__decision_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                invoice_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["InvoiceDecisionRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    decline_sign_off_api_v1_invoices__invoice_id__decline_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                invoice_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["InvoiceReasonRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    recall_invoice_api_v1_invoices__invoice_id__recall_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                invoice_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["InvoiceReasonRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    request_sign_off_api_v1_invoices__invoice_id__request_sign_off_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                invoice_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    sign_off_api_v1_invoices__invoice_id__sign_off_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                invoice_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SignOffRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    linkable_reference_data_api_v1_invoices_reference_linkable_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceReferenceData"];
-                };
-            };
-        };
-    };
-    summarise_invoices_api_v1_invoices_summary_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RegisterSummaryOut"];
-                };
-            };
-        };
-    };
-    resolve_link_api_v1_links_resolve_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ResolveRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ResolvedOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_metrics_api_v1_overview_metrics_get: {
-        parameters: {
-            query?: {
-                months?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OverviewOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    vendor_question_api_v1_payment_check_in__token__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                token: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["VendorQuestionOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    vendor_answer_api_v1_payment_check_in__token__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                token: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["VendorAnswerRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["VendorAnswerResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_packages_api_v1_payment_packages_get: {
-        parameters: {
-            query?: {
-                page?: number;
-                page_size?: number;
-                search?: string | null;
-                standing?: components["schemas"]["PackageStanding"][] | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentPackagePage"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_package_api_v1_payment_packages_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PackageDraftRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentPackageDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_package_api_v1_payment_packages__package_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                package_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentPackageDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_package_api_v1_payment_packages__package_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                package_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PackageDraftRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentPackageDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    cancel_package_api_v1_payment_packages__package_id__cancel_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                package_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PackageReasonRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentPackageDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    add_lines_api_v1_payment_packages__package_id__lines_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                package_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AddLinesRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AddLinesResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    remove_line_api_v1_payment_packages__package_id__lines__invoice_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                invoice_id: string;
-                package_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentPackageDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_manifest_api_v1_payment_packages__package_id__manifest_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                package_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ManifestOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    download_manifest_api_v1_payment_packages__package_id__manifest_csv_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                package_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    submit_package_api_v1_payment_packages__package_id__submit_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                package_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PackageSubmitRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PackageSubmitResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    eligible_invoices_api_v1_payment_packages_eligible_invoices_get: {
-        parameters: {
-            query?: {
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EligibleInvoiceOut"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_orders_api_v1_purchase_orders_get: {
-        parameters: {
-            query?: {
-                awaiting_me_only?: boolean;
-                open_only?: boolean;
-                page?: number;
-                page_size?: number;
-                search?: string | null;
-                state?: components["schemas"]["WorkflowState"][] | null;
-                vendor_id?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrderPage"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_order_api_v1_purchase_orders_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrderDetail"];
-                };
-            };
-        };
-    };
-    read_order_api_v1_purchase_orders__order_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                order_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrderDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_order_api_v1_purchase_orders__order_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                order_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PurchaseOrderDraftRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrderDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    amend_order_api_v1_purchase_orders__order_id__amend_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                order_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PurchaseOrderAmendRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrderDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    cancel_order_api_v1_purchase_orders__order_id__cancel_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                order_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PurchaseOrderReasonRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrderDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    close_order_api_v1_purchase_orders__order_id__close_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                order_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PurchaseOrderReasonRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrderDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    decide_order_api_v1_purchase_orders__order_id__decisions_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                order_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PurchaseOrderDecisionRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrderDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    submit_order_api_v1_purchase_orders__order_id__submit_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                order_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrderDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    withdraw_order_api_v1_purchase_orders__order_id__withdraw_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                order_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PurchaseOrderReasonRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrderDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    reference_data_api_v1_purchase_orders_reference_data_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrderReferenceData"];
-                };
-            };
-        };
-    };
-    reference_data_api_v1_reference_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReferenceData"];
-                };
-            };
-        };
-    };
-    list_views_api_v1_saved_views_get: {
-        parameters: {
-            query: {
-                scope: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SavedViewOut"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_view_api_v1_saved_views_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SavedViewCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SavedViewOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_view_api_v1_saved_views__view_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                view_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_view_api_v1_saved_views__view_id__patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                view_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SavedViewUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SavedViewOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    search_api_v1_search_get: {
-        parameters: {
-            query: {
-                limit?: number;
-                q: string;
-                /** @description Limit to these record kinds */
-                record_type?: components["schemas"]["SearchRecordType"][] | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SearchResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_check_ins_api_v1_vendor_check_ins_get: {
-        parameters: {
-            query?: {
-                page?: number;
-                page_size?: number;
-                search?: string | null;
-                standing?: components["schemas"]["CheckInStanding"][] | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CheckInPage"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    raise_check_ins_api_v1_vendor_check_ins_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RaiseRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RaiseResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_check_in_api_v1_vendor_check_ins__check_in_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                check_in_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CheckInDetailOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    record_answer_api_v1_vendor_check_ins__check_in_id__answer_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                check_in_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RecordAnswerRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CheckInDetailOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    review_check_in_api_v1_vendor_check_ins__check_in_id__review_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                check_in_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CheckInReviewRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CheckInDetailOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    send_check_in_api_v1_vendor_check_ins__check_in_id__send_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                check_in_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CheckInDetailOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_badges_api_v1_work_badges_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkBadgesOut"];
-                };
-            };
-        };
-    };
-    read_dashboard_api_v1_work_dashboard_get: {
-        parameters: {
-            query?: {
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkQueueOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    read_queue_api_v1_work_queue_get: {
-        parameters: {
-            query?: {
-                /** @description Limit to these kinds of work */
-                kind?: components["schemas"]["WorkKind"][] | null;
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkQueueOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
+  edit_candidate_api_v1_accruals_candidates__candidate_id__patch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        candidate_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AccrualEditCandidateBody"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AccrualCandidateOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  finalize_candidate_api_v1_accruals_candidates__candidate_id__finalize_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        candidate_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AccrualFinalizeCandidateBody"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AccrualCandidateOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_periods_api_v1_accruals_periods_get: {
+    parameters: {
+      query?: {
+        standing?:
+          | components["schemas"]["finora__domain__accruals__PeriodStanding"]
+          | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AccrualPeriodSummary"][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  open_period_api_v1_accruals_periods_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AccrualOpenBody"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AccrualPeriodDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_period_api_v1_accruals_periods__period_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        period_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AccrualPeriodDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  generate_candidates_api_v1_accruals_periods__period_id__candidates_generate_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        period_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AccrualPeriodDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  export_period_api_v1_accruals_periods__period_id__export_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        period_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AccrualExportBody"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  lock_period_api_v1_accruals_periods__period_id__lock_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        period_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AccrualLockBody"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AccrualPeriodDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  read_assignments_api_v1_admin_assignments_get: {
+    parameters: {
+      query?: {
+        level?: components["schemas"]["ApprovalLevel"] | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ApprovalAssignmentOut"][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  assign_level_api_v1_admin_assignments_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ApprovalAssignRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ApprovalAssignmentOut"][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  unassign_level_api_v1_admin_assignments__assignment_id__delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        assignment_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ApprovalAssignmentOut"][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  read_delegations_api_v1_admin_delegations_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ApprovalDelegationOut"][];
+        };
+      };
+    };
+  };
+  set_cover_api_v1_admin_delegations__user_id__put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        user_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ApprovalCoverRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ApprovalDelegationOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  read_matrix_api_v1_admin_matrix__record_type__get: {
+    parameters: {
+      query?: {
+        include_retired?: boolean;
+      };
+      header?: never;
+      path: {
+        record_type: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MatrixOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  preview_route_api_v1_admin_matrix__record_type__preview_get: {
+    parameters: {
+      query: {
+        amount_minor_units: number;
+        currency: string;
+        department?: string | null;
+      };
+      header?: never;
+      path: {
+        record_type: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RoutePreviewOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  add_rule_api_v1_admin_matrix_rules_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MatrixRuleRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MatrixOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  retire_rule_api_v1_admin_matrix_rules__rule_id__retire_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        rule_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MatrixRetireRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MatrixOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  read_operational_settings_api_v1_admin_operational_settings_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  post_ai_kill_switch_api_v1_admin_operational_settings_ai_kill_switch_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["KillSwitchRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["KillSwitchResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  read_people_api_v1_admin_people_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ApprovalPersonOut"][];
+        };
+      };
+    };
+  };
+  list_cost_centres_api_v1_admin_reference_cost_centres_get: {
+    parameters: {
+      query?: {
+        include_inactive?: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CostCentreOut"][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  create_cost_centre_api_v1_admin_reference_cost_centres_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CostCentreCreateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CostCentreOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  update_cost_centre_api_v1_admin_reference_cost_centres__centre_id__put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        centre_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CostCentreUpdateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CostCentreOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  set_cost_centre_active_api_v1_admin_reference_cost_centres__centre_id__active_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        centre_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ActiveRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CostCentreOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_gl_accounts_api_v1_admin_reference_gl_accounts_get: {
+    parameters: {
+      query?: {
+        include_inactive?: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GlAccountOut"][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  create_gl_account_api_v1_admin_reference_gl_accounts_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["GlAccountCreateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GlAccountOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  update_gl_account_api_v1_admin_reference_gl_accounts__account_id__put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        account_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["GlAccountUpdateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GlAccountOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  set_gl_account_active_api_v1_admin_reference_gl_accounts__account_id__active_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        account_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ActiveRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GlAccountOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_vendors_api_v1_admin_reference_vendors_get: {
+    parameters: {
+      query?: {
+        include_inactive?: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["VendorOut"][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  create_vendor_api_v1_admin_reference_vendors_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["VendorCreateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["VendorOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  update_vendor_api_v1_admin_reference_vendors__vendor_id__put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        vendor_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["VendorUpdateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["VendorOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  set_vendor_active_api_v1_admin_reference_vendors__vendor_id__active_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        vendor_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ActiveRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["VendorOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_policies_api_v1_admin_retention_get: {
+    parameters: {
+      query?: {
+        include_inactive?: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RetentionPolicyOut"][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  update_policy_api_v1_admin_retention__policy_id__patch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        policy_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RetentionUpdateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RetentionPolicyOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  set_policy_active_api_v1_admin_retention__policy_id__active_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        policy_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ActiveRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RetentionPolicyOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_thresholds_api_v1_admin_thresholds_get: {
+    parameters: {
+      query?: {
+        include_inactive?: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ThresholdOut"][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  upsert_threshold_api_v1_admin_thresholds_put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ThresholdUpsertRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ThresholdOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  set_threshold_active_api_v1_admin_thresholds__threshold_id__active_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        threshold_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ActiveRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ThresholdOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_users_api_v1_admin_users_get: {
+    parameters: {
+      query?: {
+        include_inactive?: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserOut"][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  create_user_api_v1_admin_users_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UserCreateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  read_user_api_v1_admin_users__user_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        user_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  set_active_api_v1_admin_users__user_id__active_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        user_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UserActiveRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  set_roles_api_v1_admin_users__user_id__roles_put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        user_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UserRolesRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  read_queue_api_v1_approvals_queue_get: {
+    parameters: {
+      query?: {
+        limit?: number;
+        offset?: number;
+        /** @description Limit to these record types */
+        record_type?: string[] | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ApprovalQueueOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_entries_api_v1_audit_entries_get: {
+    parameters: {
+      query?: {
+        action?: components["schemas"]["AuditAction"] | null;
+        actor_id?: string | null;
+        limit?: number;
+        offset?: number;
+        subject_id?: string | null;
+        subject_type?: string | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AuditEntryPage"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  read_entry_api_v1_audit_entries__sequence__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        sequence: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AuditEntryOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  verify_chain_api_v1_audit_verify_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["VerifyRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["VerifyResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  local_sign_in_api_v1_auth_local_sign_in_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SignInRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CurrentUserResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  current_user_api_v1_auth_me_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CurrentUserResponse"];
+        };
+      };
+    };
+  };
+  auth_methods_api_v1_auth_methods_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AuthMethodsResponse"];
+        };
+      };
+    };
+  };
+  oidc_callback_api_v1_auth_oidc_callback_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  sign_out_api_v1_auth_sign_out_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  list_cards_api_v1_credit_cards_cards_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreditCardSummary"][];
+        };
+      };
+    };
+  };
+  create_card_api_v1_credit_cards_cards_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreditCardCreate"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreditCardSummary"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  import_statement_api_v1_credit_cards_cards__card_id__statements_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        card_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": components["schemas"]["Body_import_statement_api_v1_credit_cards_cards__card_id__statements_post"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreditCardPeriodDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_periods_api_v1_credit_cards_periods_get: {
+    parameters: {
+      query?: {
+        card_id?: string | null;
+        standing?:
+          | components["schemas"]["finora__domain__credit_cards__PeriodStanding"]
+          | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreditCardPeriodSummary"][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_period_api_v1_credit_cards_periods__period_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        period_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreditCardPeriodDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  close_period_api_v1_credit_cards_periods__period_id__close_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        period_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreditCardCloseBody"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreditCardPeriodDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  code_transaction_api_v1_credit_cards_transactions__transaction_id__code_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        transaction_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreditCardCodeBody"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreditCardTransactionOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  match_receipt_api_v1_credit_cards_transactions__transaction_id__receipt_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        transaction_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreditCardReceiptBody"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreditCardTransactionOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  record_suggestion_api_v1_credit_cards_transactions__transaction_id__suggestion_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        transaction_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreditCardSuggestionBody"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreditCardTransactionOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  dispose_suggestion_api_v1_credit_cards_transactions__transaction_id__suggestion_dispose_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        transaction_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreditCardDisposeBody"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreditCardTransactionOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_documents_api_v1_documents_get: {
+    parameters: {
+      query?: {
+        kind?: components["schemas"]["DocumentKind"] | null;
+        limit?: number;
+        offset?: number;
+        status?: components["schemas"]["ExtractionStatus"] | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DocumentPage"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_document_api_v1_documents__document_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        document_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DocumentDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  accept_document_api_v1_documents__document_id__accept_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        document_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AcceptRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DocumentDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  acknowledge_signal_api_v1_documents__document_id__acknowledge_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        document_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AcknowledgeRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DocumentDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  correct_field_api_v1_documents__document_id__fields__field_name__patch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        document_id: string;
+        field_name: components["schemas"]["FieldName"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CorrectionRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DocumentDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  review_field_api_v1_documents__document_id__fields__field_name__review_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        document_id: string;
+        field_name: components["schemas"]["FieldName"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ReviewRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DocumentDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  set_kind_api_v1_documents__document_id__kind_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        document_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["KindRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DocumentDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  reread_document_api_v1_documents__document_id__read_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        document_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DocumentDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  viewer_url_api_v1_documents__document_id__viewer_url_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        document_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ViewerUrl"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  read_pending_api_v1_documents_read_pending_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReadRequested"];
+        };
+      };
+    };
+  };
+  list_estimates_api_v1_estimates_get: {
+    parameters: {
+      query?: {
+        /** @description Only estimates awaiting this caller */
+        awaiting_me?: boolean;
+        limit?: number;
+        /** @description Only estimates this caller raised */
+        mine?: boolean;
+        offset?: number;
+        search?: string | null;
+        state?: components["schemas"]["WorkflowState"][] | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EstimatePage"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  create_estimate_api_v1_estimates_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["EstimateCreateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EstimateDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_estimate_api_v1_estimates__estimate_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        estimate_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EstimateDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  update_estimate_api_v1_estimates__estimate_id__put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        estimate_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["EstimateDraftRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EstimateDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  cancel_estimate_api_v1_estimates__estimate_id__cancel_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        estimate_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["EstimateReasonRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EstimateDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  decide_estimate_api_v1_estimates__estimate_id__decision_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        estimate_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["EstimateDecisionRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EstimateDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  submit_estimate_api_v1_estimates__estimate_id__submit_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        estimate_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EstimateDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  withdraw_estimate_api_v1_estimates__estimate_id__withdraw_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        estimate_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["EstimateReasonRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EstimateDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  liveness_api_v1_health_live_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["LivenessResponse"];
+        };
+      };
+    };
+  };
+  readiness_api_v1_health_ready_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReadinessResponse"];
+        };
+      };
+    };
+  };
+  attachment_download_url_api_v1_intake_attachments__attachment_id__download_url_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        attachment_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SignedUrlResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_messages_api_v1_intake_messages_get: {
+    parameters: {
+      query?: {
+        limit?: number;
+        offset?: number;
+        status?: components["schemas"]["IntakeStatus"] | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MessagePage"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_message_api_v1_intake_messages__message_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        message_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MessageDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  intake_operations_api_v1_intake_operations_get: {
+    parameters: {
+      query?: {
+        /** @description Also open a live mailbox connection to check credentials and quota. */
+        probe_mailbox?: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OperationsReport"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  upload_document_api_v1_intake_uploads_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": components["schemas"]["Body_upload_document_api_v1_intake_uploads_post"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UploadAccepted"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_invoices_api_v1_invoices_get: {
+    parameters: {
+      query?: {
+        /** @description Only invoices awaiting this caller */
+        awaiting_me?: boolean;
+        /** @description Only invoices awaiting this caller's receipt confirmation */
+        awaiting_my_sign_off?: boolean;
+        limit?: number;
+        /** @description Only invoices assigned to this caller */
+        mine?: boolean;
+        offset?: number;
+        /** @description Only invoices past their payment due date */
+        overdue?: boolean;
+        search?: string | null;
+        state?: components["schemas"]["WorkflowState"][] | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvoicePage"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  create_invoice_api_v1_invoices_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["InvoiceCreateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvoiceDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_invoice_api_v1_invoices__invoice_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        invoice_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvoiceDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  update_invoice_api_v1_invoices__invoice_id__put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        invoice_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["InvoiceDraftRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvoiceDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  cancel_invoice_api_v1_invoices__invoice_id__cancel_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        invoice_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["InvoiceReasonRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvoiceDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  decide_invoice_api_v1_invoices__invoice_id__decision_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        invoice_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["InvoiceDecisionRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvoiceDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  decline_sign_off_api_v1_invoices__invoice_id__decline_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        invoice_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["InvoiceReasonRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvoiceDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  recall_invoice_api_v1_invoices__invoice_id__recall_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        invoice_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["InvoiceReasonRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvoiceDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  request_sign_off_api_v1_invoices__invoice_id__request_sign_off_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        invoice_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvoiceDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  sign_off_api_v1_invoices__invoice_id__sign_off_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        invoice_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SignOffRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvoiceDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  linkable_reference_data_api_v1_invoices_reference_linkable_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InvoiceReferenceData"];
+        };
+      };
+    };
+  };
+  summarise_invoices_api_v1_invoices_summary_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RegisterSummaryOut"];
+        };
+      };
+    };
+  };
+  resolve_link_api_v1_links_resolve_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ResolveRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ResolvedOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  read_metrics_api_v1_overview_metrics_get: {
+    parameters: {
+      query?: {
+        months?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OverviewOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  vendor_question_api_v1_payment_check_in__token__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        token: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["VendorQuestionOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  vendor_answer_api_v1_payment_check_in__token__post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        token: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["VendorAnswerRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["VendorAnswerResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_packages_api_v1_payment_packages_get: {
+    parameters: {
+      query?: {
+        page?: number;
+        page_size?: number;
+        search?: string | null;
+        standing?: components["schemas"]["PackageStanding"][] | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentPackagePage"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  create_package_api_v1_payment_packages_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PackageDraftRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentPackageDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  read_package_api_v1_payment_packages__package_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        package_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentPackageDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  update_package_api_v1_payment_packages__package_id__put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        package_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PackageDraftRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentPackageDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  cancel_package_api_v1_payment_packages__package_id__cancel_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        package_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PackageReasonRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentPackageDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  add_lines_api_v1_payment_packages__package_id__lines_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        package_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddLinesRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AddLinesResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  remove_line_api_v1_payment_packages__package_id__lines__invoice_id__delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        invoice_id: string;
+        package_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentPackageDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  read_manifest_api_v1_payment_packages__package_id__manifest_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        package_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ManifestOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  download_manifest_api_v1_payment_packages__package_id__manifest_csv_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        package_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  submit_package_api_v1_payment_packages__package_id__submit_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        package_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PackageSubmitRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PackageSubmitResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  eligible_invoices_api_v1_payment_packages_eligible_invoices_get: {
+    parameters: {
+      query?: {
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EligibleInvoiceOut"][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_orders_api_v1_purchase_orders_get: {
+    parameters: {
+      query?: {
+        awaiting_me_only?: boolean;
+        open_only?: boolean;
+        page?: number;
+        page_size?: number;
+        search?: string | null;
+        state?: components["schemas"]["WorkflowState"][] | null;
+        vendor_id?: string | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrderPage"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  create_order_api_v1_purchase_orders_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrderDetail"];
+        };
+      };
+    };
+  };
+  read_order_api_v1_purchase_orders__order_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        order_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrderDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  update_order_api_v1_purchase_orders__order_id__put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        order_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PurchaseOrderDraftRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrderDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  amend_order_api_v1_purchase_orders__order_id__amend_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        order_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PurchaseOrderAmendRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrderDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  cancel_order_api_v1_purchase_orders__order_id__cancel_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        order_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PurchaseOrderReasonRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrderDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  close_order_api_v1_purchase_orders__order_id__close_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        order_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PurchaseOrderReasonRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrderDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  decide_order_api_v1_purchase_orders__order_id__decisions_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        order_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PurchaseOrderDecisionRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrderDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  submit_order_api_v1_purchase_orders__order_id__submit_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        order_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrderDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  withdraw_order_api_v1_purchase_orders__order_id__withdraw_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        order_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PurchaseOrderReasonRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrderDetail"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  reference_data_api_v1_purchase_orders_reference_data_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PurchaseOrderReferenceData"];
+        };
+      };
+    };
+  };
+  reference_data_api_v1_reference_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReferenceData"];
+        };
+      };
+    };
+  };
+  list_views_api_v1_saved_views_get: {
+    parameters: {
+      query: {
+        scope: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedViewOut"][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  create_view_api_v1_saved_views_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SavedViewCreateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedViewOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  delete_view_api_v1_saved_views__view_id__delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        view_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  update_view_api_v1_saved_views__view_id__patch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        view_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SavedViewUpdateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedViewOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  search_api_v1_search_get: {
+    parameters: {
+      query: {
+        limit?: number;
+        q: string;
+        /** @description Limit to these record kinds */
+        record_type?: components["schemas"]["SearchRecordType"][] | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SearchResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  list_check_ins_api_v1_vendor_check_ins_get: {
+    parameters: {
+      query?: {
+        page?: number;
+        page_size?: number;
+        search?: string | null;
+        standing?: components["schemas"]["CheckInStanding"][] | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CheckInPage"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  raise_check_ins_api_v1_vendor_check_ins_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RaiseRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RaiseResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  read_check_in_api_v1_vendor_check_ins__check_in_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        check_in_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CheckInDetailOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  record_answer_api_v1_vendor_check_ins__check_in_id__answer_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        check_in_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RecordAnswerRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CheckInDetailOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  review_check_in_api_v1_vendor_check_ins__check_in_id__review_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        check_in_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CheckInReviewRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CheckInDetailOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  send_check_in_api_v1_vendor_check_ins__check_in_id__send_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        check_in_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CheckInDetailOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  read_badges_api_v1_work_badges_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WorkBadgesOut"];
+        };
+      };
+    };
+  };
+  read_dashboard_api_v1_work_dashboard_get: {
+    parameters: {
+      query?: {
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WorkQueueOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  read_queue_api_v1_work_queue_get: {
+    parameters: {
+      query?: {
+        /** @description Limit to these kinds of work */
+        kind?: components["schemas"]["WorkKind"][] | null;
+        limit?: number;
+        offset?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WorkQueueOut"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
 }
